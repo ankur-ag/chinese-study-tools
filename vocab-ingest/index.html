@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vocab ingest</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #1c1c1e;
+        color: #eee;
+        font-family: "PingFang TC", "Noto Sans TC", -apple-system,
+          BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.5;
+      }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 24px 18px 60px; }
+      a.back { color: #7c828a; text-decoration: none; font-size: 13px; }
+      h1 { font-size: 22px; font-weight: 800; margin-top: 6px; }
+      p.sub { color: #999; font-size: 14px; margin-top: 4px; }
+
+      textarea {
+        width: 100%;
+        min-height: 200px;
+        margin-top: 16px;
+        background: #232326;
+        color: #eee;
+        border: 1px solid #3a3a40;
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 16px;
+        font-family: inherit;
+        resize: vertical;
+      }
+      textarea:focus { outline: none; border-color: #60a5fa; }
+
+      .bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      .count { color: #9aa0a6; font-size: 14px; margin-right: auto; }
+      button {
+        background: #2c2c30;
+        color: #ddd;
+        border: 1px solid #3a3a40;
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      button:hover { background: #34343a; }
+      button.primary { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+      button.primary:hover { background: #2563eb; }
+      button:disabled { opacity: 0.5; cursor: default; }
+
+      .preview {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chip {
+        background: #232326;
+        border: 1px solid #2e2e33;
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 18px;
+      }
+      .note { color: #7c828a; font-size: 13px; margin-top: 16px; }
+      #status { margin-top: 12px; font-size: 14px; min-height: 1.2em; }
+      #status.ok { color: #7ee2a5; }
+      #status.err { color: #f8a3a3; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="/">← Tools</a>
+      <h1>📝 Vocab ingest</h1>
+      <p class="sub">
+        Paste the words from class (one per line works best). They're parsed
+        into a study list you pull into Anki as TODO cards.
+      </p>
+
+      <textarea id="input" placeholder="學生&#10;老師 lǎoshī teacher&#10;朋友、同學&#10;圖書館 library"></textarea>
+
+      <div class="bar">
+        <span class="count" id="count">0 words</span>
+        <button id="copy">Copy list</button>
+        <button id="save" class="primary">Save to study list →</button>
+      </div>
+
+      <div id="status"></div>
+      <div class="preview" id="preview"></div>
+
+      <p class="note">
+        Then, on the computer running Anki:
+        <code>./ingest_vocab.py --url https://&lt;your-app&gt;.vercel.app</code>
+      </p>
+    </div>
+
+    <script>
+      const input = document.getElementById("input");
+      const preview = document.getElementById("preview");
+      const countEl = document.getElementById("count");
+      const status = document.getElementById("status");
+
+      // Parse pasted text into a deduped list of Chinese words.
+      // Per line: if the line is only Han + separators, keep every run
+      // (comma/space lists); otherwise keep just the first Han run (a line like
+      // "學生 xuéshēng student" -> 學生).
+      const HAN = /[一-鿿㐀-䶿]+/g;
+      const PURE = /^[一-鿿㐀-䶿\s,，、;；:：·.。/|()（）]+$/;
+      function parse(text) {
+        const seen = new Set();
+        const out = [];
+        for (const raw of text.split(/\n/)) {
+          const line = raw.trim();
+          if (!line) continue;
+          const runs = line.match(HAN) || [];
+          if (!runs.length) continue;
+          const picks = PURE.test(line) ? runs : [runs[0]];
+          for (const w of picks) {
+            if (!seen.has(w)) {
+              seen.add(w);
+              out.push(w);
+            }
+          }
+        }
+        return out;
+      }
+
+      let words = [];
+      function refresh() {
+        words = parse(input.value);
+        countEl.textContent = words.length + (words.length === 1 ? " word" : " words");
+        preview.innerHTML = "";
+        for (const w of words) {
+          const c = document.createElement("span");
+          c.className = "chip";
+          c.textContent = w;
+          preview.appendChild(c);
+        }
+      }
+      input.addEventListener("input", () => {
+        status.textContent = "";
+        refresh();
+      });
+
+      document.getElementById("copy").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(words.join("\n"));
+          status.className = "ok";
+          status.textContent = "Copied " + words.length + " words.";
+        } catch (e) {
+          status.className = "err";
+          status.textContent = "Copy failed.";
+        }
+      });
+
+      document.getElementById("save").addEventListener("click", async (e) => {
+        if (!words.length) {
+          status.className = "err";
+          status.textContent = "Nothing to save — paste some words first.";
+          return;
+        }
+        const btn = e.target;
+        btn.disabled = true;
+        status.className = "";
+        status.textContent = "Saving…";
+        try {
+          const r = await fetch("/api/ingest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ words }),
+          });
+          const d = await r.json();
+          if (d && d.ok) {
+            status.className = "ok";
+            status.textContent =
+              "Saved. Study list now has " + d.count + " word(s). Run ingest_vocab.py to add them to Anki.";
+          } else {
+            throw new Error((d && d.error) || "save failed");
+          }
+        } catch (err) {
+          status.className = "err";
+          status.textContent = "Could not save: " + err.message + " (is the backend deployed?)";
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      refresh();
+    </script>
+  </body>
+</html>

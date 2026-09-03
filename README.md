@@ -8,7 +8,8 @@ track. Static pages + a few Vercel serverless functions.
 ```
 index.html            home page listing the tools
 word-review/          Tool: teachers 👍/👎 the words about to enter my rotation
-api/                  Serverless functions (shared): vote.js, state.js, _redis.js
+vocab-ingest/         Tool: paste class vocab -> study list -> Anki TODO cards
+api/                  Serverless functions (shared): vote.js, state.js, ingest.js, _redis.js
 ```
 
 Add a new tool as `<tool-name>/index.html` and link it from `index.html`.
@@ -34,3 +35,14 @@ From the main Anki repo (`utils/widget/`), with Anki open:
 
 Tags downvoted words `tv-skip` and suspends them; the screensaver export
 excludes `tag:tv-skip`, so they leave the rotation.
+
+## Vocab ingest → Anki
+
+Paste class words at `/vocab-ingest/`, Save, then with Anki open:
+
+```bash
+./ingest_vocab.py --url https://<your-app>.vercel.app
+```
+
+Creates TODO cards in `Chinese::Todo` with pinyin + meaning looked up locally,
+skipping words already in your collection, and clears the pending list.
