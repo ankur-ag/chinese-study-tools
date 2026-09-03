@@ -9,7 +9,7 @@ track. Static pages + a few Vercel serverless functions.
 index.html            home page listing the tools
 word-review/          Tool: teachers 👍/👎 the words about to enter my rotation
 vocab-ingest/         Tool: paste class vocab -> study list -> Anki TODO cards
-api/                  Serverless functions (shared): vote.js, state.js, ingest.js, _redis.js
+api/                  Serverless functions (shared): vote.js, state.js, ingest.js, tocfl.js, _redis.js
 ```
 
 Add a new tool as `<tool-name>/index.html` and link it from `index.html`.
@@ -46,3 +46,18 @@ Paste class words at `/vocab-ingest/`, Save, then with Anki open:
 
 Creates TODO cards in `Chinese::Todo` with pinyin + meaning looked up locally,
 skipping words already in your collection, and clears the pending list.
+
+## Enable in TOCFL (vocab-ingest → existing cards)
+
+On `/vocab-ingest/`, select words and **Add to TOCFL** — this only *enables*
+(unsuspends) cards that already exist; words with no card are reported as
+failed. With Anki open:
+
+```bash
+./enable_in_tocfl.py --url https://<your-app>.vercel.app
+```
+
+It never creates cards. Results flow back to the page, sorting words into
+Enabled / Failed piles. Failed (new) words can then be saved to the study list
+and turned into TODO cards with ingest_vocab.py.
+

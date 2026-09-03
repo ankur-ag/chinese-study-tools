@@ -13,14 +13,14 @@
           BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         line-height: 1.5;
       }
-      .wrap { max-width: 760px; margin: 0 auto; padding: 24px 18px 60px; }
+      .wrap { max-width: 780px; margin: 0 auto; padding: 24px 18px 60px; }
       a.back { color: #7c828a; text-decoration: none; font-size: 13px; }
       h1 { font-size: 22px; font-weight: 800; margin-top: 6px; }
       p.sub { color: #999; font-size: 14px; margin-top: 4px; }
 
       textarea {
         width: 100%;
-        min-height: 200px;
+        min-height: 150px;
         margin-top: 16px;
         background: #232326;
         color: #eee;
@@ -33,165 +33,254 @@
       }
       textarea:focus { outline: none; border-color: #60a5fa; }
 
-      .bar {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-top: 12px;
-        flex-wrap: wrap;
-      }
+      .bar { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
       .count { color: #9aa0a6; font-size: 14px; margin-right: auto; }
       button {
-        background: #2c2c30;
-        color: #ddd;
-        border: 1px solid #3a3a40;
-        border-radius: 10px;
-        padding: 10px 16px;
-        font-size: 15px;
-        cursor: pointer;
+        background: #2c2c30; color: #ddd; border: 1px solid #3a3a40;
+        border-radius: 10px; padding: 9px 15px; font-size: 14px; cursor: pointer;
       }
       button:hover { background: #34343a; }
       button.primary { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
       button.primary:hover { background: #2563eb; }
       button:disabled { opacity: 0.5; cursor: default; }
+      .link { background: none; border: none; color: #7c9cf5; padding: 0 4px; font-size: 13px; }
 
-      .preview {
-        margin-top: 18px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
+      section { margin-top: 26px; }
+      .sec-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 4px 10px; }
+      .t-todo { color: #cbd0d6; }
+      .t-ok { color: #7ee2a5; }
+      .t-fail { color: #f8a3a3; }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; }
       .chip {
-        background: #232326;
-        border: 1px solid #2e2e33;
-        border-radius: 999px;
-        padding: 6px 14px;
-        font-size: 18px;
+        background: #232326; border: 1px solid #2e2e33; border-radius: 999px;
+        padding: 7px 14px; font-size: 18px; cursor: pointer; user-select: none;
       }
-      .note { color: #7c828a; font-size: 13px; margin-top: 16px; }
+      .chip.sel { background: #17305e; border-color: #2f5bd0; }
+      .chip.pending { opacity: 0.6; cursor: default; }
+      .chip.ok { background: #14361f; border-color: #2f7d4f; cursor: default; }
+      .chip.fail { background: #3a1b1b; border-color: #a3453f; cursor: default; }
+      .empty { color: #666; font-size: 13px; padding: 2px 6px; }
       #status { margin-top: 12px; font-size: 14px; min-height: 1.2em; }
       #status.ok { color: #7ee2a5; }
       #status.err { color: #f8a3a3; }
+      code { background: #232326; border: 1px solid #2e2e33; border-radius: 6px; padding: 1px 6px; font-size: 13px; }
+      .note { color: #7c828a; font-size: 13px; margin-top: 8px; }
     </style>
   </head>
   <body>
     <div class="wrap">
       <a class="back" href="/">← Tools</a>
       <h1>📝 Vocab ingest</h1>
-      <p class="sub">
-        Paste the words from class (one per line works best). They're parsed
-        into a study list you pull into Anki as TODO cards.
-      </p>
+      <p class="sub">Paste class words, pick the ones to enable in your TOCFL deck.</p>
 
       <textarea id="input" placeholder="學生&#10;老師 lǎoshī teacher&#10;朋友、同學&#10;圖書館 library"></textarea>
 
-      <div class="bar">
-        <span class="count" id="count">0 words</span>
-        <button id="copy">Copy list</button>
-        <button id="save" class="primary">Save to study list →</button>
-      </div>
+      <!-- To review -->
+      <section>
+        <div class="sec-title t-todo">
+          To review · <span id="c-todo">0</span>
+          <button class="link" id="sel-all">select all</button>
+          <button class="link" id="sel-none">none</button>
+        </div>
+        <div class="bar">
+          <span class="count" id="sel-count">0 selected</span>
+          <button id="copy">Copy</button>
+          <button class="primary" id="add-tocfl">Add to TOCFL (enable existing)</button>
+        </div>
+        <div class="chips" id="list-todo"></div>
+        <div id="status"></div>
+        <p class="note">
+          After clicking, run this on the computer with Anki open — results fill in below automatically:
+          <br /><code>./enable_in_tocfl.py --url https://&lt;your-app&gt;.vercel.app</code>
+        </p>
+      </section>
 
-      <div id="status"></div>
-      <div class="preview" id="preview"></div>
+      <!-- Enabled -->
+      <section>
+        <div class="sec-title t-ok">✓ Enabled in TOCFL · <span id="c-ok">0</span></div>
+        <div class="chips" id="list-ok"></div>
+      </section>
 
-      <p class="note">
-        Then, on the computer running Anki:
-        <code>./ingest_vocab.py --url https://&lt;your-app&gt;.vercel.app</code>
-      </p>
+      <!-- Failed -->
+      <section>
+        <div class="sec-title t-fail">✗ No existing card — skipped · <span id="c-fail">0</span></div>
+        <div class="chips" id="list-fail"></div>
+        <div class="bar" id="fail-bar" hidden>
+          <button id="save-todo">Save these to study list (make TODO cards) →</button>
+        </div>
+      </section>
     </div>
 
     <script>
       const input = document.getElementById("input");
-      const preview = document.getElementById("preview");
-      const countEl = document.getElementById("count");
       const status = document.getElementById("status");
 
-      // Parse pasted text into a deduped list of Chinese words.
-      // Per line: if the line is only Han + separators, keep every run
-      // (comma/space lists); otherwise keep just the first Han run (a line like
-      // "學生 xuéshēng student" -> 學生).
       const HAN = /[一-鿿㐀-䶿]+/g;
       const PURE = /^[一-鿿㐀-䶿\s,，、;；:：·.。/|()（）]+$/;
       function parse(text) {
-        const seen = new Set();
-        const out = [];
+        const seen = new Set(), out = [];
         for (const raw of text.split(/\n/)) {
           const line = raw.trim();
           if (!line) continue;
           const runs = line.match(HAN) || [];
           if (!runs.length) continue;
           const picks = PURE.test(line) ? runs : [runs[0]];
-          for (const w of picks) {
-            if (!seen.has(w)) {
-              seen.add(w);
-              out.push(w);
-            }
-          }
+          for (const w of picks) if (!seen.has(w)) { seen.add(w); out.push(w); }
         }
         return out;
       }
 
-      let words = [];
-      function refresh() {
-        words = parse(input.value);
-        countEl.textContent = words.length + (words.length === 1 ? " word" : " words");
-        preview.innerHTML = "";
-        for (const w of words) {
-          const c = document.createElement("span");
-          c.className = "chip";
-          c.textContent = w;
-          preview.appendChild(c);
+      // word -> "pending" | "enabled" | "already-active" | "missing"
+      const statusOf = {};
+      const selected = new Set();
+      let polling = null;
+
+      function piles() {
+        const parsed = parse(input.value);
+        const all = new Set([...parsed, ...Object.keys(statusOf)]);
+        const todo = [], ok = [], fail = [];
+        for (const w of all) {
+          const s = statusOf[w];
+          if (s === "enabled" || s === "already-active") ok.push(w);
+          else if (s === "missing") fail.push(w);
+          else todo.push(w); // undefined or pending
         }
+        return { todo, ok, fail };
       }
+
+      function chip(w, cls, onClick) {
+        const c = document.createElement("span");
+        c.className = "chip" + (cls ? " " + cls : "");
+        c.textContent = w;
+        if (onClick) c.addEventListener("click", onClick);
+        return c;
+      }
+
+      function render() {
+        const { todo, ok, fail } = piles();
+        const listTodo = document.getElementById("list-todo");
+        const listOk = document.getElementById("list-ok");
+        const listFail = document.getElementById("list-fail");
+        listTodo.innerHTML = listOk.innerHTML = listFail.innerHTML = "";
+
+        todo.forEach((w) => {
+          const pending = statusOf[w] === "pending";
+          const c = chip(
+            pending ? w + " ⏳" : w,
+            pending ? "pending" : selected.has(w) ? "sel" : "",
+            pending
+              ? null
+              : () => {
+                  selected.has(w) ? selected.delete(w) : selected.add(w);
+                  render();
+                },
+          );
+          listTodo.appendChild(c);
+        });
+        if (!todo.length) listTodo.innerHTML = '<span class="empty">Nothing to review.</span>';
+
+        ok.forEach((w) => listOk.appendChild(chip(w, "ok")));
+        if (!ok.length) listOk.innerHTML = '<span class="empty">None yet.</span>';
+
+        fail.forEach((w) => listFail.appendChild(chip(w, "fail")));
+        if (!fail.length) listFail.innerHTML = '<span class="empty">None.</span>';
+
+        document.getElementById("c-todo").textContent = todo.length;
+        document.getElementById("c-ok").textContent = ok.length;
+        document.getElementById("c-fail").textContent = fail.length;
+        document.getElementById("sel-count").textContent = selected.size + " selected";
+        document.getElementById("fail-bar").hidden = !fail.length;
+      }
+
       input.addEventListener("input", () => {
         status.textContent = "";
-        refresh();
+        // drop selections for words no longer present
+        const parsed = new Set(parse(input.value));
+        for (const w of [...selected]) if (!parsed.has(w)) selected.delete(w);
+        render();
+      });
+
+      document.getElementById("sel-all").addEventListener("click", () => {
+        piles().todo.forEach((w) => { if (statusOf[w] !== "pending") selected.add(w); });
+        render();
+      });
+      document.getElementById("sel-none").addEventListener("click", () => {
+        selected.clear();
+        render();
       });
 
       document.getElementById("copy").addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(words.join("\n"));
-          status.className = "ok";
-          status.textContent = "Copied " + words.length + " words.";
-        } catch (e) {
-          status.className = "err";
-          status.textContent = "Copy failed.";
-        }
+        const words = piles().todo.filter((w) => statusOf[w] !== "pending");
+        try { await navigator.clipboard.writeText(words.join("\n")); status.className = "ok"; status.textContent = "Copied " + words.length + " words."; }
+        catch (e) { status.className = "err"; status.textContent = "Copy failed."; }
       });
 
-      document.getElementById("save").addEventListener("click", async (e) => {
-        if (!words.length) {
-          status.className = "err";
-          status.textContent = "Nothing to save — paste some words first.";
-          return;
-        }
-        const btn = e.target;
-        btn.disabled = true;
-        status.className = "";
-        status.textContent = "Saving…";
+      async function poll() {
         try {
-          const r = await fetch("/api/ingest", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          const r = await fetch("/api/tocfl", { cache: "no-store" });
+          const d = await r.json();
+          const results = d.results || {};
+          const queue = new Set(d.queue || []);
+          for (const w in results) statusOf[w] = results[w];
+          // words still queued stay pending; anything pending no longer queued & no result -> leave pending
+          for (const w in statusOf) if (statusOf[w] === "pending" && !queue.has(w) && !results[w]) statusOf[w] = "pending";
+          render();
+          const stillPending = Object.values(statusOf).some((s) => s === "pending");
+          if (!stillPending && polling) { clearInterval(polling); polling = null; }
+        } catch (e) {}
+      }
+
+      document.getElementById("add-tocfl").addEventListener("click", async (e) => {
+        const words = [...selected].filter((w) => statusOf[w] !== "pending");
+        if (!words.length) { status.className = "err"; status.textContent = "Select some words first."; return; }
+        e.target.disabled = true;
+        status.className = ""; status.textContent = "Queuing…";
+        try {
+          const r = await fetch("/api/tocfl", {
+            method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ words }),
           });
           const d = await r.json();
-          if (d && d.ok) {
-            status.className = "ok";
-            status.textContent =
-              "Saved. Study list now has " + d.count + " word(s). Run ingest_vocab.py to add them to Anki.";
-          } else {
-            throw new Error((d && d.error) || "save failed");
-          }
+          if (!d.ok) throw new Error(d.error || "failed");
+          words.forEach((w) => (statusOf[w] = "pending"));
+          selected.clear();
+          render();
+          status.className = "ok";
+          status.textContent = "Queued " + words.length + ". Run enable_in_tocfl.py — results appear above as it runs.";
+          if (!polling) polling = setInterval(poll, 4000);
+          poll();
         } catch (err) {
           status.className = "err";
-          status.textContent = "Could not save: " + err.message + " (is the backend deployed?)";
+          status.textContent = "Could not queue: " + err.message + " (backend deployed?)";
         } finally {
-          btn.disabled = false;
+          e.target.disabled = false;
         }
       });
 
-      refresh();
+      document.getElementById("save-todo").addEventListener("click", async (e) => {
+        const words = piles().fail;
+        if (!words.length) return;
+        e.target.disabled = true;
+        try {
+          const r = await fetch("/api/ingest", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ words }),
+          });
+          const d = await r.json();
+          status.className = d.ok ? "ok" : "err";
+          status.textContent = d.ok
+            ? "Saved " + words.length + " to study list — run ingest_vocab.py to make TODO cards."
+            : "Save failed: " + (d.error || "");
+        } catch (err) {
+          status.className = "err";
+          status.textContent = "Save failed: " + err.message;
+        } finally {
+          e.target.disabled = false;
+        }
+      });
+
+      render();
+      poll(); // pick up any results already computed
     </script>
   </body>
 </html>
