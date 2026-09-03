@@ -1,33 +1,36 @@
-# 選字 · Chinese word review
+# Chinese Study Tools
 
-A tiny voting page for teachers to 👍/👎 the words about to enter the Anki
-rotation (the same 50 words shown by the Chromecast screensaver). Downvotes are
-pulled back into Anki to tag/suspend words worth skipping.
+A small website of tools my teachers and I use to keep my Chinese studying on
+track. Static pages + a few Vercel serverless functions.
 
-- **Frontend:** `index.html` (static) — reads the word list from the screensaver
-  gist, plays audio from the GitHub Pages copy.
-- **API:** `api/vote.js`, `api/state.js` — serverless functions backed by
-  Upstash Redis. Each teacher is identified by a cookie so votes are unique and
-  changeable.
+## Structure
+
+```
+index.html            home page listing the tools
+word-review/          Tool: teachers 👍/👎 the words about to enter my rotation
+api/                  Serverless functions (shared): vote.js, state.js, _redis.js
+```
+
+Add a new tool as `<tool-name>/index.html` and link it from `index.html`.
+Shared backend endpoints live in `api/`.
 
 ## Deploy (one time, your account)
 
-1. Push this folder to a GitHub repo (already done if you're reading this in one).
-2. In **vercel.com → Add New → Project**, import the repo. Framework preset:
-   **Other** (no build step; static + `/api`). Deploy.
-3. In the Vercel project: **Storage → Marketplace → Upstash (Redis) → Add**.
-   Accept the free plan and **connect it to this project**. This auto-adds the
-   `KV_REST_API_URL` / `KV_REST_API_TOKEN` env vars.
-4. **Redeploy** once so the functions pick up the env vars.
-5. Share the deployment URL with your teachers.
+1. **vercel.com → Add New → Project → import this repo.** Framework preset
+   **Other** (no build step). Deploy.
+2. In the project: **Storage → Marketplace → Upstash (Redis) → Add → connect to
+   this project** (free tier). It auto-adds `KV_REST_API_URL` /
+   `KV_REST_API_TOKEN`.
+3. **Redeploy** once so the functions pick up the env vars.
+4. Share the URL with your teachers.
 
-## Pull downvotes into Anki
+## Word review → Anki
 
-From the main repo (`utils/widget/`), with Anki open:
+From the main Anki repo (`utils/widget/`), with Anki open:
 
 ```bash
-./apply_downvotes.py --url https://<your-vercel-app>.vercel.app
+./apply_downvotes.py --url https://<your-app>.vercel.app
 ```
 
-This tags downvoted words `tv-skip` and suspends them; the screensaver export
-already excludes `tag:tv-skip`, so they leave the rotation.
+Tags downvoted words `tv-skip` and suspends them; the screensaver export
+excludes `tag:tv-skip`, so they leave the rotation.

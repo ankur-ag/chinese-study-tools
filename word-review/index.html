@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>選字 · Word review</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #1c1c1e;
+        color: #eee;
+        font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.4;
+        padding-bottom: 40px;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        background: #1c1c1e;
+        border-bottom: 1px solid #333;
+        padding: 16px 18px;
+        z-index: 5;
+      }
+      header h1 { font-size: 20px; font-weight: 700; }
+      header p { color: #999; font-size: 14px; margin-top: 4px; }
+      main { max-width: 760px; margin: 0 auto; padding: 8px 12px; }
+
+      .section-title {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #888;
+        margin: 22px 8px 8px;
+      }
+      .downvoted-title { color: #f87171; }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 14px;
+        border: 1px solid #2a2a2e;
+        border-radius: 12px;
+        background: #232326;
+        margin: 8px 0;
+      }
+      .row.down { opacity: 0.7; border-color: #5b2b2b; }
+
+      .w-char { font-size: 34px; font-weight: 700; flex: none; min-width: 1.4em; text-align: center; }
+      /* Anki night-mode tone colours. */
+      .char-syllable.tone-1, .pinyin-syllable.tone-1 { color: #f87171; }
+      .char-syllable.tone-2, .pinyin-syllable.tone-2 { color: #00c000; }
+      .char-syllable.tone-3, .pinyin-syllable.tone-3 { color: #4444ff; }
+      .char-syllable.tone-4, .pinyin-syllable.tone-4 { color: #c084fc; }
+      .char-syllable.tone-5, .pinyin-syllable.tone-5 { color: #9ca3af; }
+      .char-syllable.tone-0 { color: #eee; }
+      .pinyin-syllable.tone-0 { color: #ccc; }
+
+      .w-body { flex: 1; min-width: 0; }
+      .w-py { font-size: 16px; font-weight: 600; }
+      .w-m { color: #aaa; font-size: 14px; margin-top: 2px; }
+
+      .w-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+      .vbtn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #2c2c30;
+        border: 1px solid #3a3a40;
+        color: #ccc;
+        border-radius: 10px;
+        padding: 8px 11px;
+        font-size: 15px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .vbtn:hover { background: #34343a; }
+      .vbtn .cnt { font-size: 13px; color: #999; min-width: 0.8em; text-align: center; }
+      .vbtn.up.on { background: #14361f; border-color: #2f7d4f; color: #7ee2a5; }
+      .vbtn.up.on .cnt { color: #7ee2a5; }
+      .vbtn.down.on { background: #3a1b1b; border-color: #a3453f; color: #f8a3a3; }
+      .vbtn.down.on .cnt { color: #f8a3a3; }
+      .abtn {
+        background: none;
+        border: none;
+        color: #777;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 6px;
+      }
+      .abtn:hover { color: #ddd; }
+      .undo {
+        background: #2c2c30;
+        border: 1px solid #3a3a40;
+        color: #f8a3a3;
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .undo:hover { background: #34343a; }
+
+      #msg { text-align: center; color: #aaa; padding: 40px 0; font-size: 16px; }
+      .empty { color: #666; font-size: 14px; padding: 6px 10px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/" style="color:#7c828a;text-decoration:none;font-size:13px">← Tools</a>
+      <h1 style="margin-top:4px">選字 · Which words are worth learning?</h1>
+      <p>👍 useful · 👎 skip it. Downvoted words drop to the bottom — you can undo there.</p>
+    </header>
+    <main>
+      <div id="msg">Loading…</div>
+      <div id="content" hidden>
+        <div class="section-title">To review</div>
+        <div id="list-main"></div>
+        <div class="section-title downvoted-title">Downvoted — won't be learned</div>
+        <div id="list-down"></div>
+      </div>
+    </main>
+
+    <script>
+      const WORDS_URL =
+        "https://gist.githubusercontent.com/ankur-ag/6948afe26e45742f6d5cec3c8fae8f4f/raw/widget.json";
+      const AUDIO_BASE = "https://ankur-ag.github.io/chinese-tv/audio/";
+
+      // ---- Teacher identity (cookie, for unique counting) ----------------
+      function getTid() {
+        const m = document.cookie.match(/(?:^|; )tid=([^;]+)/);
+        if (m) return decodeURIComponent(m[1]);
+        const id =
+          (crypto.randomUUID && crypto.randomUUID()) ||
+          "t" + Date.now() + Math.random().toString(36).slice(2);
+        document.cookie =
+          "tid=" + encodeURIComponent(id) + ";path=/;max-age=" + 3600 * 24 * 365 * 2 + ";samesite=lax";
+        return id;
+      }
+      const TID = getTid();
+
+      let words = [];
+      let up = {}; // word -> count
+      let down = {}; // word -> count
+      let mine = {}; // word -> "up" | "down"
+
+      const player = new Audio();
+      function playAudio(a) {
+        if (!a) return;
+        try {
+          player.src = AUDIO_BASE + encodeURIComponent(a);
+          const p = player.play();
+          if (p && p.catch) p.catch(() => {});
+        } catch (e) {}
+      }
+
+      function span(cls, tone, text) {
+        const s = document.createElement("span");
+        s.className = cls + " tone-" + (tone || 0);
+        s.textContent = text;
+        return s;
+      }
+      function hanziEl(c) {
+        const el = document.createElement("div");
+        el.className = "w-char";
+        const chars = c.tt && c.tt.length ? c.tt : [...c.t].map((x) => [x, 0]);
+        for (const [x, tone] of chars) el.appendChild(span("char-syllable", tone, x));
+        return el;
+      }
+      function pinyinEl(c) {
+        const el = document.createElement("div");
+        el.className = "w-py";
+        if (c.syl && c.syl.length)
+          c.syl.forEach(([s, tone], i) => {
+            if (i) el.appendChild(document.createTextNode(" "));
+            el.appendChild(span("pinyin-syllable", tone, s));
+          });
+        else el.textContent = c.p || "";
+        return el;
+      }
+
+      async function setVote(word, state) {
+        const prev = mine[word] || "none";
+        const next = prev === state ? "none" : state; // clicking the active one clears it
+        // optimistic UI
+        mine[word] = next === "none" ? undefined : next;
+        render();
+        try {
+          const r = await fetch("/api/vote", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tid: TID, word, state: next }),
+          });
+          const d = await r.json();
+          if (d && d.ok) {
+            if (d.up) up[word] = d.up;
+            else delete up[word];
+            if (d.down) down[word] = d.down;
+            else delete down[word];
+            render();
+          }
+        } catch (e) {}
+      }
+
+      function voteButton(c, kind) {
+        const on = mine[c.t] === kind;
+        const b = document.createElement("button");
+        b.className = "vbtn " + kind + (on ? " on" : "");
+        b.innerHTML = (kind === "up" ? "👍" : "👎") + ' <span class="cnt"></span>';
+        b.querySelector(".cnt").textContent = (kind === "up" ? up : down)[c.t] || 0;
+        b.addEventListener("click", () => setVote(c.t, kind));
+        return b;
+      }
+
+      function wordRow(c, downSection) {
+        const row = document.createElement("div");
+        row.className = "row" + (downSection ? " down" : "");
+        row.appendChild(hanziEl(c));
+
+        const body = document.createElement("div");
+        body.className = "w-body";
+        body.appendChild(pinyinEl(c));
+        const m = document.createElement("div");
+        m.className = "w-m";
+        m.textContent = c.m || "";
+        body.appendChild(m);
+        row.appendChild(body);
+
+        const actions = document.createElement("div");
+        actions.className = "w-actions";
+        if (c.a) {
+          const play = document.createElement("button");
+          play.className = "abtn";
+          play.textContent = "▶";
+          play.title = "Play audio";
+          play.addEventListener("click", () => playAudio(c.a));
+          actions.appendChild(play);
+        }
+        if (downSection) {
+          const undo = document.createElement("button");
+          undo.className = "undo";
+          undo.textContent = "↩ undo";
+          undo.addEventListener("click", () => setVote(c.t, "down")); // toggles off
+          actions.appendChild(undo);
+        } else {
+          actions.appendChild(voteButton(c, "up"));
+          actions.appendChild(voteButton(c, "down"));
+        }
+        row.appendChild(actions);
+        return row;
+      }
+
+      function render() {
+        const main = document.getElementById("list-main");
+        const dn = document.getElementById("list-down");
+        main.innerHTML = "";
+        dn.innerHTML = "";
+        const mainWords = words.filter((c) => mine[c.t] !== "down");
+        const downWords = words.filter((c) => mine[c.t] === "down");
+        mainWords.forEach((c) => main.appendChild(wordRow(c, false)));
+        downWords.forEach((c) => dn.appendChild(wordRow(c, true)));
+        if (!downWords.length) {
+          const e = document.createElement("div");
+          e.className = "empty";
+          e.textContent = "Nothing downvoted yet.";
+          dn.appendChild(e);
+        }
+      }
+
+      async function load() {
+        try {
+          const [wRes, sRes] = await Promise.all([
+            fetch(WORDS_URL + "?v=" + Date.now()),
+            fetch("/api/state?tid=" + encodeURIComponent(TID)),
+          ]);
+          const wData = await wRes.json();
+          words = (wData.cards || []).slice();
+          try {
+            const s = await sRes.json();
+            up = s.up || {};
+            down = s.down || {};
+            mine = s.mine || {};
+          } catch (e) {}
+          document.getElementById("msg").hidden = true;
+          document.getElementById("content").hidden = false;
+          render();
+        } catch (e) {
+          document.getElementById("msg").textContent = "Could not load words.";
+        }
+      }
+      load();
+    </script>
+  </body>
+</html>
