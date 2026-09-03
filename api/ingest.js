@@ -29,6 +29,12 @@ export default async function handler(req, res) {
         await redis(["DEL", KEY]);
         return res.status(200).json({ ok: true, count: 0 });
       }
+      // Remove specific words (e.g. once enabled in TOCFL, or hand-removed).
+      if (Array.isArray(b.remove) && b.remove.length) {
+        for (const w of b.remove) await redis(["SREM", KEY, String(w)]);
+        const count = await redis(["SCARD", KEY]);
+        return res.status(200).json({ ok: true, count });
+      }
       const words = Array.isArray(b.words)
         ? b.words.map((w) => String(w).trim()).filter(Boolean).slice(0, 500)
         : [];

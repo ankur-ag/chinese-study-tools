@@ -19,21 +19,14 @@
       p.sub { color: #999; font-size: 14px; margin-top: 4px; }
 
       textarea {
-        width: 100%;
-        min-height: 150px;
-        margin-top: 16px;
-        background: #232326;
-        color: #eee;
-        border: 1px solid #3a3a40;
-        border-radius: 12px;
-        padding: 14px;
-        font-size: 16px;
-        font-family: inherit;
-        resize: vertical;
+        width: 100%; min-height: 110px; margin-top: 12px;
+        background: #232326; color: #eee; border: 1px solid #3a3a40;
+        border-radius: 12px; padding: 14px; font-size: 16px;
+        font-family: inherit; resize: vertical;
       }
       textarea:focus { outline: none; border-color: #60a5fa; }
 
-      .bar { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+      .bar { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
       .count { color: #9aa0a6; font-size: 14px; margin-right: auto; }
       button {
         background: #2c2c30; color: #ddd; border: 1px solid #3a3a40;
@@ -45,20 +38,23 @@
       button:disabled { opacity: 0.5; cursor: default; }
       .link { background: none; border: none; color: #7c9cf5; padding: 0 4px; font-size: 13px; }
 
-      section { margin-top: 26px; }
+      section { margin-top: 28px; }
       .sec-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 4px 10px; }
       .t-todo { color: #cbd0d6; }
       .t-ok { color: #7ee2a5; }
-      .t-fail { color: #f8a3a3; }
       .chips { display: flex; flex-wrap: wrap; gap: 8px; }
       .chip {
+        display: inline-flex; align-items: center; gap: 6px;
         background: #232326; border: 1px solid #2e2e33; border-radius: 999px;
-        padding: 7px 14px; font-size: 18px; cursor: pointer; user-select: none;
+        padding: 7px 12px 7px 14px; font-size: 18px; cursor: pointer; user-select: none;
       }
       .chip.sel { background: #17305e; border-color: #2f5bd0; }
       .chip.pending { opacity: 0.6; cursor: default; }
+      .chip.missing { border-color: #a3453f; }
       .chip.ok { background: #14361f; border-color: #2f7d4f; cursor: default; }
-      .chip.fail { background: #3a1b1b; border-color: #a3453f; cursor: default; }
+      .chip .x { color: #777; font-size: 15px; }
+      .chip .x:hover { color: #f8a3a3; }
+      .chip .flag { font-size: 12px; color: #f8a3a3; }
       .empty { color: #666; font-size: 13px; padding: 2px 6px; }
       #status { margin-top: 12px; font-size: 14px; min-height: 1.2em; }
       #status.ok { color: #7ee2a5; }
@@ -71,43 +67,39 @@
     <div class="wrap">
       <a class="back" href="/">← Tools</a>
       <h1>📝 Vocab ingest</h1>
-      <p class="sub">Paste class words, pick the ones to enable in your TOCFL deck.</p>
+      <p class="sub">Everything you paste goes into the TODO list. From there, pick words to enable in TOCFL.</p>
 
       <textarea id="input" placeholder="學生&#10;老師 lǎoshī teacher&#10;朋友、同學&#10;圖書館 library"></textarea>
+      <div class="bar">
+        <span class="count" id="parsed-count">0 words parsed</span>
+        <button class="primary" id="add-list">Add to TODO list ↓</button>
+      </div>
 
-      <!-- To review -->
+      <!-- TODO list (persistent) -->
       <section>
         <div class="sec-title t-todo">
-          To review · <span id="c-todo">0</span>
+          TODO list · <span id="c-todo">0</span>
           <button class="link" id="sel-all">select all</button>
           <button class="link" id="sel-none">none</button>
         </div>
         <div class="bar">
           <span class="count" id="sel-count">0 selected</span>
-          <button id="copy">Copy</button>
-          <button class="primary" id="add-tocfl">Add to TOCFL (enable existing)</button>
+          <button class="primary" id="add-tocfl">Add selected to TOCFL (enable existing)</button>
         </div>
         <div class="chips" id="list-todo"></div>
         <div id="status"></div>
         <p class="note">
-          After clicking, run this on the computer with Anki open — results fill in below automatically:
+          After adding to TOCFL, run this on the Anki machine — the piles update automatically:
           <br /><code>./enable_in_tocfl.py --url https://&lt;your-app&gt;.vercel.app</code>
+          <br />Words with no existing card stay here, flagged ✗. Turn those into cards with
+          <code>ingest_vocab.py</code>.
         </p>
       </section>
 
-      <!-- Enabled -->
+      <!-- Enabled this session -->
       <section>
         <div class="sec-title t-ok">✓ Enabled in TOCFL · <span id="c-ok">0</span></div>
         <div class="chips" id="list-ok"></div>
-      </section>
-
-      <!-- Failed -->
-      <section>
-        <div class="sec-title t-fail">✗ No existing card — skipped · <span id="c-fail">0</span></div>
-        <div class="chips" id="list-fail"></div>
-        <div class="bar" id="fail-bar" hidden>
-          <button id="save-todo">Save these to study list (make TODO cards) →</button>
-        </div>
       </section>
     </div>
 
@@ -130,157 +122,147 @@
         return out;
       }
 
-      // word -> "pending" | "enabled" | "already-active" | "missing"
-      const statusOf = {};
+      let todo = []; // persistent TODO list (from backend)
+      let results = {}; // word -> "enabled" | "already-active" | "missing"
+      let queued = new Set(); // words waiting for the enable script
       const selected = new Set();
-      let polling = null;
 
-      function piles() {
-        const parsed = parse(input.value);
-        const all = new Set([...parsed, ...Object.keys(statusOf)]);
-        const todo = [], ok = [], fail = [];
-        for (const w of all) {
-          const s = statusOf[w];
-          if (s === "enabled" || s === "already-active") ok.push(w);
-          else if (s === "missing") fail.push(w);
-          else todo.push(w); // undefined or pending
-        }
-        return { todo, ok, fail };
-      }
-
-      function chip(w, cls, onClick) {
+      function chipEl(w, opts) {
         const c = document.createElement("span");
-        c.className = "chip" + (cls ? " " + cls : "");
-        c.textContent = w;
-        if (onClick) c.addEventListener("click", onClick);
+        c.className = "chip" + (opts.cls ? " " + opts.cls : "");
+        const label = document.createElement("span");
+        label.textContent = w;
+        c.appendChild(label);
+        if (opts.flag) {
+          const f = document.createElement("span");
+          f.className = "flag";
+          f.textContent = opts.flag;
+          c.appendChild(f);
+        }
+        if (opts.onToggle) c.addEventListener("click", opts.onToggle);
+        if (opts.onRemove) {
+          const x = document.createElement("span");
+          x.className = "x";
+          x.textContent = "✕";
+          x.addEventListener("click", (e) => { e.stopPropagation(); opts.onRemove(); });
+          c.appendChild(x);
+        }
         return c;
       }
 
       function render() {
-        const { todo, ok, fail } = piles();
+        document.getElementById("parsed-count").textContent = parse(input.value).length + " words parsed";
         const listTodo = document.getElementById("list-todo");
         const listOk = document.getElementById("list-ok");
-        const listFail = document.getElementById("list-fail");
-        listTodo.innerHTML = listOk.innerHTML = listFail.innerHTML = "";
+        listTodo.innerHTML = "";
+        listOk.innerHTML = "";
 
         todo.forEach((w) => {
-          const pending = statusOf[w] === "pending";
-          const c = chip(
-            pending ? w + " ⏳" : w,
-            pending ? "pending" : selected.has(w) ? "sel" : "",
-            pending
-              ? null
-              : () => {
-                  selected.has(w) ? selected.delete(w) : selected.add(w);
-                  render();
-                },
+          const pending = queued.has(w);
+          const missing = results[w] === "missing";
+          const cls = pending ? "pending" : (selected.has(w) ? "sel" : "") + (missing ? " missing" : "");
+          listTodo.appendChild(
+            chipEl(w, {
+              cls: cls.trim(),
+              flag: pending ? "⏳" : missing ? "✗ no card" : "",
+              onToggle: pending ? null : () => { selected.has(w) ? selected.delete(w) : selected.add(w); render(); },
+              onRemove: pending ? null : () => removeWord(w),
+            }),
           );
-          listTodo.appendChild(c);
         });
-        if (!todo.length) listTodo.innerHTML = '<span class="empty">Nothing to review.</span>';
+        if (!todo.length) listTodo.innerHTML = '<span class="empty">List is empty — paste words above.</span>';
 
-        ok.forEach((w) => listOk.appendChild(chip(w, "ok")));
-        if (!ok.length) listOk.innerHTML = '<span class="empty">None yet.</span>';
-
-        fail.forEach((w) => listFail.appendChild(chip(w, "fail")));
-        if (!fail.length) listFail.innerHTML = '<span class="empty">None.</span>';
+        const enabled = Object.keys(results).filter((w) => results[w] === "enabled" || results[w] === "already-active");
+        enabled.forEach((w) => listOk.appendChild(chipEl(w, { cls: "ok" })));
+        if (!enabled.length) listOk.innerHTML = '<span class="empty">None yet.</span>';
 
         document.getElementById("c-todo").textContent = todo.length;
-        document.getElementById("c-ok").textContent = ok.length;
-        document.getElementById("c-fail").textContent = fail.length;
+        document.getElementById("c-ok").textContent = enabled.length;
         document.getElementById("sel-count").textContent = selected.size + " selected";
-        document.getElementById("fail-bar").hidden = !fail.length;
       }
 
-      input.addEventListener("input", () => {
-        status.textContent = "";
-        // drop selections for words no longer present
-        const parsed = new Set(parse(input.value));
-        for (const w of [...selected]) if (!parsed.has(w)) selected.delete(w);
-        render();
+      async function refresh() {
+        try {
+          const [ing, toc] = await Promise.all([
+            fetch("/api/ingest", { cache: "no-store" }).then((r) => r.json()),
+            fetch("/api/tocfl", { cache: "no-store" }).then((r) => r.json()),
+          ]);
+          todo = (ing.words || []).sort();
+          results = toc.results || {};
+          queued = new Set(toc.queue || []);
+          for (const w of [...selected]) if (!todo.includes(w)) selected.delete(w);
+          render();
+          return Object.values(results).length || queued.size;
+        } catch (e) {
+          render();
+        }
+      }
+
+      input.addEventListener("input", () =>
+        (document.getElementById("parsed-count").textContent = parse(input.value).length + " words parsed"),
+      );
+
+      document.getElementById("add-list").addEventListener("click", async (e) => {
+        const words = parse(input.value);
+        if (!words.length) { status.className = "err"; status.textContent = "Nothing to add — paste some words."; return; }
+        e.target.disabled = true;
+        try {
+          const d = await fetch("/api/ingest", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ words }),
+          }).then((r) => r.json());
+          if (!d.ok) throw new Error(d.error || "failed");
+          input.value = "";
+          status.className = "ok";
+          status.textContent = "Added. TODO list has " + d.count + " word(s).";
+          await refresh();
+        } catch (err) {
+          status.className = "err";
+          status.textContent = "Could not add: " + err.message + " (backend deployed?)";
+        } finally { e.target.disabled = false; }
       });
+
+      async function removeWord(w) {
+        selected.delete(w);
+        await fetch("/api/ingest", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ remove: [w] }),
+        });
+        await refresh();
+      }
 
       document.getElementById("sel-all").addEventListener("click", () => {
-        piles().todo.forEach((w) => { if (statusOf[w] !== "pending") selected.add(w); });
+        todo.forEach((w) => { if (!queued.has(w)) selected.add(w); });
         render();
       });
-      document.getElementById("sel-none").addEventListener("click", () => {
-        selected.clear();
-        render();
-      });
+      document.getElementById("sel-none").addEventListener("click", () => { selected.clear(); render(); });
 
-      document.getElementById("copy").addEventListener("click", async () => {
-        const words = piles().todo.filter((w) => statusOf[w] !== "pending");
-        try { await navigator.clipboard.writeText(words.join("\n")); status.className = "ok"; status.textContent = "Copied " + words.length + " words."; }
-        catch (e) { status.className = "err"; status.textContent = "Copy failed."; }
-      });
-
-      async function poll() {
-        try {
-          const r = await fetch("/api/tocfl", { cache: "no-store" });
-          const d = await r.json();
-          const results = d.results || {};
-          const queue = new Set(d.queue || []);
-          for (const w in results) statusOf[w] = results[w];
-          // words still queued stay pending; anything pending no longer queued & no result -> leave pending
-          for (const w in statusOf) if (statusOf[w] === "pending" && !queue.has(w) && !results[w]) statusOf[w] = "pending";
-          render();
-          const stillPending = Object.values(statusOf).some((s) => s === "pending");
-          if (!stillPending && polling) { clearInterval(polling); polling = null; }
-        } catch (e) {}
-      }
-
+      let polling = null;
       document.getElementById("add-tocfl").addEventListener("click", async (e) => {
-        const words = [...selected].filter((w) => statusOf[w] !== "pending");
-        if (!words.length) { status.className = "err"; status.textContent = "Select some words first."; return; }
+        const words = [...selected].filter((w) => !queued.has(w));
+        if (!words.length) { status.className = "err"; status.textContent = "Select some words from the TODO list first."; return; }
         e.target.disabled = true;
-        status.className = ""; status.textContent = "Queuing…";
         try {
-          const r = await fetch("/api/tocfl", {
+          const d = await fetch("/api/tocfl", {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ words }),
-          });
-          const d = await r.json();
+          }).then((r) => r.json());
           if (!d.ok) throw new Error(d.error || "failed");
-          words.forEach((w) => (statusOf[w] = "pending"));
           selected.clear();
-          render();
           status.className = "ok";
-          status.textContent = "Queued " + words.length + ". Run enable_in_tocfl.py — results appear above as it runs.";
-          if (!polling) polling = setInterval(poll, 4000);
-          poll();
+          status.textContent = "Queued " + words.length + ". Run enable_in_tocfl.py — results appear automatically.";
+          await refresh();
+          if (!polling) polling = setInterval(async () => {
+            await refresh();
+            if (!queued.size && polling) { clearInterval(polling); polling = null; }
+          }, 4000);
         } catch (err) {
           status.className = "err";
-          status.textContent = "Could not queue: " + err.message + " (backend deployed?)";
-        } finally {
-          e.target.disabled = false;
-        }
+          status.textContent = "Could not queue: " + err.message;
+        } finally { e.target.disabled = false; }
       });
 
-      document.getElementById("save-todo").addEventListener("click", async (e) => {
-        const words = piles().fail;
-        if (!words.length) return;
-        e.target.disabled = true;
-        try {
-          const r = await fetch("/api/ingest", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ words }),
-          });
-          const d = await r.json();
-          status.className = d.ok ? "ok" : "err";
-          status.textContent = d.ok
-            ? "Saved " + words.length + " to study list — run ingest_vocab.py to make TODO cards."
-            : "Save failed: " + (d.error || "");
-        } catch (err) {
-          status.className = "err";
-          status.textContent = "Save failed: " + err.message;
-        } finally {
-          e.target.disabled = false;
-        }
-      });
-
-      render();
-      poll(); // pick up any results already computed
+      refresh();
     </script>
   </body>
 </html>
