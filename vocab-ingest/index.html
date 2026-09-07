@@ -7,22 +7,20 @@
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body {
-        background: #1c1c1e;
-        color: #eee;
-        font-family: "PingFang TC", "Noto Sans TC", -apple-system,
-          BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #1c1c1e; color: #eee;
+        font-family: "PingFang TC", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         line-height: 1.5;
       }
       .wrap { max-width: 820px; margin: 0 auto; padding: 24px 18px 60px; }
       a.back { color: #7c828a; text-decoration: none; font-size: 13px; }
       h1 { font-size: 22px; font-weight: 800; margin-top: 6px; }
       p.sub { color: #999; font-size: 14px; margin-top: 4px; }
+      .stale-note { color: #d1a54a; font-size: 12px; margin-top: 6px; }
 
       textarea {
         width: 100%; min-height: 110px; margin-top: 12px;
         background: #232326; color: #eee; border: 1px solid #3a3a40;
-        border-radius: 12px; padding: 14px; font-size: 16px;
-        font-family: inherit; resize: vertical;
+        border-radius: 12px; padding: 14px; font-size: 16px; font-family: inherit; resize: vertical;
       }
       textarea:focus { outline: none; border-color: #60a5fa; }
       .hint { color: #7c828a; font-size: 12px; margin-top: 6px; }
@@ -39,32 +37,32 @@
       button:disabled { opacity: 0.5; cursor: default; }
       .link { background: none; border: none; color: #7c9cf5; padding: 0 4px; font-size: 13px; }
 
-      section { margin-top: 28px; }
-      .sec-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 4px 10px; }
-      .t-todo { color: #cbd0d6; }
-      .t-ok { color: #7ee2a5; }
+      .spinner { width: 16px; height: 16px; border: 2px solid #555; border-top-color: #60a5fa; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+      @keyframes spin { to { transform: rotate(360deg); } }
 
-      /* vertical rows */
+      section { margin-top: 28px; }
+      .sec-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 4px 6px; }
+      .sec-sub { font-size: 12px; color: #7c828a; margin: 0 4px 10px; }
+      .t-susp { color: #e0c07a; }
+      .t-new { color: #cbd0d6; }
+
       .rows { display: flex; flex-direction: column; gap: 6px; }
       .row {
         display: flex; align-items: baseline; gap: 12px;
-        background: #232326; border: 1px solid #2e2e33; border-radius: 10px;
-        padding: 10px 12px; cursor: pointer; user-select: none;
+        background: #232326; border: 1px solid #2e2e33; border-radius: 10px; padding: 10px 12px; user-select: none;
       }
-      .row:hover { background: #1f1f22; }
+      .row.pick { cursor: pointer; }
+      .row.pick:hover { background: #1f1f22; }
       .row.sel { background: #17305e; border-color: #2f5bd0; }
-      .row.pending { opacity: 0.6; cursor: default; }
-      .row.missing { border-color: #a3453f; }
-      .row.ok { background: #14361f; border-color: #2f7d4f; cursor: default; }
+      .row.pending { opacity: 0.65; cursor: default; }
       .row .t { font-size: 22px; font-weight: 600; flex: 0 0 auto; min-width: 2.6em; }
       .row .g { color: #b7bcc3; font-size: 14px; flex: 1 1 auto; min-width: 0; }
       .row .g.none { color: #666; font-style: italic; }
-      .row .flag { font-size: 12px; flex: 0 0 auto; }
-      .row.missing .flag { color: #f8a3a3; }
-      .row .x { color: #6b7280; font-size: 15px; flex: 0 0 auto; padding: 0 2px; }
+      .row .flag { font-size: 12px; color: #7dd3fc; flex: 0 0 auto; }
+      .row .x { color: #6b7280; font-size: 15px; flex: 0 0 auto; padding: 0 2px; cursor: pointer; }
       .row .x:hover { color: #f8a3a3; }
       .empty { color: #666; font-size: 13px; padding: 4px 6px; }
-      #status { margin-top: 12px; font-size: 14px; min-height: 1.2em; }
+      #status { margin-top: 12px; font-size: 14px; min-height: 1.2em; display: flex; align-items: center; gap: 8px; }
       #status.ok { color: #7ee2a5; }
       #status.err { color: #f8a3a3; }
       code { background: #232326; border: 1px solid #2e2e33; border-radius: 6px; padding: 1px 6px; font-size: 13px; }
@@ -75,49 +73,46 @@
     <div class="wrap">
       <a class="back" href="/">← Tools</a>
       <h1>📝 Vocab ingest</h1>
-      <p class="sub">Everything you paste goes into the TODO list. From there, pick words to enable in TOCFL.</p>
+      <p class="sub">Paste class words. Ones already active in Anki are skipped; the rest split into “in Anki (suspended)” and “not in Anki.”</p>
+      <p class="stale-note" id="stale" hidden></p>
 
       <textarea id="input" placeholder="老師 lǎoshī teacher&#10;圖書館 library&#10;學生 xuéshēng student&#10;朋友、同學"></textarea>
-      <p class="hint">Tip: paste one per line as <b>word · pinyin · meaning</b> — the pinyin/meaning is kept so you can tell words apart below.</p>
+      <p class="hint">Meanings come from Anki automatically for known words; for new words, paste <b>word pinyin meaning</b> per line.</p>
       <div class="bar">
         <span class="count" id="parsed-count">0 words parsed</span>
-        <button class="primary" id="add-list">Add to TODO list ↓</button>
+        <button class="primary" id="add-list">Add to TODO ↓</button>
       </div>
+      <div id="status"></div>
 
-      <!-- TODO list (persistent, vertical, with meanings) -->
+      <!-- In Anki, suspended -->
       <section>
-        <div class="sec-title t-todo">
-          TODO list · <span id="c-todo">0</span>
-          <button class="link" id="sel-all">select all</button>
-          <button class="link" id="sel-none">none</button>
-        </div>
+        <div class="sec-title t-susp">◐ In Anki, suspended · <span id="c-susp">0</span></div>
+        <div class="sec-sub">Select and mark to enable — applied to Anki on the next sync.</div>
         <div class="bar">
           <span class="count" id="sel-count">0 selected</span>
-          <button class="primary" id="add-tocfl">Add selected to TOCFL (enable existing)</button>
+          <button class="link" id="sel-all">select all</button>
+          <button class="link" id="sel-none">none</button>
+          <button class="primary" id="add-tocfl">Enable selected in TOCFL</button>
         </div>
-        <div class="rows" id="list-todo"></div>
-        <div id="status"></div>
-        <p class="note">
-          After adding to TOCFL, run this on the Anki machine — piles update automatically:
-          <br /><code>./enable_in_tocfl.py --url https://&lt;your-app&gt;.vercel.app</code>
-          <br />Words with no card stay here, flagged ✗. Turn those into cards with <code>ingest_vocab.py</code>.
-        </p>
+        <div class="rows" id="list-susp"></div>
+        <p class="note">Marked words wait in Upstash. Run <code>./sync_anki_upstash.py --url https://&lt;your-app&gt;.vercel.app</code> to apply — they turn active and leave this list.</p>
       </section>
 
-      <!-- Enabled this session -->
+      <!-- Not in Anki -->
       <section>
-        <div class="sec-title t-ok">✓ Enabled in TOCFL · <span id="c-ok">0</span></div>
-        <div class="rows" id="list-ok"></div>
+        <div class="sec-title t-new">🆕 Not in Anki · <span id="c-new">0</span></div>
+        <div class="sec-sub">No card yet — make TODO cards with <code>ingest_vocab.py</code>.</div>
+        <div class="rows" id="list-new"></div>
       </section>
     </div>
 
     <script>
       const input = document.getElementById("input");
       const status = document.getElementById("status");
+      const stale = document.getElementById("stale");
 
       const HAN = /[一-鿿㐀-䶿]+/g;
       const PURE = /^[一-鿿㐀-䶿\s,，、;；:：·.。/|()（）]+$/;
-      // Parse each line -> {t: hanzi, g: gloss (pinyin/meaning text on that line)}.
       function parse(text) {
         const seen = new Set(), out = [];
         for (const raw of text.split(/\n/)) {
@@ -128,8 +123,7 @@
           if (PURE.test(line)) {
             for (const w of runs) if (!seen.has(w)) { seen.add(w); out.push({ t: w, g: "" }); }
           } else {
-            const t = runs[0];
-            const i = line.indexOf(t);
+            const t = runs[0]; const i = line.indexOf(t);
             let g = (line.slice(0, i) + " " + line.slice(i + t.length)).trim();
             g = g.replace(/^[\s,，、:：·.。/|()（）\-–—]+/, "").trim();
             if (!seen.has(t)) { seen.add(t); out.push({ t, g }); }
@@ -138,153 +132,154 @@
         return out;
       }
 
-      let todo = [];            // [{t,g}] from backend
-      const gloss = {};         // t -> g (best known)
-      let results = {};         // t -> "enabled"|"already-active"|"missing"
-      let queued = new Set();
+      let mirror = {};       // word -> {py,m,s}
+      let todo = [];         // [{t,g}]
+      const gloss = {};
+      let wants = {};        // word -> "suspend"|"unsuspend" (pending, applied on sync)
       const selected = new Set();
 
+      async function loadMirror() {
+        try {
+          const d = await fetch("/api/cards", { cache: "no-store" }).then((r) => r.json());
+          mirror = d.cards || {};
+          if (!Object.keys(mirror).length) { stale.hidden = false; stale.textContent = "⚠ Anki mirror not synced yet — run sync_anki_upstash.py."; }
+          else if (d.generated) {
+            const h = (Date.now() - new Date(d.generated).getTime()) / 3.6e6;
+            stale.hidden = h <= 24;
+            if (h > 24) stale.textContent = "⚠ Mirror is " + Math.round(h / 24) + " day(s) old — re-sync for accurate status.";
+          }
+        } catch (e) {}
+      }
+      async function loadWants() {
+        try { wants = (await fetch("/api/want", { cache: "no-store" }).then((r) => r.json())).wants || {}; } catch (e) {}
+      }
+
+      function cat(t) { const m = mirror[t]; if (!m) return "new"; return m.s ? "susp" : "active"; }
+      function glossFor(e) {
+        if (gloss[e.t]) return gloss[e.t];
+        if (e.g) return e.g;
+        const m = mirror[e.t]; if (m) return [(m.py || ""), (m.m || "")].filter(Boolean).join("  ");
+        return "";
+      }
       function rowEl(e, opts) {
         const row = document.createElement("div");
         row.className = "row" + (opts.cls ? " " + opts.cls : "");
-        const t = document.createElement("span");
-        t.className = "t";
-        t.textContent = e.t;
-        row.appendChild(t);
-        const g = document.createElement("span");
-        const gv = gloss[e.t] || e.g || "";
-        g.className = "g" + (gv ? "" : " none");
-        g.textContent = gv || "— no meaning (paste with pinyin/meaning)";
-        row.appendChild(g);
-        if (opts.flag) {
-          const f = document.createElement("span");
-          f.className = "flag";
-          f.textContent = opts.flag;
-          row.appendChild(f);
-        }
+        const t = document.createElement("span"); t.className = "t"; t.textContent = e.t; row.appendChild(t);
+        const g = document.createElement("span"); const gv = glossFor(e);
+        g.className = "g" + (gv ? "" : " none"); g.textContent = gv || "— no meaning"; row.appendChild(g);
+        if (opts.flag) { const f = document.createElement("span"); f.className = "flag"; f.textContent = opts.flag; row.appendChild(f); }
         if (opts.onToggle) row.addEventListener("click", opts.onToggle);
-        if (opts.onRemove) {
-          const x = document.createElement("span");
-          x.className = "x";
-          x.textContent = "✕";
-          x.title = "Remove from list";
-          x.addEventListener("click", (ev) => { ev.stopPropagation(); opts.onRemove(); });
-          row.appendChild(x);
-        }
+        if (opts.onRemove) { const x = document.createElement("span"); x.className = "x"; x.textContent = "✕"; x.title = "Remove"; x.addEventListener("click", (ev) => { ev.stopPropagation(); opts.onRemove(); }); row.appendChild(x); }
         return row;
       }
 
       function render() {
         document.getElementById("parsed-count").textContent = parse(input.value).length + " words parsed";
-        const listTodo = document.getElementById("list-todo");
-        const listOk = document.getElementById("list-ok");
-        listTodo.innerHTML = "";
-        listOk.innerHTML = "";
-
+        const lS = document.getElementById("list-susp"), lN = document.getElementById("list-new");
+        lS.innerHTML = lN.innerHTML = "";
+        let cS = 0, cN = 0;
         todo.forEach((e) => {
-          const pending = queued.has(e.t);
-          const missing = results[e.t] === "missing";
-          listTodo.appendChild(
-            rowEl(e, {
-              cls: pending ? "pending" : (selected.has(e.t) ? "sel" : "") + (missing ? " missing" : ""),
-              flag: pending ? "⏳" : missing ? "✗ no card" : "",
+          const c = cat(e.t);
+          if (c === "active") return; // enabled elsewhere/already active — hide
+          const pending = wants[e.t] === "unsuspend";
+          if (c === "susp") {
+            cS++;
+            lS.appendChild(rowEl(e, {
+              cls: "pick " + (pending ? "pending" : selected.has(e.t) ? "sel" : ""),
+              flag: pending ? "⏳ will enable on sync" : "",
               onToggle: pending ? null : () => { selected.has(e.t) ? selected.delete(e.t) : selected.add(e.t); render(); },
               onRemove: pending ? null : () => removeWord(e.t),
-            }),
-          );
+            }));
+          } else { cN++; lN.appendChild(rowEl(e, { onRemove: () => removeWord(e.t) })); }
         });
-        if (!todo.length) listTodo.innerHTML = '<span class="empty">List is empty — paste words above.</span>';
-
-        const enabled = Object.keys(results).filter((t) => results[t] === "enabled" || results[t] === "already-active");
-        enabled.forEach((t) => listOk.appendChild(rowEl({ t, g: gloss[t] || "" }, { cls: "ok" })));
-        if (!enabled.length) listOk.innerHTML = '<span class="empty">None yet.</span>';
-
-        document.getElementById("c-todo").textContent = todo.length;
-        document.getElementById("c-ok").textContent = enabled.length;
+        if (!cS) lS.innerHTML = '<span class="empty">None.</span>';
+        if (!cN) lN.innerHTML = '<span class="empty">None.</span>';
+        document.getElementById("c-susp").textContent = cS;
+        document.getElementById("c-new").textContent = cN;
         document.getElementById("sel-count").textContent = selected.size + " selected";
       }
 
       async function refresh() {
         try {
-          const [ing, toc] = await Promise.all([
-            fetch("/api/ingest", { cache: "no-store" }).then((r) => r.json()),
-            fetch("/api/tocfl", { cache: "no-store" }).then((r) => r.json()),
-          ]);
+          const [ing] = await Promise.all([fetch("/api/ingest", { cache: "no-store" }).then((r) => r.json()), loadWants()]);
           todo = (ing.entries || []).sort((a, b) => a.t.localeCompare(b.t));
           todo.forEach((e) => { if (e.g) gloss[e.t] = e.g; });
-          results = toc.results || {};
-          queued = new Set(toc.queue || []);
           for (const w of [...selected]) if (!todo.some((e) => e.t === w)) selected.delete(w);
           render();
         } catch (e) { render(); }
       }
 
-      input.addEventListener("input", () =>
-        (document.getElementById("parsed-count").textContent = parse(input.value).length + " words parsed"),
-      );
+      function busy(on, msg) { status.className = ""; status.innerHTML = on ? '<span class="spinner"></span> ' + (msg || "Working…") : (msg || ""); }
+
+      input.addEventListener("input", () => (document.getElementById("parsed-count").textContent = parse(input.value).length + " words parsed"));
 
       document.getElementById("add-list").addEventListener("click", async (e) => {
-        const words = parse(input.value);
-        if (!words.length) { status.className = "err"; status.textContent = "Nothing to add — paste some words."; return; }
-        e.target.disabled = true;
+        const parsed = parse(input.value);
+        if (!parsed.length) { status.className = "err"; status.textContent = "Nothing to add — paste some words."; return; }
+        e.target.disabled = true; busy(true, "Ingesting…");
         try {
-          const d = await fetch("/api/ingest", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ words }),
-          }).then((r) => r.json());
-          if (!d.ok) throw new Error(d.error || "failed");
-          words.forEach((w) => { if (w.g) gloss[w.t] = w.g; });
+          await loadMirror();
+          let skipActive = 0, toAdd = [], nSusp = 0, nNew = 0;
+          for (const w of parsed) {
+            const m = mirror[w.t];
+            if (m && m.s === false) { skipActive++; continue; }
+            let g = w.g; if (!g && m) g = [(m.py || ""), (m.m || "")].filter(Boolean).join("  ");
+            toAdd.push({ t: w.t, g }); if (m) nSusp++; else nNew++;
+          }
+          if (toAdd.length) {
+            await fetch("/api/ingest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ words: toAdd }) });
+            toAdd.forEach((w) => { if (w.g) gloss[w.t] = w.g; });
+          }
           input.value = "";
-          status.className = "ok";
-          status.textContent = "Added. TODO list has " + d.count + " word(s).";
           await refresh();
-        } catch (err) {
-          status.className = "err";
-          status.textContent = "Could not add: " + err.message;
-        } finally { e.target.disabled = false; }
+          const parts = ["Added " + toAdd.length];
+          if (nSusp) parts.push(nSusp + " suspended");
+          if (nNew) parts.push(nNew + " not in Anki");
+          let msg = parts[0] + (parts.length > 1 ? " (" + parts.slice(1).join(", ") + ")" : "");
+          if (skipActive) msg += " · skipped " + skipActive + " already active";
+          status.className = "ok"; status.textContent = msg + ".";
+        } catch (err) { status.className = "err"; status.textContent = "Could not add: " + err.message; }
+        finally { e.target.disabled = false; }
       });
 
       async function removeWord(w) {
         selected.delete(w);
-        await fetch("/api/ingest", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ remove: [w] }),
-        });
+        await fetch("/api/ingest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ remove: [w] }) });
         await refresh();
       }
 
-      document.getElementById("sel-all").addEventListener("click", () => {
-        todo.forEach((e) => { if (!queued.has(e.t)) selected.add(e.t); });
-        render();
-      });
+      document.getElementById("sel-all").addEventListener("click", () => { todo.forEach((e) => { if (cat(e.t) === "susp" && wants[e.t] !== "unsuspend") selected.add(e.t); }); render(); });
       document.getElementById("sel-none").addEventListener("click", () => { selected.clear(); render(); });
 
       let polling = null;
       document.getElementById("add-tocfl").addEventListener("click", async (e) => {
-        const words = [...selected].filter((w) => !queued.has(w));
-        if (!words.length) { status.className = "err"; status.textContent = "Select some words from the TODO list first."; return; }
-        e.target.disabled = true;
+        const words = [...selected].filter((w) => wants[w] !== "unsuspend");
+        if (!words.length) { status.className = "err"; status.textContent = "Select suspended words first."; return; }
+        e.target.disabled = true; busy(true, "Marking to enable…");
         try {
-          const d = await fetch("/api/tocfl", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ words }),
-          }).then((r) => r.json());
-          if (!d.ok) throw new Error(d.error || "failed");
+          // Enable = write a "want" in Upstash; sync_anki_upstash.py applies it later.
+          for (const w of words) {
+            await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "unsuspend" }) });
+            wants[w] = "unsuspend";
+          }
           selected.clear();
+          render();
           status.className = "ok";
-          status.textContent = "Queued " + words.length + ". Run enable_in_tocfl.py — results appear automatically.";
-          await refresh();
-          if (!polling) polling = setInterval(async () => {
-            await refresh();
-            if (!queued.size && polling) { clearInterval(polling); polling = null; }
-          }, 4000);
-        } catch (err) {
-          status.className = "err";
-          status.textContent = "Could not queue: " + err.message;
-        } finally { e.target.disabled = false; }
+          status.textContent = "Marked " + words.length + " to enable. Run sync_anki_upstash.py to apply — they'll turn active and leave the list.";
+          if (!polling) polling = setInterval(pollSync, 5000);
+        } catch (err) { status.className = "err"; status.textContent = "Failed: " + err.message; }
+        finally { e.target.disabled = false; }
       });
 
-      refresh();
+      async function pollSync() {
+        const before = Object.keys(wants).length;
+        await loadWants();
+        if (Object.keys(wants).length !== before) await loadMirror(); // sync ran — refresh status
+        render();
+        if (!Object.keys(wants).some((w) => wants[w] === "unsuspend") && polling) { clearInterval(polling); polling = null; }
+      }
+
+      (async function init() { await loadMirror(); await refresh(); if (Object.keys(wants).length) { if (!polling) polling = setInterval(pollSync, 5000); } })();
     </script>
   </body>
 </html>

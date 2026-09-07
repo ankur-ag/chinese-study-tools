@@ -40,6 +40,15 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
+      // Remove queued words (e.g. cancel a pick before it's processed).
+      if (Array.isArray(b.remove) && b.remove.length) {
+        for (const w of b.remove) {
+          await redis(["SREM", QUEUE, String(w)]);
+          await redis(["HDEL", RESULTS, String(w)]);
+        }
+        return res.status(200).json({ ok: true });
+      }
+
       // From the page: queue words to enable (clear any stale result first).
       const words = Array.isArray(b.words)
         ? b.words.map((w) => String(w).trim()).filter(Boolean).slice(0, 500)
