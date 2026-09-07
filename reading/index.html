@@ -16,17 +16,26 @@
       h1 { font-size: 22px; font-weight: 800; margin-top: 6px; }
       p.sub { color: #999; font-size: 14px; margin-top: 4px; }
       .meta { color: #7c828a; font-size: 12px; margin-top: 6px; }
+      .archsel { margin-top: 14px; display: flex; align-items: center; gap: 8px; }
+      .archsel label { color: #7c828a; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+      .archsel select {
+        flex: 1 1 auto; background: #232326; color: #eee; border: 1px solid #3a3a40;
+        border-radius: 9px; padding: 8px 10px; font-size: 14px; font-family: inherit;
+      }
+      .archsel select:focus { outline: none; border-color: #60a5fa; }
 
       .card { margin-top: 22px; background: #232326; border: 1px solid #2e2e33; border-radius: 14px; padding: 20px; }
       .zh { font-size: 22px; line-height: 2.1; letter-spacing: 0.01em; white-space: pre-wrap; }
       .zh .kw { color: #7ee2a5; font-weight: 700; border-bottom: 1px solid #2f5d3f; }
 
-      .reveal { margin-top: 16px; }
+      .reveal { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
       .reveal button {
         background: #2c2c30; color: #cbd0d6; border: 1px solid #3a3a40;
         border-radius: 9px; padding: 7px 14px; font-size: 13px; cursor: pointer;
       }
       .reveal button:hover { background: #34343a; }
+      .reveal button.on { background: #17305e; border-color: #2f5bd0; color: #cfe0ff; }
+      .py { margin-top: 12px; color: #93b3f0; font-size: 15px; line-height: 1.8; white-space: pre-wrap; }
       .en { margin-top: 12px; color: #b7bcc3; font-size: 15px; line-height: 1.7; white-space: pre-wrap; }
 
       .words { margin-top: 26px; }
@@ -46,12 +55,16 @@
       <a class="back" href="/">← Tools</a>
       <h1>📚 Reading</h1>
       <p class="sub">A short piece in Taiwan Mandarin built from the words you recently started studying. Read it first — reveal the English only when you need it.</p>
+      <div class="archsel" id="archsel" hidden>
+        <label for="archive">Piece</label>
+        <select id="archive"></select>
+      </div>
       <p class="meta" id="meta"></p>
 
       <div id="content"><p class="empty">Loading…</p></div>
 
       <section class="words" id="wordsec" hidden>
-        <div class="sec" id="wordtoggle">🔒 Words in this piece · <span id="wc">0</span> <span class="chev" id="chev">▸</span></div>
+        <div class="sec" id="wordtoggle"><span id="wordlabel">🔒 Words in this piece · </span><span id="wc">0</span> <span class="chev" id="chev">▸</span></div>
         <div class="rows" id="words" hidden></div>
       </section>
     </div>
@@ -70,55 +83,92 @@
         return out;
       }
 
-      (async function () {
-        let d;
-        try { d = await fetch("/api/reading", { cache: "no-store" }).then((r) => r.json()); }
-        catch (e) { document.getElementById("content").innerHTML = '<p class="empty">Could not load the reading.</p>'; return; }
+      // A reveal button bound to a hidden block; both start hidden.
+      function toggle(label, cls, text) {
+        const block = document.createElement("div"); block.className = cls; block.textContent = text; block.hidden = true;
+        const btn = document.createElement("button"); btn.textContent = "Show " + label;
+        btn.addEventListener("click", () => {
+          block.hidden = !block.hidden;
+          btn.textContent = (block.hidden ? "Show " : "Hide ") + label;
+          btn.classList.toggle("on", !block.hidden);
+        });
+        return { btn, block };
+      }
 
+      function renderDoc(d) {
         const content = document.getElementById("content");
+        const meta = document.getElementById("meta");
+        // reset shared elements each render (archive switching reuses them)
+        content.innerHTML = "";
+        const wordsec = document.getElementById("wordsec"); wordsec.hidden = true;
+        const box = document.getElementById("words"); box.innerHTML = ""; box.hidden = true;
+        document.getElementById("chev").textContent = "▸";
+        document.getElementById("wordlabel").textContent = "🔒 Words in this piece · ";
+
         if (!d || !d.passages || !d.passages.length) {
           content.innerHTML = '<p class="empty">No reading yet — ask Claude to generate one from your recent words.</p>';
+          meta.textContent = "";
           return;
         }
 
-        const meta = document.getElementById("meta");
         const bits = [];
         if (d.title) bits.push(d.title);
         if (d.generated) bits.push("generated " + new Date(d.generated).toLocaleDateString());
         meta.textContent = bits.join(" · ");
 
         const words = d.words || [];
-        content.innerHTML = "";
-        d.passages.forEach((p, i) => {
+        d.passages.forEach((p) => {
           const card = document.createElement("div"); card.className = "card";
           const zh = document.createElement("div"); zh.className = "zh"; zh.innerHTML = highlight(p.zh, words); card.appendChild(zh);
-          if (p.en) {
-            const rev = document.createElement("div"); rev.className = "reveal";
-            const btn = document.createElement("button"); btn.textContent = "Show English";
-            const en = document.createElement("div"); en.className = "en"; en.textContent = p.en; en.hidden = true;
-            btn.addEventListener("click", () => { en.hidden = !en.hidden; btn.textContent = en.hidden ? "Show English" : "Hide English"; });
-            rev.appendChild(btn); card.appendChild(rev); card.appendChild(en);
-          }
+          const rev = document.createElement("div"); rev.className = "reveal";
+          const blocks = [];
+          if (p.py) { const t = toggle("pinyin", "py", p.py); rev.appendChild(t.btn); blocks.push(t.block); }
+          if (p.en) { const t = toggle("English", "en", p.en); rev.appendChild(t.btn); blocks.push(t.block); }
+          if (rev.children.length) card.appendChild(rev);
+          blocks.forEach((b) => card.appendChild(b));
           content.appendChild(card);
         });
 
         // Word glossary — hidden behind a toggle so it doesn't spoil the read.
         if (words.length) {
-          document.getElementById("wordsec").hidden = false;
+          wordsec.hidden = false;
           document.getElementById("wc").textContent = words.length;
-          const box = document.getElementById("words");
           words.forEach((w) => {
             const r = document.createElement("div"); r.className = "row";
             r.innerHTML = '<span class="t">' + esc(w.t) + '</span><span class="py">' + esc(w.py || "") + '</span><span class="m">' + esc(w.m || "") + "</span>";
             box.appendChild(r);
           });
-          const toggle = document.getElementById("wordtoggle"), chev = document.getElementById("chev");
-          document.getElementById("wordtoggle").addEventListener("click", () => {
+          const chev = document.getElementById("chev"), label = document.getElementById("wordlabel");
+          document.getElementById("wordtoggle").onclick = () => {
             box.hidden = !box.hidden;
             chev.textContent = box.hidden ? "▸" : "▾";
-            toggle.firstChild.textContent = (box.hidden ? "🔒" : "🔓") + " Words in this piece · ";
-          });
+            label.textContent = (box.hidden ? "🔒" : "🔓") + " Words in this piece · ";
+          };
         }
+      }
+
+      async function loadDoc(id) {
+        const url = id ? "/api/reading?id=" + encodeURIComponent(id) : "/api/reading";
+        try { renderDoc(await fetch(url, { cache: "no-store" }).then((r) => r.json())); }
+        catch (e) { document.getElementById("content").innerHTML = '<p class="empty">Could not load the reading.</p>'; }
+      }
+
+      (async function init() {
+        let items;
+        try { items = (await fetch("/api/reading?list=1", { cache: "no-store" }).then((r) => r.json())).items || []; }
+        catch (e) { document.getElementById("content").innerHTML = '<p class="empty">Could not load the reading.</p>'; return; }
+        if (!items.length) { renderDoc(null); return; }
+
+        const sel = document.getElementById("archive");
+        items.forEach((it) => {
+          const o = document.createElement("option"); o.value = it.id;
+          const dt = it.generated ? new Date(it.generated).toLocaleDateString() : "";
+          o.textContent = (it.title || "Untitled") + (dt ? " · " + dt : "");
+          sel.appendChild(o);
+        });
+        if (items.length > 1) document.getElementById("archsel").hidden = false;
+        sel.addEventListener("change", () => loadDoc(sel.value));
+        await loadDoc(items[0].id);
       })();
     </script>
   </body>
