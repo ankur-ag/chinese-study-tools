@@ -1,76 +1,40 @@
 # Chinese Study Tools
 
-A small website of tools my teachers and I use to keep my Chinese studying on
-track. Static pages + a few Vercel serverless functions.
+A small website of tools to keep my Chinese studying on track. Static pages +
+Vercel serverless functions, backed by Upstash Redis, mirroring my Anki deck.
 
 ## Structure
 
 ```
-index.html            home page listing the tools
-word-review/          Tool: teachers 👍/👎 the words about to enter my rotation
-vocab-ingest/         Tool: paste class vocab -> study list -> Anki TODO cards
-api/                  Serverless functions (shared): vote.js, state.js, ingest.js, tocfl.js, cards.js, want.js, _redis.js
+index.html            home — tool list + Anki mirror "last synced" indicator
+word-review/          next words in deck order → Add (enable on sync) or Skip
+vocab-ingest/         paste class vocab → TODO list, split in-Anki / not-in-Anki
+fast-lookup/          search the deck, one-tap enable
+api/                  cards.js · want.js · ingest.js · skip.js · _redis.js
 ```
 
-Add a new tool as `<tool-name>/index.html` and link it from `index.html`.
-Shared backend endpoints live in `api/`.
+Add a tool as `<tool-name>/index.html` and link it from `index.html`.
+
+## How it fits together
+
+- **Anki is the source of truth.** `sync_anki_upstash.py` (local, needs Anki
+  open) pushes a snapshot of the TOCFL deck to `GET /api/cards` — every word
+  with `deck / pinyin / meaning / suspended / order`.
+- **Tools read `/api/cards`** to show status; they never touch Anki directly.
+- **To enable a word**, a tool writes a *want* (`POST /api/want {word,
+  action:"unsuspend"}`). The next sync applies it in Anki and clears it.
+- **Skips** (`/api/skip`) are parked separately and never unsuspended.
+- **`ingest_vocab.py`** turns "not in Anki" ingest words into TODO cards.
 
 ## Deploy (one time, your account)
 
-1. **vercel.com → Add New → Project → import this repo.** Framework preset
-   **Other** (no build step). Deploy.
-2. In the project: **Storage → Marketplace → Upstash (Redis) → Add → connect to
-   this project** (free tier). It auto-adds `KV_REST_API_URL` /
-   `KV_REST_API_TOKEN`.
-3. **Redeploy** once so the functions pick up the env vars.
-4. Share the URL with your teachers.
+1. vercel.com → Add New → Project → import this repo. Preset **Other**. Deploy.
+2. Storage → Marketplace → **Upstash for Redis** → add → connect to the project
+   (adds `KV_REST_API_URL` / `KV_REST_API_TOKEN`). **Redeploy** once.
 
-## Word review → Anki
-
-From the main Anki repo (`utils/widget/`), with Anki open:
+## Sync (Anki must be open)
 
 ```bash
-./apply_downvotes.py --url https://<your-app>.vercel.app
+./sync_anki_upstash.py --url https://<your-app>.vercel.app   # 2-way: apply wants, push snapshot
+./ingest_vocab.py       --url https://<your-app>.vercel.app   # make TODO cards for new words
 ```
-
-Tags downvoted words `tv-skip` and suspends them; the screensaver export
-excludes `tag:tv-skip`, so they leave the rotation.
-
-## Vocab ingest → Anki
-
-Paste class words at `/vocab-ingest/`, Save, then with Anki open:
-
-```bash
-./ingest_vocab.py --url https://<your-app>.vercel.app
-```
-
-Creates TODO cards in `Chinese::Todo` with pinyin + meaning looked up locally,
-skipping words already in your collection, and clears the pending list.
-
-## Enable in TOCFL (vocab-ingest → existing cards)
-
-On `/vocab-ingest/`, select words and **Add to TOCFL** — this only *enables*
-(unsuspends) cards that already exist; words with no card are reported as
-failed. With Anki open:
-
-```bash
-./enable_in_tocfl.py --url https://<your-app>.vercel.app
-```
-
-It never creates cards. Results flow back to the page, sorting words into
-Enabled / Failed piles. Failed (new) words can then be saved to the study list
-and turned into TODO cards with ingest_vocab.py.
-
-## Anki mirror (build tools on your deck state)
-
-`GET /api/cards` returns a snapshot of the TOCFL deck — every word with
-deck/pinyin/meaning/suspended — for any tool to read. Tools request changes via
-`POST /api/want {word, action:"suspend"|"unsuspend"}`; nothing touches Anki
-directly. Sync (Anki must be open):
-
-```bash
-./sync_anki_upstash.py --url https://<your-app>.vercel.app
-```
-
-Two-way: it applies queued `want` changes to Anki, then pushes a fresh snapshot.
-
