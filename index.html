@@ -52,6 +52,18 @@
       .mirror.ok .dot { background: #d1a54a; }
       .mirror.stale .dot { background: #f87171; }
       .mirror b { color: #ddd; font-weight: 600; }
+
+      .chart { margin-top: 36px; }
+      .chart h2 { font-size: 15px; font-weight: 700; color: #ddd; }
+      .chart .csub { font-size: 12px; color: #7c828a; margin: 2px 0 14px; }
+      .lvrow { display: flex; align-items: center; gap: 12px; margin: 7px 0; }
+      .lvrow .lbl { width: 2.2em; font-size: 13px; color: #9aa0a6; font-weight: 600; flex: 0 0 auto; }
+      .lvrow .track { flex: 1 1 auto; height: 20px; background: #262629; border-radius: 6px; position: relative; overflow: hidden; }
+      .lvrow .tot { position: absolute; left: 0; top: 0; height: 100%; background: #3a3a40; border-radius: 6px; }
+      .lvrow .act { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, #15803d, #4ade80); border-radius: 6px; transition: width 0.5s ease; }
+      .lvrow .num { flex: 0 0 auto; font-size: 12px; color: #9aa0a6; min-width: 7.5em; text-align: right; }
+      .lvrow .num b { color: #7ee2a5; font-weight: 700; }
+      .chart .empty { color: #666; font-size: 13px; }
     </style>
   </head>
   <body>
@@ -86,6 +98,12 @@
         <!-- Add more tools here as they're built. -->
       </div>
 
+      <section class="chart">
+        <h2>TOCFL progress</h2>
+        <p class="csub">Unsuspended words per level, L0–L5 (from the Anki mirror).</p>
+        <div id="chart-rows"><span class="empty">Loading…</span></div>
+      </section>
+
       <div class="mirror" id="mirror"><span class="dot"></span><span id="mirror-txt">Anki mirror: checking…</span></div>
       <footer>Built with Anki + a few gists. More tools coming.</footer>
     </div>
@@ -100,19 +118,48 @@
           if (d < 86400) return Math.round(d / 3600) + " h ago";
           return Math.round(d / 86400) + " days ago";
         };
+        const rows = document.getElementById("chart-rows");
+        let d;
         try {
-          const d = await fetch("/api/cards", { cache: "no-store" }).then((r) => r.json());
-          if (!d.generated) {
-            el.className = "mirror stale";
-            txt.innerHTML = "Anki mirror: <b>not synced yet</b> — run sync_anki_upstash.py";
-            return;
-          }
-          const secs = (Date.now() - new Date(d.generated).getTime()) / 1000;
-          el.className = "mirror " + (secs < 3600 ? "fresh" : secs < 86400 ? "ok" : "stale");
-          txt.innerHTML = "Anki mirror: <b>synced " + ago(d.generated) + "</b> · " + d.count + " words";
+          d = await fetch("/api/cards", { cache: "no-store" }).then((r) => r.json());
         } catch (e) {
           el.className = "mirror stale";
           txt.textContent = "Anki mirror: unavailable";
+          rows.innerHTML = '<span class="empty">Mirror unavailable.</span>';
+          return;
+        }
+
+        // Last-synced indicator
+        if (!d.generated) {
+          el.className = "mirror stale";
+          txt.innerHTML = "Anki mirror: <b>not synced yet</b> — run sync_anki_upstash.py";
+        } else {
+          const secs = (Date.now() - new Date(d.generated).getTime()) / 1000;
+          el.className = "mirror " + (secs < 3600 ? "fresh" : secs < 86400 ? "ok" : "stale");
+          txt.innerHTML = "Anki mirror: <b>synced " + ago(d.generated) + "</b> · " + d.count + " words";
+        }
+
+        // Per-level chart. Level is encoded in the order field: o = level*1e6 + pos.
+        const cards = d.cards || {};
+        if (!Object.keys(cards).length) { rows.innerHTML = '<span class="empty">Sync to see progress.</span>'; return; }
+        const tot = [0, 0, 0, 0, 0, 0], act = [0, 0, 0, 0, 0, 0];
+        for (const w in cards) {
+          const c = cards[w];
+          const L = Math.floor((c.o || 0) / 1e6);
+          if (L >= 0 && L <= 5) { tot[L]++; if (!c.s) act[L]++; }
+        }
+        const max = Math.max(1, ...tot);
+        rows.innerHTML = "";
+        for (let L = 0; L <= 5; L++) {
+          const row = document.createElement("div");
+          row.className = "lvrow";
+          row.innerHTML =
+            '<span class="lbl">L' + L + '</span>' +
+            '<div class="track"><div class="tot"></div><div class="act"></div></div>' +
+            '<span class="num"><b>' + act[L] + "</b> / " + tot[L] + "</span>";
+          row.querySelector(".tot").style.width = (tot[L] / max) * 100 + "%";
+          row.querySelector(".act").style.width = (act[L] / max) * 100 + "%";
+          rows.appendChild(row);
         }
       })();
     </script>
