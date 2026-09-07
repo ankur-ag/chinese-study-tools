@@ -55,7 +55,9 @@
 
       .chart { margin-top: 36px; }
       .chart h2 { font-size: 15px; font-weight: 700; color: #ddd; }
-      .chart .csub { font-size: 12px; color: #7c828a; margin: 2px 0 14px; }
+      .chart .csub { font-size: 12px; color: #7c828a; margin: 2px 0 8px; }
+      .chart .total { font-size: 22px; font-weight: 800; color: #7ee2a5; margin: 0 0 16px; }
+      .chart .total span { font-size: 14px; font-weight: 500; color: #9aa0a6; }
       .lvrow { display: flex; align-items: center; gap: 12px; margin: 7px 0; }
       .lvrow .lbl { width: 2.2em; font-size: 13px; color: #9aa0a6; font-weight: 600; flex: 0 0 auto; }
       .lvrow .track { flex: 1 1 auto; height: 20px; background: #262629; border-radius: 6px; position: relative; overflow: hidden; }
@@ -101,6 +103,7 @@
       <section class="chart">
         <h2>TOCFL progress</h2>
         <p class="csub">Unsuspended words per level, L0–L5 (from the Anki mirror).</p>
+        <p class="total" id="chart-total"></p>
         <div id="chart-rows"><span class="empty">Loading…</span></div>
       </section>
 
@@ -141,13 +144,18 @@
 
         // Per-level chart. Level is encoded in the order field: o = level*1e6 + pos.
         const cards = d.cards || {};
+        const total = document.getElementById("chart-total");
         if (!Object.keys(cards).length) { rows.innerHTML = '<span class="empty">Sync to see progress.</span>'; return; }
         const tot = [0, 0, 0, 0, 0, 0], act = [0, 0, 0, 0, 0, 0];
+        let grandActive = 0, grandTotal = 0;
         for (const w in cards) {
           const c = cards[w];
+          grandTotal++;
+          if (!c.s) grandActive++;
           const L = Math.floor((c.o || 0) / 1e6);
           if (L >= 0 && L <= 5) { tot[L]++; if (!c.s) act[L]++; }
         }
+        total.innerHTML = grandActive.toLocaleString() + " <span>unsuspended of " + grandTotal.toLocaleString() + " total</span>";
         const max = Math.max(1, ...tot);
         rows.innerHTML = "";
         for (let L = 0; L <= 5; L++) {
