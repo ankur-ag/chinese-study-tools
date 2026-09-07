@@ -75,11 +75,10 @@
       let mirror = {}, words = [];
       let wants = {}, skipped = new Set();
 
-      // seedWants: only take the server's want list on the first load. Later
-      // polls keep the local optimistic `wants` (so a just-clicked Add isn't
-      // reverted by a poll GET that raced its POST) and instead drop a word
-      // once the mirror shows it actually became active (i.e. it was synced).
-      async function loadAll(seedWants) {
+      // Read everything from Upstash. Anki sync is manual, so state only
+      // changes on our own writes or when the sync script runs — no polling.
+      // Words already active in the mirror (synced) drop off the "marked" list.
+      async function loadAll() {
         try {
           const [cd, wd, sd] = await Promise.all([
             fetch("/api/cards", { cache: "no-store" }).then((r) => r.json()),
@@ -88,7 +87,7 @@
           ]);
           mirror = cd.cards || {};
           words = Object.keys(mirror);
-          if (seedWants) wants = wd.wants || {};
+          wants = wd.wants || {};
           for (const w in wants) if (mirror[w] && mirror[w].s === false) delete wants[w];
           skipped = new Set(sd.skipped || []);
           if (!words.length) { stale.hidden = false; stale.textContent = "⚠ Anki mirror not synced yet — run sync_anki_upstash.py."; }
@@ -157,7 +156,6 @@
       async function addWord(w) {
         wants[w] = "unsuspend"; render();
         await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "unsuspend" }) });
-        ensurePoll();
       }
       async function cancelAdd(w) {
         delete wants[w]; render();
@@ -172,19 +170,7 @@
         await fetch("/api/skip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ remove: [w] }) });
       }
 
-      let poll = null;
-      function ensurePoll() {
-        if (poll) return;
-        poll = setInterval(async () => {
-          const before = Object.keys(wants).filter((w) => wants[w] === "unsuspend").length;
-          await loadAll(false);
-          const after = Object.keys(wants).filter((w) => wants[w] === "unsuspend").length;
-          render();
-          if (!after && before && poll) { clearInterval(poll); poll = null; }
-        }, 5000);
-      }
-
-      (async function init() { await loadAll(true); render(); if (Object.keys(wants).some((w) => wants[w] === "unsuspend")) ensurePoll(); })();
+      (async function init() { await loadAll(); render(); })();
     </script>
   </body>
 </html>

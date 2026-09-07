@@ -207,20 +207,9 @@
         document.getElementById("c-new").textContent = cN;
       }
 
-      let polling = null;
       async function addWord(w) {
         wants[w] = "unsuspend"; render();
         await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "unsuspend" }) });
-        if (!polling) polling = setInterval(pollSync, 5000);
-      }
-      async function pollSync() {
-        // Keep the local optimistic `wants` (don't overwrite it from a GET that
-        // may race a just-sent POST). Refresh the mirror and drop a word once it
-        // actually became active (i.e. it was synced into Anki).
-        await loadMirror();
-        for (const w in wants) if (mirror[w] && mirror[w].s === false) delete wants[w];
-        render();
-        if (!Object.keys(wants).some((x) => wants[x] === "unsuspend") && polling) { clearInterval(polling); polling = null; }
       }
 
       async function refresh() {
@@ -270,7 +259,7 @@
         await refresh();
       }
 
-      (async function init() { await loadMirror(); await refresh(); if (Object.keys(wants).some((x) => wants[x] === "unsuspend")) { if (!polling) polling = setInterval(pollSync, 5000); } })();
+      (async function init() { await loadMirror(); await refresh(); })();
     </script>
   </body>
 </html>

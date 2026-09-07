@@ -127,30 +127,14 @@
       async function enable(w) {
         wants[w] = "unsuspend"; renderResults(); renderQueue();
         await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "unsuspend" }) });
-        ensurePoll();
       }
       async function unqueue(w) {
         delete wants[w]; renderQueue(); renderResults();
         await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clear: [w] }) });
       }
 
-      let poll = null;
-      function ensurePoll() {
-        if (poll) return;
-        poll = setInterval(async () => {
-          // Keep the local optimistic `wants` (don't overwrite it from a GET
-          // that may race a just-sent POST). Refresh the mirror and drop a
-          // queued word once it actually became active (i.e. it was synced).
-          await loadMirror();
-          for (const w in wants) if (mirror[w] && mirror[w].s === false) delete wants[w];
-          const after = Object.keys(wants).filter(isQueued).length;
-          renderQueue(); renderResults();
-          if (!after && poll) { clearInterval(poll); poll = null; }
-        }, 5000);
-      }
-
       qInput.addEventListener("input", renderResults);
-      (async function init() { await loadMirror(); await loadWants(); renderResults(); renderQueue(); if (Object.keys(wants).filter(isQueued).length) ensurePoll(); qInput.focus(); })();
+      (async function init() { await loadMirror(); await loadWants(); renderResults(); renderQueue(); qInput.focus(); })();
     </script>
   </body>
 </html>
