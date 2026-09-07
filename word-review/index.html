@@ -75,7 +75,11 @@
       let mirror = {}, words = [];
       let wants = {}, skipped = new Set();
 
-      async function loadAll() {
+      // seedWants: only take the server's want list on the first load. Later
+      // polls keep the local optimistic `wants` (so a just-clicked Add isn't
+      // reverted by a poll GET that raced its POST) and instead drop a word
+      // once the mirror shows it actually became active (i.e. it was synced).
+      async function loadAll(seedWants) {
         try {
           const [cd, wd, sd] = await Promise.all([
             fetch("/api/cards", { cache: "no-store" }).then((r) => r.json()),
@@ -84,7 +88,8 @@
           ]);
           mirror = cd.cards || {};
           words = Object.keys(mirror);
-          wants = wd.wants || {};
+          if (seedWants) wants = wd.wants || {};
+          for (const w in wants) if (mirror[w] && mirror[w].s === false) delete wants[w];
           skipped = new Set(sd.skipped || []);
           if (!words.length) { stale.hidden = false; stale.textContent = "⚠ Anki mirror not synced yet — run sync_anki_upstash.py."; }
           else if (cd.generated) {
@@ -172,14 +177,14 @@
         if (poll) return;
         poll = setInterval(async () => {
           const before = Object.keys(wants).filter((w) => wants[w] === "unsuspend").length;
-          await loadAll();
+          await loadAll(false);
           const after = Object.keys(wants).filter((w) => wants[w] === "unsuspend").length;
           render();
           if (!after && before && poll) { clearInterval(poll); poll = null; }
         }, 5000);
       }
 
-      (async function init() { await loadAll(); render(); if (Object.keys(wants).some((w) => wants[w] === "unsuspend")) ensurePoll(); })();
+      (async function init() { await loadAll(true); render(); if (Object.keys(wants).some((w) => wants[w] === "unsuspend")) ensurePoll(); })();
     </script>
   </body>
 </html>

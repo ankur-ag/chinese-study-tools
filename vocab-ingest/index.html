@@ -214,9 +214,11 @@
         if (!polling) polling = setInterval(pollSync, 5000);
       }
       async function pollSync() {
-        const before = Object.keys(wants).length;
-        await loadWants();
-        if (Object.keys(wants).length !== before) await loadMirror();
+        // Keep the local optimistic `wants` (don't overwrite it from a GET that
+        // may race a just-sent POST). Refresh the mirror and drop a word once it
+        // actually became active (i.e. it was synced into Anki).
+        await loadMirror();
+        for (const w in wants) if (mirror[w] && mirror[w].s === false) delete wants[w];
         render();
         if (!Object.keys(wants).some((x) => wants[x] === "unsuspend") && polling) { clearInterval(polling); polling = null; }
       }

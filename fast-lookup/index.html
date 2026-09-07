@@ -138,10 +138,12 @@
       function ensurePoll() {
         if (poll) return;
         poll = setInterval(async () => {
-          const before = Object.keys(wants).filter(isQueued).length;
-          await loadWants();
+          // Keep the local optimistic `wants` (don't overwrite it from a GET
+          // that may race a just-sent POST). Refresh the mirror and drop a
+          // queued word once it actually became active (i.e. it was synced).
+          await loadMirror();
+          for (const w in wants) if (mirror[w] && mirror[w].s === false) delete wants[w];
           const after = Object.keys(wants).filter(isQueued).length;
-          if (after !== before) await loadMirror(); // sync ran — refresh statuses
           renderQueue(); renderResults();
           if (!after && poll) { clearInterval(poll); poll = null; }
         }, 5000);
