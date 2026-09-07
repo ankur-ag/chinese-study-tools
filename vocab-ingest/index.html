@@ -59,6 +59,8 @@
       .row .g { color: #b7bcc3; font-size: 14px; flex: 1 1 auto; min-width: 0; }
       .row .g.none { color: #666; font-style: italic; }
       .row .flag { font-size: 12px; color: #7dd3fc; flex: 0 0 auto; }
+      .row .addb { background: #1d4ed8; color: #fff; border: 1px solid #1d4ed8; border-radius: 9px; padding: 5px 12px; font-size: 13px; cursor: pointer; flex: 0 0 auto; }
+      .row .addb:hover { background: #2563eb; }
       .row .skipb { background: #2c2c30; color: #cbd0d6; border: 1px solid #3a3a40; border-radius: 9px; padding: 5px 11px; font-size: 13px; cursor: pointer; flex: 0 0 auto; }
       .row .skipb:hover { background: #34343a; }
       .row .x { color: #6b7280; font-size: 15px; flex: 0 0 auto; padding: 0 2px; cursor: pointer; }
@@ -89,13 +91,7 @@
       <!-- In Anki, suspended -->
       <section>
         <div class="sec-title t-susp">◐ In Anki, suspended · <span id="c-susp">0</span></div>
-        <div class="sec-sub">Select and mark to enable — applied to Anki on the next sync.</div>
-        <div class="bar">
-          <span class="count" id="sel-count">0 selected</span>
-          <button class="link" id="sel-all">select all</button>
-          <button class="link" id="sel-none">none</button>
-          <button class="primary" id="add-tocfl">Enable selected in TOCFL</button>
-        </div>
+        <div class="sec-sub">Add to enable (applied on the next sync), or Skip to set aside.</div>
         <div class="rows" id="list-susp"></div>
         <p class="note">Marked words wait in Upstash. Run <code>./sync_anki_upstash.py --url https://&lt;your-app&gt;.vercel.app</code> to apply — they turn active and leave this list.</p>
       </section>
@@ -139,7 +135,6 @@
       const gloss = {};
       let wants = {};        // word -> "suspend"|"unsuspend" (pending, applied on sync)
       let skipped = new Set();
-      const selected = new Set();
 
       async function loadMirror() {
         try {
@@ -160,7 +155,7 @@
         try { skipped = new Set((await fetch("/api/skip", { cache: "no-store" }).then((r) => r.json())).skipped || []); } catch (e) {}
       }
       async function skipWord(w) {
-        skipped.add(w); selected.delete(w); render();
+        skipped.add(w); render();
         await fetch("/api/skip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w }) });
       }
 
@@ -179,6 +174,7 @@
         g.className = "g" + (gv ? "" : " none"); g.textContent = gv || "— no meaning"; row.appendChild(g);
         if (opts.flag) { const f = document.createElement("span"); f.className = "flag"; f.textContent = opts.flag; row.appendChild(f); }
         if (opts.onToggle) row.addEventListener("click", opts.onToggle);
+        if (opts.onAdd) { const a = document.createElement("button"); a.className = "addb"; a.textContent = "Add"; a.title = "Enable in Anki on next sync"; a.addEventListener("click", (ev) => { ev.stopPropagation(); opts.onAdd(); }); row.appendChild(a); }
         if (opts.onSkip) { const s = document.createElement("button"); s.className = "skipb"; s.textContent = "Skip"; s.title = "Set aside — won't be enabled"; s.addEventListener("click", (ev) => { ev.stopPropagation(); opts.onSkip(); }); row.appendChild(s); }
         if (opts.onRemove) { const x = document.createElement("span"); x.className = "x"; x.textContent = "✕"; x.title = "Remove"; x.addEventListener("click", (ev) => { ev.stopPropagation(); opts.onRemove(); }); row.appendChild(x); }
         return row;
@@ -197,9 +193,9 @@
           if (c === "susp") {
             cS++;
             lS.appendChild(rowEl(e, {
-              cls: "pick " + (pending ? "pending" : selected.has(e.t) ? "sel" : ""),
+              cls: pending ? "pending" : "",
               flag: pending ? "⏳ will enable on sync" : "",
-              onToggle: pending ? null : () => { selected.has(e.t) ? selected.delete(e.t) : selected.add(e.t); render(); },
+              onAdd: pending ? null : () => addWord(e.t),
               onSkip: pending ? null : () => skipWord(e.t),
               onRemove: pending ? null : () => removeWord(e.t),
             }));
@@ -209,7 +205,20 @@
         if (!cN) lN.innerHTML = '<span class="empty">None.</span>';
         document.getElementById("c-susp").textContent = cS;
         document.getElementById("c-new").textContent = cN;
-        document.getElementById("sel-count").textContent = selected.size + " selected";
+      }
+
+      let polling = null;
+      async function addWord(w) {
+        wants[w] = "unsuspend"; render();
+        await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "unsuspend" }) });
+        if (!polling) polling = setInterval(pollSync, 5000);
+      }
+      async function pollSync() {
+        const before = Object.keys(wants).length;
+        await loadWants();
+        if (Object.keys(wants).length !== before) await loadMirror();
+        render();
+        if (!Object.keys(wants).some((x) => wants[x] === "unsuspend") && polling) { clearInterval(polling); polling = null; }
       }
 
       async function refresh() {
@@ -217,7 +226,6 @@
           const [ing] = await Promise.all([fetch("/api/ingest", { cache: "no-store" }).then((r) => r.json()), loadWants(), loadSkip()]);
           todo = (ing.entries || []).sort((a, b) => a.t.localeCompare(b.t));
           todo.forEach((e) => { if (e.g) gloss[e.t] = e.g; });
-          for (const w of [...selected]) if (!todo.some((e) => e.t === w)) selected.delete(w);
           render();
         } catch (e) { render(); }
       }
@@ -256,43 +264,11 @@
       });
 
       async function removeWord(w) {
-        selected.delete(w);
         await fetch("/api/ingest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ remove: [w] }) });
         await refresh();
       }
 
-      document.getElementById("sel-all").addEventListener("click", () => { todo.forEach((e) => { if (cat(e.t) === "susp" && wants[e.t] !== "unsuspend" && !skipped.has(e.t)) selected.add(e.t); }); render(); });
-      document.getElementById("sel-none").addEventListener("click", () => { selected.clear(); render(); });
-
-      let polling = null;
-      document.getElementById("add-tocfl").addEventListener("click", async (e) => {
-        const words = [...selected].filter((w) => wants[w] !== "unsuspend");
-        if (!words.length) { status.className = "err"; status.textContent = "Select suspended words first."; return; }
-        e.target.disabled = true; busy(true, "Marking to enable…");
-        try {
-          // Enable = write a "want" in Upstash; sync_anki_upstash.py applies it later.
-          for (const w of words) {
-            await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "unsuspend" }) });
-            wants[w] = "unsuspend";
-          }
-          selected.clear();
-          render();
-          status.className = "ok";
-          status.textContent = "Marked " + words.length + " to enable. Run sync_anki_upstash.py to apply — they'll turn active and leave the list.";
-          if (!polling) polling = setInterval(pollSync, 5000);
-        } catch (err) { status.className = "err"; status.textContent = "Failed: " + err.message; }
-        finally { e.target.disabled = false; }
-      });
-
-      async function pollSync() {
-        const before = Object.keys(wants).length;
-        await loadWants();
-        if (Object.keys(wants).length !== before) await loadMirror(); // sync ran — refresh status
-        render();
-        if (!Object.keys(wants).some((w) => wants[w] === "unsuspend") && polling) { clearInterval(polling); polling = null; }
-      }
-
-      (async function init() { await loadMirror(); await refresh(); if (Object.keys(wants).length) { if (!polling) polling = setInterval(pollSync, 5000); } })();
+      (async function init() { await loadMirror(); await refresh(); if (Object.keys(wants).some((x) => wants[x] === "unsuspend")) { if (!polling) polling = setInterval(pollSync, 5000); } })();
     </script>
   </body>
 </html>
