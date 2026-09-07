@@ -41,7 +41,12 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, count: 0 });
       }
       if (Array.isArray(b.remove) && b.remove.length) {
-        for (const w of b.remove) await redis(["HDEL", KEY, String(w)]);
+        // One HDEL with all fields (chunked) — sequential per-word calls blow
+        // the serverless timeout on large lists.
+        const fields = b.remove.map(String);
+        for (let i = 0; i < fields.length; i += 256) {
+          await redis(["HDEL", KEY, ...fields.slice(i, i + 256)]);
+        }
         return res.status(200).json({ ok: true, count: await redis(["HLEN", KEY]) });
       }
       const items = Array.isArray(b.words) ? b.words.slice(0, 500) : [];

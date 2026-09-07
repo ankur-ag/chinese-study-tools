@@ -24,10 +24,14 @@ export default async function handler(req, res) {
     }
     if (req.method === "POST") {
       const b = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
-      if (Array.isArray(b.clear)) {
-        for (const w of b.clear) await redis(["HDEL", KEY, String(w)]);
+      if (Array.isArray(b.clear) && b.clear.length) {
+        const fields = b.clear.map(String);
+        for (let i = 0; i < fields.length; i += 256) {
+          await redis(["HDEL", KEY, ...fields.slice(i, i + 256)]);
+        }
         return res.status(200).json({ ok: true });
       }
+      if (Array.isArray(b.clear)) return res.status(200).json({ ok: true });
       const word = (b.word || "").toString().trim();
       const action = ["suspend", "unsuspend"].includes(b.action) ? b.action : null;
       if (!word || !action) return res.status(400).json({ error: "word + action (suspend|unsuspend) required" });
