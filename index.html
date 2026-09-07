@@ -46,6 +46,12 @@
         margin-top: 4px;
       }
       footer { margin-top: 40px; color: #666; font-size: 13px; }
+      .mirror { margin-top: 26px; font-size: 13px; color: #9aa0a6; display: flex; align-items: center; gap: 8px; }
+      .mirror .dot { width: 9px; height: 9px; border-radius: 50%; background: #6b7280; flex: 0 0 auto; }
+      .mirror.fresh .dot { background: #4ade80; }
+      .mirror.ok .dot { background: #d1a54a; }
+      .mirror.stale .dot { background: #f87171; }
+      .mirror b { color: #ddd; font-weight: 600; }
     </style>
   </head>
   <body>
@@ -73,7 +79,35 @@
         <!-- Add more tools here as they're built. -->
       </div>
 
+      <div class="mirror" id="mirror"><span class="dot"></span><span id="mirror-txt">Anki mirror: checking…</span></div>
       <footer>Built with Anki + a few gists. More tools coming.</footer>
     </div>
+    <script>
+      (async function () {
+        const el = document.getElementById("mirror");
+        const txt = document.getElementById("mirror-txt");
+        const ago = (iso) => {
+          const d = (Date.now() - new Date(iso).getTime()) / 1000;
+          if (d < 60) return "just now";
+          if (d < 3600) return Math.round(d / 60) + " min ago";
+          if (d < 86400) return Math.round(d / 3600) + " h ago";
+          return Math.round(d / 86400) + " days ago";
+        };
+        try {
+          const d = await fetch("/api/cards", { cache: "no-store" }).then((r) => r.json());
+          if (!d.generated) {
+            el.className = "mirror stale";
+            txt.innerHTML = "Anki mirror: <b>not synced yet</b> — run sync_anki_upstash.py";
+            return;
+          }
+          const secs = (Date.now() - new Date(d.generated).getTime()) / 1000;
+          el.className = "mirror " + (secs < 3600 ? "fresh" : secs < 86400 ? "ok" : "stale");
+          txt.innerHTML = "Anki mirror: <b>synced " + ago(d.generated) + "</b> · " + d.count + " words";
+        } catch (e) {
+          el.className = "mirror stale";
+          txt.textContent = "Anki mirror: unavailable";
+        }
+      })();
+    </script>
   </body>
 </html>
