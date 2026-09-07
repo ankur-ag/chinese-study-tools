@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reading</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #1c1c1e; color: #eee;
+        font-family: "PingFang TC", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.5;
+      }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 24px 18px 70px; }
+      a.back { color: #7c828a; text-decoration: none; font-size: 13px; }
+      h1 { font-size: 22px; font-weight: 800; margin-top: 6px; }
+      p.sub { color: #999; font-size: 14px; margin-top: 4px; }
+      .meta { color: #7c828a; font-size: 12px; margin-top: 6px; }
+
+      .card { margin-top: 22px; background: #232326; border: 1px solid #2e2e33; border-radius: 14px; padding: 20px; }
+      .zh { font-size: 22px; line-height: 2.1; letter-spacing: 0.01em; white-space: pre-wrap; }
+      .zh .kw { color: #7ee2a5; font-weight: 700; border-bottom: 1px solid #2f5d3f; }
+
+      .reveal { margin-top: 16px; }
+      .reveal button {
+        background: #2c2c30; color: #cbd0d6; border: 1px solid #3a3a40;
+        border-radius: 9px; padding: 7px 14px; font-size: 13px; cursor: pointer;
+      }
+      .reveal button:hover { background: #34343a; }
+      .en { margin-top: 12px; color: #b7bcc3; font-size: 15px; line-height: 1.7; white-space: pre-wrap; }
+
+      .words { margin-top: 26px; }
+      .words .sec { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #cbd0d6; cursor: pointer; user-select: none; }
+      .words .sec .chev { color: #7c828a; }
+      .rows { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+      .row { display: flex; align-items: baseline; gap: 12px; background: #232326; border: 1px solid #2e2e33; border-radius: 10px; padding: 9px 12px; }
+      .row .t { font-size: 20px; font-weight: 600; flex: 0 0 auto; min-width: 3.4em; }
+      .row .py { color: #93b3f0; font-size: 14px; flex: 0 0 auto; min-width: 7em; }
+      .row .m { color: #a7adb5; font-size: 13px; flex: 1 1 auto; min-width: 0; }
+      .empty { color: #666; font-size: 14px; padding: 8px 2px; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="/">← Tools</a>
+      <h1>📚 Reading</h1>
+      <p class="sub">A short piece in Taiwan Mandarin built from the words you recently started studying. Read it first — reveal the English only when you need it.</p>
+      <p class="meta" id="meta"></p>
+
+      <div id="content"><p class="empty">Loading…</p></div>
+
+      <section class="words" id="wordsec" hidden>
+        <div class="sec" id="wordtoggle">🔒 Words in this piece · <span id="wc">0</span> <span class="chev" id="chev">▸</span></div>
+        <div class="rows" id="words" hidden></div>
+      </section>
+    </div>
+
+    <script>
+      const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+      function highlight(zh, words) {
+        let out = esc(zh);
+        // longest first so multi-char words win over their substrings
+        const keys = words.map((w) => w.t).filter(Boolean).sort((a, b) => b.length - a.length);
+        for (const k of keys) {
+          const ek = esc(k);
+          out = out.split(ek).join('<span class="kw">' + ek + "</span>");
+        }
+        return out;
+      }
+
+      (async function () {
+        let d;
+        try { d = await fetch("/api/reading", { cache: "no-store" }).then((r) => r.json()); }
+        catch (e) { document.getElementById("content").innerHTML = '<p class="empty">Could not load the reading.</p>'; return; }
+
+        const content = document.getElementById("content");
+        if (!d || !d.passages || !d.passages.length) {
+          content.innerHTML = '<p class="empty">No reading yet — ask Claude to generate one from your recent words.</p>';
+          return;
+        }
+
+        const meta = document.getElementById("meta");
+        const bits = [];
+        if (d.title) bits.push(d.title);
+        if (d.generated) bits.push("generated " + new Date(d.generated).toLocaleDateString());
+        meta.textContent = bits.join(" · ");
+
+        const words = d.words || [];
+        content.innerHTML = "";
+        d.passages.forEach((p, i) => {
+          const card = document.createElement("div"); card.className = "card";
+          const zh = document.createElement("div"); zh.className = "zh"; zh.innerHTML = highlight(p.zh, words); card.appendChild(zh);
+          if (p.en) {
+            const rev = document.createElement("div"); rev.className = "reveal";
+            const btn = document.createElement("button"); btn.textContent = "Show English";
+            const en = document.createElement("div"); en.className = "en"; en.textContent = p.en; en.hidden = true;
+            btn.addEventListener("click", () => { en.hidden = !en.hidden; btn.textContent = en.hidden ? "Show English" : "Hide English"; });
+            rev.appendChild(btn); card.appendChild(rev); card.appendChild(en);
+          }
+          content.appendChild(card);
+        });
+
+        // Word glossary — hidden behind a toggle so it doesn't spoil the read.
+        if (words.length) {
+          document.getElementById("wordsec").hidden = false;
+          document.getElementById("wc").textContent = words.length;
+          const box = document.getElementById("words");
+          words.forEach((w) => {
+            const r = document.createElement("div"); r.className = "row";
+            r.innerHTML = '<span class="t">' + esc(w.t) + '</span><span class="py">' + esc(w.py || "") + '</span><span class="m">' + esc(w.m || "") + "</span>";
+            box.appendChild(r);
+          });
+          const toggle = document.getElementById("wordtoggle"), chev = document.getElementById("chev");
+          document.getElementById("wordtoggle").addEventListener("click", () => {
+            box.hidden = !box.hidden;
+            chev.textContent = box.hidden ? "▸" : "▾";
+            toggle.firstChild.textContent = (box.hidden ? "🔒" : "🔓") + " Words in this piece · ";
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
