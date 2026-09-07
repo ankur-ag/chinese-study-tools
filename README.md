@@ -9,7 +9,7 @@ track. Static pages + a few Vercel serverless functions.
 index.html            home page listing the tools
 word-review/          Tool: teachers 👍/👎 the words about to enter my rotation
 vocab-ingest/         Tool: paste class vocab -> study list -> Anki TODO cards
-api/                  Serverless functions (shared): vote.js, state.js, ingest.js, tocfl.js, _redis.js
+api/                  Serverless functions (shared): vote.js, state.js, ingest.js, tocfl.js, cards.js, want.js, _redis.js
 ```
 
 Add a new tool as `<tool-name>/index.html` and link it from `index.html`.
@@ -60,4 +60,17 @@ failed. With Anki open:
 It never creates cards. Results flow back to the page, sorting words into
 Enabled / Failed piles. Failed (new) words can then be saved to the study list
 and turned into TODO cards with ingest_vocab.py.
+
+## Anki mirror (build tools on your deck state)
+
+`GET /api/cards` returns a snapshot of the TOCFL deck — every word with
+deck/pinyin/meaning/suspended — for any tool to read. Tools request changes via
+`POST /api/want {word, action:"suspend"|"unsuspend"}`; nothing touches Anki
+directly. Sync (Anki must be open):
+
+```bash
+./sync_anki_upstash.py --url https://<your-app>.vercel.app
+```
+
+Two-way: it applies queued `want` changes to Anki, then pushes a fresh snapshot.
 
