@@ -71,15 +71,34 @@
       #status.err { color: #f8a3a3; }
       code { background: #232326; border: 1px solid #2e2e33; border-radius: 6px; padding: 1px 6px; font-size: 13px; }
       .note { color: #7c828a; font-size: 13px; margin-top: 8px; }
+      input[type="search"] {
+        width: 100%; margin-top: 14px; background: #232326; color: #eee;
+        border: 1px solid #3a3a40; border-radius: 12px; padding: 12px 15px; font-size: 16px; font-family: inherit;
+      }
+      input[type="search"]:focus { outline: none; border-color: #60a5fa; }
+      .row .py { color: #93b3f0; font-size: 14px; flex: 0 0 auto; min-width: 6em; }
+      .row .m2 { color: #a7adb5; font-size: 13px; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .badge2 { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; flex: 0 0 auto; }
+      .b-active { color: #7ee2a5; background: #14361f; }
+      .b-queued { color: #7dd3fc; background: #123047; }
+      .divider { display: flex; align-items: center; gap: 12px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin: 26px 4px 4px; }
+      .divider::before, .divider::after { content: ""; flex: 1 1 auto; height: 1px; background: #2e2e33; }
     </style>
   </head>
   <body>
     <div class="wrap">
       <a class="back" href="/">← Tools</a>
-      <h1>📝 Vocab ingest</h1>
-      <p class="sub">Paste class words. Ones already active in Anki are skipped; the rest split into “in Anki (suspended)” and “not in Anki.”</p>
+      <h1>🔎 Enable words</h1>
+      <p class="sub">Enable words two ways: search your deck and tap Enable, or paste a list. Anything not in your TOCFL deck goes to the Preply list, added on the next sync.</p>
       <p class="stale-note" id="stale" hidden></p>
 
+      <input id="q" type="search" placeholder="搜尋 · search your deck — hanzi, pinyin, or meaning…" autocomplete="off" />
+      <section id="search-sec" hidden>
+        <div class="sec-title">Search results · <span id="c-res">0</span></div>
+        <div class="rows" id="results"></div>
+      </section>
+
+      <div class="divider">or paste a list</div>
       <textarea id="input" placeholder="老師 lǎoshī teacher&#10;圖書館 library&#10;學生 xuéshēng student&#10;朋友、同學"></textarea>
       <p class="hint">Meanings come from Anki automatically for known words; for new words, paste <b>word pinyin meaning</b> per line.</p>
       <div class="bar">
@@ -205,7 +224,38 @@
         if (!cN) lN.innerHTML = '<span class="empty">None.</span>';
         document.getElementById("c-susp").textContent = cS;
         document.getElementById("c-new").textContent = cN;
+        renderSearch();
       }
+
+      // --- Fast lookup: search the deck and enable suspended words directly ---
+      const qInput = document.getElementById("q");
+      const noTone = (s) => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+      function renderSearch() {
+        const sec = document.getElementById("search-sec");
+        const box = document.getElementById("results");
+        const q = qInput.value.trim();
+        if (!q) { sec.hidden = true; box.innerHTML = ""; document.getElementById("c-res").textContent = 0; return; }
+        sec.hidden = false;
+        const qn = noTone(q);
+        const hits = Object.keys(mirror)
+          .filter((w) => w.includes(q) || noTone(mirror[w].py).includes(qn) || (mirror[w].m || "").toLowerCase().includes(qn))
+          .slice(0, 50);
+        box.innerHTML = "";
+        hits.forEach((w) => {
+          const m = mirror[w];
+          const r = document.createElement("div"); r.className = "row";
+          const t = document.createElement("span"); t.className = "t"; t.textContent = w; r.appendChild(t);
+          const py = document.createElement("span"); py.className = "py"; py.textContent = m.py || ""; r.appendChild(py);
+          const me = document.createElement("span"); me.className = "m2"; me.textContent = m.m || ""; r.appendChild(me);
+          if (wants[w] === "unsuspend") { const b = document.createElement("span"); b.className = "badge2 b-queued"; b.textContent = "queued"; r.appendChild(b); }
+          else if (!m.s) { const b = document.createElement("span"); b.className = "badge2 b-active"; b.textContent = "✓ active"; r.appendChild(b); }
+          else { const btn = document.createElement("button"); btn.className = "addb"; btn.textContent = "Enable"; btn.addEventListener("click", () => addWord(w)); r.appendChild(btn); }
+          box.appendChild(r);
+        });
+        if (!hits.length) box.innerHTML = '<span class="empty">No matches in your deck.</span>';
+        document.getElementById("c-res").textContent = hits.length;
+      }
+      qInput.addEventListener("input", renderSearch);
 
       async function addWord(w) {
         wants[w] = "unsuspend"; render();

@@ -1,9 +1,11 @@
 import { redis, cors } from "./_redis.js";
 
-// Snapshot of the Anki TOCFL deck, pushed by sync_anki_upstash.py and read by
-// any tool. Stored as one JSON blob so it's one command to read/write.
-//   GET            -> { generated, count, cards: { word: {deck,py,m,s} } }
-//   POST { cards } -> replace the snapshot (from the local sync)
+// Snapshot of the Anki decks, pushed by sync_anki_upstash.py and read by any
+// tool. Stored as one JSON blob so it's one command to read/write.
+//   GET                     -> { generated, count, cards: {word:{deck,py,m,s,o}},
+//                                preply: { word: {py,m,s,score} } }
+//   POST { cards, preply? } -> replace the snapshot (from the local sync)
+// `cards` is the TOCFL mirror; `preply` is the Preply deck (word->status+score).
 const KEY = "anki:cards";
 
 export default async function handler(req, res) {
@@ -13,7 +15,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const s = await redis(["GET", KEY]);
       res.setHeader("Cache-Control", "no-store");
-      return res.status(200).json(s ? JSON.parse(s) : { generated: null, count: 0, cards: {} });
+      return res.status(200).json(s ? JSON.parse(s) : { generated: null, count: 0, cards: {}, preply: {} });
     }
     if (req.method === "POST") {
       const b = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
@@ -22,6 +24,7 @@ export default async function handler(req, res) {
         generated: b.generated || new Date().toISOString(),
         count: Object.keys(b.cards).length,
         cards: b.cards,
+        preply: b.preply && typeof b.preply === "object" ? b.preply : {},
       };
       await redis(["SET", KEY, JSON.stringify(payload)]);
       return res.status(200).json({ ok: true, count: payload.count });

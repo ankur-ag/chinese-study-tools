@@ -17,9 +17,17 @@
       p.sub { color: #999; font-size: 14px; margin-top: 4px; }
       .stale-note { color: #d1a54a; font-size: 12px; margin-top: 6px; }
 
-      section { margin-top: 26px; }
+      .tabs { display: flex; gap: 6px; margin-top: 18px; border-bottom: 1px solid #2e2e33; }
+      .tab { background: none; border: none; color: #9aa0a6; font-size: 15px; font-weight: 600;
+             padding: 9px 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+      .tab:hover { color: #ddd; }
+      .tab.on { color: #fff; border-bottom-color: #60a5fa; }
+      .tab .n { color: #7c828a; font-weight: 500; font-size: 13px; }
+
+      section { margin-top: 22px; }
       .sec-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 4px 6px; color: #cbd0d6; }
       .sec-title.q { color: #7dd3fc; }
+      .sec-title.warn { color: #e0a37a; }
       .sec-title.sk { color: #9aa0a6; }
       .sec-sub { font-size: 12px; color: #7c828a; margin: 0 4px 10px; }
       details > summary { cursor: pointer; }
@@ -27,57 +35,83 @@
       .rows { display: flex; flex-direction: column; gap: 6px; }
       .row { display: flex; align-items: center; gap: 12px; background: #232326; border: 1px solid #2e2e33; border-radius: 10px; padding: 9px 12px; }
       .row .rank { color: #6b7280; font-size: 12px; flex: 0 0 auto; min-width: 2.2em; text-align: right; }
+      .row .rank.score { color: #7ee2a5; font-weight: 700; }
       .row .t { font-size: 22px; font-weight: 600; flex: 0 0 auto; min-width: 2.6em; }
       .row .py { color: #93b3f0; font-size: 14px; flex: 0 0 auto; min-width: 6em; }
       .row .m { color: #a7adb5; font-size: 13px; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .btns { display: flex; gap: 6px; flex: 0 0 auto; }
-      button { border-radius: 9px; padding: 6px 13px; font-size: 13px; cursor: pointer; border: 1px solid #3a3a40; }
+      button.act { border-radius: 9px; padding: 6px 13px; font-size: 13px; cursor: pointer; border: 1px solid #3a3a40; }
       .add { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
       .add:hover { background: #2563eb; }
       .skip { background: #2c2c30; color: #cbd0d6; }
       .skip:hover { background: #34343a; }
       .badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; flex: 0 0 auto; color: #7dd3fc; background: #123047; }
+      .badge.warn { color: #e0a37a; background: #3a2a1a; }
       .x { color: #6b7280; cursor: pointer; padding: 0 4px; flex: 0 0 auto; }
       .x:hover { color: #7ee2a5; }
       .empty { color: #666; font-size: 13px; padding: 4px 6px; }
       .hint { color: #7c828a; font-size: 13px; margin-top: 8px; }
       code { background: #232326; border: 1px solid #2e2e33; border-radius: 6px; padding: 1px 6px; font-size: 13px; }
+      [hidden] { display: none !important; }
     </style>
   </head>
   <body>
     <div class="wrap">
       <a class="back" href="/">← Tools</a>
       <h1>📖 Word review</h1>
-      <p class="sub">The next words Anki would introduce, in deck order. <b>Add</b> to enable on the next sync, or <b>Skip</b> to set aside.</p>
+      <p class="sub">Review words deck by deck. On the next sync, <b>Add</b> enables and <b>Skip</b> suspends.</p>
       <p class="stale-note" id="stale" hidden></p>
 
-      <section>
-        <div class="sec-title">Next up · showing <span id="c-next">0</span></div>
-        <div class="sec-sub">Suspended words by Anki order, minus anything already added or skipped.</div>
-        <div class="rows" id="list-next"></div>
-      </section>
+      <div class="tabs">
+        <button class="tab on" id="tab-tocfl">TOCFL <span class="n" id="tn-tocfl"></span></button>
+        <button class="tab" id="tab-preply">Preply <span class="n" id="tn-preply"></span></button>
+      </div>
 
-      <section>
-        <div class="sec-title q">Marked to enable · <span id="c-add">0</span></div>
-        <div class="rows" id="list-add"></div>
-        <p class="hint">Run <code>./sync_anki_upstash.py --url https://&lt;your-app&gt;.vercel.app</code> — these get unsuspended in Anki and leave the list.</p>
-      </section>
+      <!-- ============ TOCFL ============ -->
+      <div id="panel-tocfl">
+        <section>
+          <div class="sec-title">Next up · showing <span id="c-next">0</span></div>
+          <div class="sec-sub">Suspended words by Anki order, minus anything already added or skipped.</div>
+          <div class="rows" id="list-next"></div>
+        </section>
 
-      <details>
-        <summary class="sec-title sk" style="list-style:revert">Skipped · <span id="c-skip">0</span> (set aside, not enabled)</summary>
-        <div class="rows" id="list-skip" style="margin-top:10px"></div>
-      </details>
+        <section>
+          <div class="sec-title q">Marked to enable · <span id="c-add">0</span></div>
+          <div class="rows" id="list-add"></div>
+          <p class="hint">Run <code>./sync_anki_upstash.py --url https://&lt;your-app&gt;.vercel.app</code> — these get unsuspended in Anki and leave the list.</p>
+        </section>
+
+        <details>
+          <summary class="sec-title sk" style="list-style:revert">Skipped · <span id="c-skip">0</span> (set aside, not enabled)</summary>
+          <div class="rows" id="list-skip" style="margin-top:10px"></div>
+        </details>
+      </div>
+
+      <!-- ============ Preply ============ -->
+      <div id="panel-preply" hidden>
+        <section>
+          <div class="sec-title">Active · <span id="c-pactive">0</span></div>
+          <div class="sec-sub">Preply words you're studying now, most useful first. <b>Skip</b> to suspend on the next sync.</div>
+          <div class="rows" id="list-pactive"></div>
+        </section>
+
+        <section>
+          <div class="sec-title warn">Marked to suspend · <span id="c-psusp">0</span></div>
+          <div class="rows" id="list-psusp"></div>
+          <p class="hint">On the next sync these get suspended in Anki and leave the list.</p>
+        </section>
+      </div>
     </div>
 
     <script>
       const BATCH = 50;
       const stale = document.getElementById("stale");
-      let mirror = {}, words = [];
+      let mirror = {}, words = [], preply = {};
       let wants = {}, skipped = new Set();
 
-      // Read everything from Upstash. Anki sync is manual, so state only
-      // changes on our own writes or when the sync script runs — no polling.
-      // Words already active in the mirror (synced) drop off the "marked" list.
+      // Read everything from Upstash. Anki sync is manual, so state only changes
+      // on our own writes or when the sync runs — no polling. Words already
+      // synced (active enable / suspended skip) drop off their pending list.
       async function loadAll() {
         try {
           const [cd, wd, sd] = await Promise.all([
@@ -87,8 +121,12 @@
           ]);
           mirror = cd.cards || {};
           words = Object.keys(mirror);
+          preply = cd.preply || {};
           wants = wd.wants || {};
-          for (const w in wants) if (mirror[w] && mirror[w].s === false) delete wants[w];
+          for (const w in wants) {
+            if (wants[w] === "unsuspend" && mirror[w] && mirror[w].s === false) delete wants[w];
+            if (wants[w] === "suspend" && preply[w] && preply[w].s === true) delete wants[w];
+          }
           skipped = new Set(sd.skipped || []);
           if (!words.length) { stale.hidden = false; stale.textContent = "⚠ Anki mirror not synced yet — run sync_anki_upstash.py."; }
           else if (cd.generated) {
@@ -99,7 +137,6 @@
         } catch (e) {}
       }
 
-      // Suspended words, sorted by Anki order, excluding added (wants) and skipped.
       function nextUp() {
         return words
           .filter((w) => mirror[w].s && wants[w] !== "unsuspend" && !skipped.has(w))
@@ -107,25 +144,35 @@
           .slice(0, BATCH);
       }
 
-      function baseRow(w, withRank) {
-        const m = mirror[w] || {};
+      // src: mirror or preply. rank: number/string shown at left, or null.
+      function baseRow(w, src, rank, rankCls) {
+        const m = src[w] || {};
         const r = document.createElement("div"); r.className = "row";
-        if (withRank) { const rk = document.createElement("span"); rk.className = "rank"; rk.textContent = (m.o ?? ""); r.appendChild(rk); }
+        if (rank !== null) { const rk = document.createElement("span"); rk.className = "rank" + (rankCls ? " " + rankCls : ""); rk.textContent = rank; r.appendChild(rk); }
         const t = document.createElement("span"); t.className = "t"; t.textContent = w; r.appendChild(t);
         const py = document.createElement("span"); py.className = "py"; py.textContent = m.py || ""; r.appendChild(py);
         const me = document.createElement("span"); me.className = "m"; me.textContent = m.m || ""; r.appendChild(me);
         return r;
       }
 
-      function render() {
+      function btn(cls, label, fn) {
+        const b = document.createElement("button"); b.className = "act " + cls; b.textContent = label;
+        b.addEventListener("click", fn); return b;
+      }
+      function xmark(sym, title, fn) {
+        const x = document.createElement("span"); x.className = "x"; x.textContent = sym; x.title = title;
+        x.addEventListener("click", fn); return x;
+      }
+
+      function renderTocfl() {
         const ln = document.getElementById("list-next"); ln.innerHTML = "";
         const next = nextUp();
         next.forEach((w) => {
-          const r = baseRow(w, true);
-          const btns = document.createElement("div"); btns.className = "btns";
-          const add = document.createElement("button"); add.className = "add"; add.textContent = "Add"; add.addEventListener("click", () => addWord(w));
-          const sk = document.createElement("button"); sk.className = "skip"; sk.textContent = "Skip"; sk.addEventListener("click", () => skipWord(w));
-          btns.appendChild(add); btns.appendChild(sk); r.appendChild(btns);
+          const r = baseRow(w, mirror, mirror[w].o ?? "", null);
+          const bs = document.createElement("div"); bs.className = "btns";
+          bs.appendChild(btn("add", "Add", () => addWord(w)));
+          bs.appendChild(btn("skip", "Skip", () => skipWord(w)));
+          r.appendChild(bs);
           ln.appendChild(r);
         });
         if (!next.length) ln.innerHTML = '<span class="empty">Nothing left — all reviewed, or mirror not synced.</span>';
@@ -134,9 +181,9 @@
         const la = document.getElementById("list-add"); la.innerHTML = "";
         const added = Object.keys(wants).filter((w) => wants[w] === "unsuspend").sort((a, b) => (mirror[a]?.o || 0) - (mirror[b]?.o || 0));
         added.forEach((w) => {
-          const r = baseRow(w, false);
+          const r = baseRow(w, mirror, null);
           const b = document.createElement("span"); b.className = "badge"; b.textContent = "will enable"; r.appendChild(b);
-          const x = document.createElement("span"); x.className = "x"; x.textContent = "✕"; x.title = "Cancel"; x.addEventListener("click", () => cancelAdd(w)); r.appendChild(x);
+          r.appendChild(xmark("✕", "Cancel", () => cancelAdd(w)));
           la.appendChild(r);
         });
         if (!added.length) la.innerHTML = '<span class="empty">None marked yet.</span>';
@@ -145,32 +192,80 @@
         const ls = document.getElementById("list-skip"); ls.innerHTML = "";
         const sk = [...skipped].sort((a, b) => (mirror[a]?.o || 0) - (mirror[b]?.o || 0));
         sk.forEach((w) => {
-          const r = baseRow(w, false);
-          const x = document.createElement("span"); x.className = "x"; x.textContent = "↩"; x.title = "Un-skip"; x.addEventListener("click", () => unskip(w)); r.appendChild(x);
+          const r = baseRow(w, mirror, null);
+          r.appendChild(xmark("↩", "Un-skip", () => unskip(w)));
           ls.appendChild(r);
         });
         if (!sk.length) ls.innerHTML = '<span class="empty">None skipped.</span>';
         document.getElementById("c-skip").textContent = sk.length;
+
+        document.getElementById("tn-tocfl").textContent = next.length ? "· " + next.length : "";
       }
 
-      async function addWord(w) {
-        wants[w] = "unsuspend"; render();
-        await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "unsuspend" }) });
-      }
-      async function cancelAdd(w) {
-        delete wants[w]; render();
-        await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clear: [w] }) });
-      }
-      async function skipWord(w) {
-        skipped.add(w); render();
-        await fetch("/api/skip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w }) });
-      }
-      async function unskip(w) {
-        skipped.delete(w); render();
-        await fetch("/api/skip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ remove: [w] }) });
+      function renderPreply() {
+        const la = document.getElementById("list-pactive"); la.innerHTML = "";
+        const active = Object.keys(preply)
+          .filter((w) => preply[w].s === false && wants[w] !== "suspend")
+          .sort((a, b) => (preply[b].score || 0) - (preply[a].score || 0) || a.localeCompare(b));
+        active.forEach((w) => {
+          const r = baseRow(w, preply, preply[w].score || 0, "score");
+          const bs = document.createElement("div"); bs.className = "btns";
+          bs.appendChild(btn("skip", "Skip", () => skipPreply(w)));
+          r.appendChild(bs);
+          la.appendChild(r);
+        });
+        if (!active.length) la.innerHTML = '<span class="empty">No active Preply words — activate a batch with score_preply.py.</span>';
+        document.getElementById("c-pactive").textContent = active.length;
+
+        const ls = document.getElementById("list-psusp"); ls.innerHTML = "";
+        const marked = Object.keys(wants).filter((w) => wants[w] === "suspend").sort();
+        marked.forEach((w) => {
+          const r = baseRow(w, preply, null);
+          const b = document.createElement("span"); b.className = "badge warn"; b.textContent = "will suspend"; r.appendChild(b);
+          r.appendChild(xmark("↩", "Cancel", () => cancelSkipPreply(w)));
+          ls.appendChild(r);
+        });
+        if (!marked.length) ls.innerHTML = '<span class="empty">None marked.</span>';
+        document.getElementById("c-psusp").textContent = marked.length;
+
+        const total = Object.keys(preply).length;
+        document.getElementById("tn-preply").textContent = total ? "· " + total : "";
       }
 
-      (async function init() { await loadAll(); render(); })();
+      function render() { renderTocfl(); renderPreply(); }
+
+      // TOCFL actions
+      async function addWord(w) { wants[w] = "unsuspend"; render(); await post("/api/want", { word: w, action: "unsuspend" }); }
+      async function cancelAdd(w) { delete wants[w]; render(); await post("/api/want", { clear: [w] }); }
+      async function skipWord(w) { skipped.add(w); render(); await post("/api/skip", { word: w }); }
+      async function unskip(w) { skipped.delete(w); render(); await post("/api/skip", { remove: [w] }); }
+      // Preply actions
+      async function skipPreply(w) { wants[w] = "suspend"; render(); await post("/api/want", { word: w, action: "suspend" }); }
+      async function cancelSkipPreply(w) { delete wants[w]; render(); await post("/api/want", { clear: [w] }); }
+
+      function post(url, body) {
+        return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      }
+
+      // Tabs
+      function showTab(which) {
+        const isT = which === "tocfl";
+        document.getElementById("panel-tocfl").hidden = !isT;
+        document.getElementById("panel-preply").hidden = isT;
+        document.getElementById("tab-tocfl").classList.toggle("on", isT);
+        document.getElementById("tab-preply").classList.toggle("on", !isT);
+        try { localStorage.setItem("review-tab", which); } catch (e) {}
+      }
+      document.getElementById("tab-tocfl").addEventListener("click", () => showTab("tocfl"));
+      document.getElementById("tab-preply").addEventListener("click", () => showTab("preply"));
+
+      (async function init() {
+        await loadAll();
+        render();
+        let t = "tocfl";
+        try { t = localStorage.getItem("review-tab") || "tocfl"; } catch (e) {}
+        showTab(t);
+      })();
     </script>
   </body>
 </html>
