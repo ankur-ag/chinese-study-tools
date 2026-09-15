@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Vocab ingest</title>
+    <title>Enable words</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body {
@@ -83,6 +83,12 @@
       .b-queued { color: #7dd3fc; background: #123047; }
       .divider { display: flex; align-items: center; gap: 12px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin: 26px 4px 4px; }
       .divider::before, .divider::after { content: ""; flex: 1 1 auto; height: 1px; background: #2e2e33; }
+      .tabs { display: flex; gap: 6px; margin-top: 22px; border-bottom: 1px solid #2e2e33; }
+      .tab { background: none; border: none; color: #9aa0a6; font-size: 15px; font-weight: 600; padding: 9px 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+      .tab:hover { background: none; color: #ddd; }
+      .tab.on { color: #fff; border-bottom-color: #60a5fa; }
+      .tab .n { color: #7c828a; font-weight: 500; font-size: 13px; }
+      [hidden] { display: none !important; }
     </style>
   </head>
   <body>
@@ -92,35 +98,43 @@
       <p class="sub">Enable words two ways: search your deck and tap Enable, or paste a list. Anything not in your TOCFL deck goes to the Preply list, added on the next sync.</p>
       <p class="stale-note" id="stale" hidden></p>
 
-      <input id="q" type="search" placeholder="搜尋 · search your deck — hanzi, pinyin, or meaning…" autocomplete="off" />
-      <section id="search-sec" hidden>
-        <div class="sec-title">Search results · <span id="c-res">0</span></div>
-        <div class="rows" id="results"></div>
-      </section>
-
-      <div class="divider">or paste a list</div>
       <textarea id="input" placeholder="老師 lǎoshī teacher&#10;圖書館 library&#10;學生 xuéshēng student&#10;朋友、同學"></textarea>
-      <p class="hint">Meanings come from Anki automatically for known words; for new words, paste <b>word pinyin meaning</b> per line.</p>
+      <p class="hint">Paste class words — TOCFL words appear under the TOCFL tab to enable, the rest under Preply. For new words, paste <b>word pinyin meaning</b> per line.</p>
       <div class="bar">
         <span class="count" id="parsed-count">0 words parsed</span>
-        <button class="primary" id="add-list">Add to TODO ↓</button>
+        <button class="primary" id="add-list">Add to list ↓</button>
       </div>
       <div id="status"></div>
 
-      <!-- In Anki, suspended -->
-      <section>
-        <div class="sec-title t-susp">◐ In Anki, suspended · <span id="c-susp">0</span></div>
-        <div class="sec-sub">Add to enable (applied on the next sync), or Skip to set aside.</div>
-        <div class="rows" id="list-susp"></div>
-        <p class="note">Marked words wait in Upstash. Run <code>./sync_anki_upstash.py --url https://&lt;your-app&gt;.vercel.app</code> to apply — they turn active and leave this list.</p>
-      </section>
+      <div class="tabs">
+        <button class="tab on" id="tab-tocfl">TOCFL <span class="n" id="tn-tocfl"></span></button>
+        <button class="tab" id="tab-preply">Preply <span class="n" id="tn-preply"></span></button>
+      </div>
 
-      <!-- Not in Anki -->
-      <section>
-        <div class="sec-title t-new">🆕 Not in Anki · <span id="c-new">0</span></div>
-        <div class="sec-sub">Not in your TOCFL deck — the next sync adds these to the Preply deck.</div>
-        <div class="rows" id="list-new"></div>
-      </section>
+      <!-- ============ TOCFL (in your Anki deck) ============ -->
+      <div id="panel-tocfl">
+        <input id="q" type="search" placeholder="搜尋 · search your TOCFL deck — hanzi, pinyin, or meaning…" autocomplete="off" />
+        <section id="search-sec" hidden>
+          <div class="sec-title">Search results · <span id="c-res">0</span></div>
+          <div class="rows" id="results"></div>
+        </section>
+
+        <section>
+          <div class="sec-title t-susp">◐ In Anki, suspended · <span id="c-susp">0</span></div>
+          <div class="sec-sub">In your TOCFL deck but suspended. Add to enable on the next sync, or Skip to set aside.</div>
+          <div class="rows" id="list-susp"></div>
+          <p class="note">Marked words wait in Upstash and get enabled on the next <code>sync_anki_upstash.py</code>.</p>
+        </section>
+      </div>
+
+      <!-- ============ Preply (not in TOCFL) ============ -->
+      <div id="panel-preply" hidden>
+        <section>
+          <div class="sec-title t-new">🆕 Not in TOCFL · <span id="c-new">0</span></div>
+          <div class="sec-sub">Not in your TOCFL deck — the next sync adds these to the Preply deck.</div>
+          <div class="rows" id="list-new"></div>
+        </section>
+      </div>
     </div>
 
     <script>
@@ -224,8 +238,21 @@
         if (!cN) lN.innerHTML = '<span class="empty">None.</span>';
         document.getElementById("c-susp").textContent = cS;
         document.getElementById("c-new").textContent = cN;
+        document.getElementById("tn-tocfl").textContent = cS ? "· " + cS : "";
+        document.getElementById("tn-preply").textContent = cN ? "· " + cN : "";
         renderSearch();
       }
+
+      function showTab(which) {
+        const isT = which === "tocfl";
+        document.getElementById("panel-tocfl").hidden = !isT;
+        document.getElementById("panel-preply").hidden = isT;
+        document.getElementById("tab-tocfl").classList.toggle("on", isT);
+        document.getElementById("tab-preply").classList.toggle("on", !isT);
+        try { localStorage.setItem("enable-tab", which); } catch (e) {}
+      }
+      document.getElementById("tab-tocfl").addEventListener("click", () => showTab("tocfl"));
+      document.getElementById("tab-preply").addEventListener("click", () => showTab("preply"));
 
       // --- Fast lookup: search the deck and enable suspended words directly ---
       const qInput = document.getElementById("q");
@@ -309,7 +336,13 @@
         await refresh();
       }
 
-      (async function init() { await loadMirror(); await refresh(); })();
+      (async function init() {
+        await loadMirror();
+        await refresh();
+        let t = "tocfl";
+        try { t = localStorage.getItem("enable-tab") || "tocfl"; } catch (e) {}
+        showTab(t);
+      })();
     </script>
   </body>
 </html>
