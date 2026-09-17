@@ -1,8 +1,8 @@
 import { cors } from "./_redis.js";
 
 // English -> Chinese translation practice, via OpenRouter. Two modes:
-//   POST { mode:"generate", chars, words?, count?, instructions?, avoid? }
-//        -> { sentences: [{ english, chinese }] }  (restricted to `chars`)
+//   POST { mode:"generate", chars, words?, lines?, level?, length?, instructions?, avoid? }
+//        -> { english, chinese }  one coherent paragraph, restricted to `chars`
 //   POST { mode:"grade", english, chinese, answer }
 //        -> { isCorrect, advice, grammarPoint }
 // Needs OPENROUTER_API_KEY in the environment (Vercel project settings).
@@ -58,9 +58,9 @@ export default async function handler(req, res) {
     if (b.mode === "generate") {
       const chars = String(b.chars || "");
       if (!chars) return res.status(400).json({ error: "chars required (known vocabulary)" });
-      const count = Math.min(Math.max(parseInt(b.count) || 8, 1), 12);
+      const lines = Math.min(Math.max(parseInt(b.lines || b.count) || 8, 1), 15);
       const words = Array.isArray(b.words) ? b.words.slice(0, 60) : [];
-      const avoid = Array.isArray(b.avoid) ? b.avoid.slice(0, 40) : [];
+      const avoid = Array.isArray(b.avoid) ? b.avoid.slice(0, 20) : [];
       const level = ["beginner", "intermediate", "advanced"].includes(b.level) ? b.level : "intermediate";
       const length = ["short", "medium", "long"].includes(b.length) ? b.length : "medium";
       const LEVEL = {
@@ -74,25 +74,26 @@ export default async function handler(req, res) {
         long: "Length: LONG — each sentence about 16-30 Chinese characters, often two clauses.",
       };
       const system =
-        "You write natural Traditional Chinese (Taiwan Mandarin) sentences for a learner to translate into, " +
-        "and their English translations. Use the way Chinese is actually spoken in Taiwan, never mainland phrasing, " +
+        "You write a short, coherent Traditional Chinese (Taiwan Mandarin) paragraph for a learner to translate into, " +
+        "plus its English translation. Use the way Chinese is actually spoken in Taiwan, never mainland phrasing, " +
         "and only Traditional characters. Output ONLY valid JSON, no markdown.";
       const user =
-        `Generate ${count} everyday sentences a learner living in Taiwan would find useful.\n` +
+        `Write ONE coherent, natural paragraph of about ${lines} sentences — a little everyday scene, story, ` +
+        `or message someone in Taiwan might write. The sentences must connect into a single flowing paragraph, not a list.\n` +
         `${LEVEL[level]}\n${LENGTH[length]}\n\n` +
         `IMPORTANT: the Chinese may ONLY use these characters (plus numbers/punctuation): ${chars}\n` +
         `Do not use any other Chinese character.\n\n` +
         (words.length ? `For inspiration, some words the learner knows:\n${words.join("、")}\n\n` : "") +
-        (avoid.length ? `Avoid repeating these recent sentences:\n${avoid.join("\n")}\n\n` : "") +
+        (avoid.length ? `Write about something different from these recent paragraphs:\n${avoid.join("\n---\n")}\n\n` : "") +
         (b.instructions ? `Special request: ${String(b.instructions).slice(0, 300)}\n\n` : "") +
-        `Return JSON: {"sentences":[{"english":"...","chinese":"..."}]} with exactly ${count} items. ` +
-        `Keep each sentence natural and not too long.`;
-      const out = parseJson(await chat(system, user, 1400));
-      const sentences = (out.sentences || [])
-        .map((s) => ({ english: String(s.english || "").trim(), chinese: String(s.chinese || "").trim() }))
-        .filter((s) => s.english && s.chinese);
+        `Return JSON: {"english":"<the whole English paragraph>","chinese":"<the whole Traditional Chinese paragraph>"}. ` +
+        `Keep the two versions faithful to each other. Use normal sentence punctuation (。！？).`;
+      const out = parseJson(await chat(system, user, 1600));
       res.setHeader("Cache-Control", "no-store");
-      return res.status(200).json({ sentences });
+      return res.status(200).json({
+        english: String(out.english || "").trim(),
+        chinese: String(out.chinese || "").trim(),
+      });
     }
 
     if (b.mode === "grade") {

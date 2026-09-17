@@ -40,15 +40,17 @@
       #instr { flex: 1 1 180px; min-width: 0; }
 
       .bar { display: flex; align-items: center; gap: 14px; margin-top: 22px; color: #9aa0a6; font-size: 13px; }
-      .bar .score b { color: #7ee2a5; }
-      .bar .prog { margin-left: auto; }
+      .bar .round { font-weight: 600; color: #cbd0d6; }
+      .bar .newlink { margin-left: auto; }
+      .bar .newlink button { background: none; border: none; color: #7c828a; padding: 4px 6px; font-size: 13px; }
+      .bar .newlink button:hover { background: none; color: #ddd; }
 
-      .card { margin-top: 14px; background: #232326; border: 1px solid #2e2e33; border-radius: 14px; padding: 22px; }
+      .card { margin-top: 12px; background: #232326; border: 1px solid #2e2e33; border-radius: 14px; padding: 22px; }
       .card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: #7c828a; }
-      .en { font-size: 21px; font-weight: 600; margin-top: 6px; line-height: 1.4; }
+      .en { font-size: 19px; font-weight: 500; margin-top: 8px; line-height: 1.7; white-space: pre-wrap; }
       textarea {
-        width: 100%; min-height: 70px; margin-top: 16px; background: #1c1c1e; color: #eee;
-        border: 1px solid #3a3a40; border-radius: 12px; padding: 13px; font-size: 20px; font-family: inherit; resize: vertical;
+        width: 100%; min-height: 130px; margin-top: 16px; background: #1c1c1e; color: #eee;
+        border: 1px solid #3a3a40; border-radius: 12px; padding: 14px; font-size: 20px; line-height: 1.8; font-family: inherit; resize: vertical;
       }
       textarea:focus { outline: none; border-color: #60a5fa; }
       .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
@@ -56,19 +58,16 @@
       .ghost { background: none; border: none; color: #7c828a; padding: 10px 6px; }
       .ghost:hover { background: none; color: #ddd; }
 
-      .fb { margin-top: 16px; border-radius: 12px; padding: 16px; border: 1px solid; }
+      .fb { margin-top: 16px; border-radius: 12px; padding: 18px; border: 1px solid; }
       .fb.ok { background: #14361f; border-color: #24603a; }
       .fb.no { background: #3a2a1a; border-color: #6b4a2a; }
       .fb .verdict { font-size: 15px; font-weight: 700; }
       .fb.ok .verdict { color: #7ee2a5; }
       .fb.no .verdict { color: #e0a37a; }
-      .fb .ans { margin-top: 10px; font-size: 20px; }
-      .fb .ans .zh { font-weight: 600; }
-      .fb .ans .cap { font-size: 12px; color: #7c828a; text-transform: uppercase; letter-spacing: 0.05em; }
-      .fb p.txt { margin-top: 10px; font-size: 14px; color: #cdd2d8; }
+      .fb .cap { font-size: 12px; color: #7c828a; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 12px; }
+      .fb .zh { margin-top: 4px; font-size: 20px; font-weight: 600; line-height: 1.7; white-space: pre-wrap; }
+      .fb p.txt { margin-top: 12px; font-size: 14px; color: #cdd2d8; line-height: 1.6; }
       .fb p.txt b { color: #eee; }
-      .done { margin-top: 22px; background: #232326; border: 1px solid #2e2e33; border-radius: 14px; padding: 22px; text-align: center; }
-      .done .big { font-size: 30px; font-weight: 800; color: #7ee2a5; }
       .err { color: #f8a3a3; font-size: 14px; margin-top: 12px; }
       [hidden] { display: none !important; }
     </style>
@@ -77,22 +76,22 @@
     <div class="wrap">
       <a class="back" href="/">← Tools</a>
       <h1>✍️ Translate practice</h1>
-      <p class="sub">Translate English into Chinese using only the words you already know. An AI tutor checks your answer and explains.</p>
+      <p class="sub">Translate an English paragraph into Chinese using only the words you already know. An AI tutor checks your answer and explains.</p>
       <p class="stale-note" id="stale" hidden></p>
 
       <!-- Setup -->
       <div class="setup" id="setup">
         <div class="vocab" id="vocab">Loading your vocabulary…</div>
         <div class="row">
-          <span class="f"><label for="count">Sentences</label>
-            <select id="count"><option>3</option><option>5</option><option selected>8</option><option>10</option><option>12</option></select></span>
+          <span class="f"><label for="lines">Lines</label>
+            <select id="lines"><option>3</option><option>5</option><option selected>8</option><option>10</option><option>12</option></select></span>
           <span class="f"><label for="level">Difficulty</label>
             <select id="level">
               <option value="beginner">Beginner</option>
               <option value="intermediate" selected>Intermediate</option>
               <option value="advanced">Advanced</option>
             </select></span>
-          <span class="f"><label for="length">Length</label>
+          <span class="f"><label for="length">Line length</label>
             <select id="length">
               <option value="short">Short</option>
               <option value="medium" selected>Medium</option>
@@ -100,7 +99,7 @@
             </select></span>
         </div>
         <div class="row" style="margin-top:12px">
-          <input type="text" id="instr" placeholder="optional focus, e.g. ordering food, past tense…" />
+          <input type="text" id="instr" placeholder="optional topic, e.g. a weekend trip, ordering food…" />
           <button class="primary" id="start">Start</button>
         </div>
         <div class="err" id="setup-err" hidden></div>
@@ -109,52 +108,41 @@
       <!-- Practice -->
       <div id="practice" hidden>
         <div class="bar">
-          <span class="score">Score <b id="s-correct">0</b> / <span id="s-total">0</span></span>
-          <span class="prog"><span id="p-i">1</span> / <span id="p-n">0</span></span>
+          <span class="round">Paragraph <span id="round">1</span></span>
+          <span class="newlink"><button id="restart">↻ Change settings</button></span>
         </div>
 
         <div class="card">
-          <div class="label">Translate to Chinese</div>
+          <div class="label">Translate this paragraph to Chinese</div>
           <div class="en" id="en"></div>
           <textarea id="answer" placeholder="輸入中文翻譯…" autocomplete="off" autocapitalize="off"></textarea>
           <div class="actions">
             <button class="primary" id="submit">Check</button>
-            <div class="right">
-              <button class="ghost" id="reveal">Show answer</button>
-              <button class="ghost" id="skip">Skip →</button>
-            </div>
+            <div class="right"><button class="ghost" id="reveal">Show answer</button></div>
           </div>
           <div class="err" id="grade-err" hidden></div>
         </div>
 
         <div class="fb" id="fb" hidden>
           <div class="verdict" id="verdict"></div>
-          <div class="ans"><span class="cap">Answer</span> <span class="zh" id="ans-zh"></span></div>
+          <div class="cap">Reference answer</div>
+          <div class="zh" id="ans-zh"></div>
           <p class="txt" id="advice"></p>
           <p class="txt" id="grammar"></p>
-          <div class="actions"><button class="primary" id="next" style="margin-left:auto">Next →</button></div>
-        </div>
-      </div>
-
-      <!-- Done -->
-      <div id="done" class="done" hidden>
-        <div class="big" id="d-score"></div>
-        <p class="sub" id="d-msg" style="margin-top:6px"></p>
-        <div class="actions" style="justify-content:center;margin-top:16px">
-          <button class="primary" id="again">Generate more</button>
+          <div class="actions"><button class="primary" id="next" style="margin-left:auto">New paragraph →</button></div>
         </div>
       </div>
     </div>
 
     <script>
       let knownChars = "", knownWords = [];
-      let sentences = [], idx = 0, correct = 0;
-      const recent = []; // recent Chinese sentences, to reduce repeats
+      let current = null, round = 0;
+      const recent = []; // recent Chinese paragraphs, to reduce repeats
 
       const $ = (id) => document.getElementById(id);
       const norm = (s) => (s || "").replace(/[\s，。！？、；：,.!?;:"'「」『』（）()]/g, "").trim();
 
-      const FILTERS = ["count", "level", "length", "instr"];
+      const FILTERS = ["lines", "level", "length", "instr"];
       function saveFilters() { try { FILTERS.forEach((k) => localStorage.setItem("tp-" + k, $(k).value)); } catch (e) {} }
       function restoreFilters() { try { FILTERS.forEach((k) => { const v = localStorage.getItem("tp-" + k); if (v !== null) $(k).value = v; }); } catch (e) {} }
 
@@ -162,26 +150,17 @@
         try {
           const d = await fetch("/api/cards", { cache: "no-store" }).then((r) => r.json());
           const cards = d.cards || {}, preply = d.preply || {};
-          const chars = new Set();
-          const words = [];
+          const chars = new Set(); const words = [];
           for (const w in cards) if (cards[w].s === false) { words.push(w); for (const c of w) chars.add(c); }
           for (const w in preply) if (preply[w].s === false) { words.push(w); for (const c of w) chars.add(c); }
-          knownChars = [...chars].join("");
-          knownWords = words;
-          if (!words.length) {
-            $("vocab").innerHTML = "⚠ No active words found — sync first, or enable some words.";
-            $("start").disabled = true;
-          } else {
-            $("vocab").innerHTML = "Drawing from <b>" + words.length + "</b> active words (" + chars.size + " characters) you already know.";
-          }
+          knownChars = [...chars].join(""); knownWords = words;
+          if (!words.length) { $("vocab").innerHTML = "⚠ No active words found — sync first, or enable some words."; $("start").disabled = true; }
+          else $("vocab").innerHTML = "Drawing from <b>" + words.length + "</b> active words (" + chars.size + " characters) you already know.";
           if (d.generated) {
             const h = (Date.now() - new Date(d.generated).getTime()) / 3.6e6;
             if (h > 48) { $("stale").hidden = false; $("stale").textContent = "⚠ Mirror is " + Math.round(h / 24) + " days old — re-sync for an up-to-date vocabulary."; }
           }
-        } catch (e) {
-          $("vocab").textContent = "Could not load your vocabulary.";
-          $("start").disabled = true;
-        }
+        } catch (e) { $("vocab").textContent = "Could not load your vocabulary."; $("start").disabled = true; }
       }
 
       function pickInspiration() {
@@ -192,119 +171,76 @@
 
       async function generate() {
         $("setup-err").hidden = true;
-        const btn = $("start"), again = $("again");
-        [btn, again].forEach((b) => { b.disabled = true; });
-        const label = document.activeElement === again ? again : btn;
-        const old = label.textContent; label.innerHTML = '<span class="spinner"></span> Generating…';
+        const src = $("practice").hidden ? $("start") : $("next");
+        const old = src.textContent; src.disabled = true; src.innerHTML = '<span class="spinner"></span> Generating…';
         try {
           saveFilters();
           const body = {
-            mode: "generate",
-            chars: knownChars,
-            words: pickInspiration(),
-            count: parseInt($("count").value) || 8,
-            level: $("level").value,
-            length: $("length").value,
-            instructions: $("instr").value.trim(),
-            avoid: recent.slice(-20),
+            mode: "generate", chars: knownChars, words: pickInspiration(),
+            lines: parseInt($("lines").value) || 8, level: $("level").value, length: $("length").value,
+            instructions: $("instr").value.trim(), avoid: recent.slice(-6),
           };
           const d = await fetch("/api/practice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json());
           if (d.error) throw new Error(d.error);
-          if (!d.sentences || !d.sentences.length) throw new Error("No sentences came back — try again.");
-          sentences = d.sentences; idx = 0; correct = 0;
-          sentences.forEach((s) => recent.push(s.chinese));
-          startPractice();
+          if (!d.english || !d.chinese) throw new Error("Nothing came back — try again.");
+          current = { english: d.english, chinese: d.chinese };
+          recent.push(d.chinese); round++;
+          showRound();
         } catch (e) {
           $("setup-err").hidden = false; $("setup-err").textContent = "Could not generate: " + e.message;
-          $("setup").hidden = false; $("done").hidden = true;
-        } finally {
-          label.textContent = old; [btn, again].forEach((b) => { b.disabled = false; });
-        }
+          if ($("practice").hidden) $("setup").hidden = false;
+        } finally { src.textContent = old; src.disabled = false; }
       }
 
-      function startPractice() {
-        $("setup").hidden = true; $("done").hidden = true; $("practice").hidden = false;
-        $("s-total").textContent = sentences.length; $("p-n").textContent = sentences.length;
-        $("s-correct").textContent = 0;
-        showSentence();
-      }
-
-      function showSentence() {
-        const s = sentences[idx];
-        $("en").textContent = s.english;
-        $("p-i").textContent = idx + 1;
+      function showRound() {
+        $("setup").hidden = true; $("practice").hidden = false;
+        $("round").textContent = round;
+        $("en").textContent = current.english;
         $("answer").value = ""; $("answer").disabled = false;
         $("fb").hidden = true; $("grade-err").hidden = true;
-        $("submit").disabled = false; $("reveal").disabled = false; $("skip").disabled = false;
+        $("submit").disabled = false; $("reveal").disabled = false;
         $("answer").focus();
       }
 
-      function showFeedback(isCorrect, advice, grammar) {
-        const s = sentences[idx];
-        const fb = $("fb");
-        fb.hidden = false; fb.className = "fb " + (isCorrect ? "ok" : "no");
-        $("verdict").textContent = isCorrect ? "✓ Correct" : "Not quite";
-        $("ans-zh").textContent = s.chinese;
-        $("advice").innerHTML = advice ? "<b>Advice.</b> " + esc(advice) : "";
-        $("advice").hidden = !advice;
-        $("grammar").innerHTML = grammar ? "<b>Grammar.</b> " + esc(grammar) : "";
-        $("grammar").hidden = !grammar;
-        $("answer").disabled = true;
-        $("submit").disabled = true; $("reveal").disabled = true; $("skip").disabled = true;
-        if (isCorrect) { correct++; $("s-correct").textContent = correct; }
-        $("next").focus();
-      }
       const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+      function lock() { $("answer").disabled = true; $("submit").disabled = true; $("reveal").disabled = true; }
+
+      function showFeedback(isCorrect, advice, grammar) {
+        const fb = $("fb"); fb.hidden = false; fb.className = "fb " + (isCorrect ? "ok" : "no");
+        $("verdict").textContent = isCorrect ? "✓ Well done — that conveys the meaning" : "Close — compare with the reference";
+        $("ans-zh").textContent = current.chinese;
+        $("advice").innerHTML = advice ? "<b>Advice.</b> " + esc(advice) : ""; $("advice").hidden = !advice;
+        $("grammar").innerHTML = grammar ? "<b>Grammar.</b> " + esc(grammar) : ""; $("grammar").hidden = !grammar;
+        lock(); $("next").focus();
+      }
 
       async function check() {
-        const s = sentences[idx];
         const ans = $("answer").value.trim();
         if (!ans) { $("answer").focus(); return; }
-        // Exact match short-circuits the LLM.
-        if (norm(ans) === norm(s.chinese)) { showFeedback(true, "Exact match — nicely done.", ""); return; }
-        $("submit").disabled = true; $("submit").innerHTML = '<span class="spinner"></span> Checking…';
-        $("grade-err").hidden = true;
+        if (norm(ans) === norm(current.chinese)) { showFeedback(true, "Exact match — nicely done.", ""); return; }
+        $("submit").disabled = true; $("submit").innerHTML = '<span class="spinner"></span> Checking…'; $("grade-err").hidden = true;
         try {
           const d = await fetch("/api/practice", { method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mode: "grade", english: s.english, chinese: s.chinese, answer: ans }) }).then((r) => r.json());
+            body: JSON.stringify({ mode: "grade", english: current.english, chinese: current.chinese, answer: ans }) }).then((r) => r.json());
           if (d.error) throw new Error(d.error);
           showFeedback(!!d.isCorrect, d.advice, d.grammarPoint);
-        } catch (e) {
-          $("grade-err").hidden = false; $("grade-err").textContent = "Grading failed: " + e.message;
-        } finally {
-          $("submit").textContent = "Check"; $("submit").disabled = false;
-        }
+        } catch (e) { $("grade-err").hidden = false; $("grade-err").textContent = "Grading failed: " + e.message; }
+        finally { $("submit").textContent = "Check"; $("submit").disabled = false; }
       }
 
       function reveal() {
-        const s = sentences[idx];
-        $("fb").hidden = false; $("fb").className = "fb no";
+        const fb = $("fb"); fb.hidden = false; fb.className = "fb no";
         $("verdict").textContent = "Answer shown";
-        $("ans-zh").textContent = s.chinese;
+        $("ans-zh").textContent = current.chinese;
         $("advice").hidden = true; $("grammar").hidden = true;
-        $("answer").disabled = true; $("submit").disabled = true; $("reveal").disabled = true; $("skip").disabled = true;
-        $("next").focus();
-      }
-
-      function next() {
-        idx++;
-        if (idx >= sentences.length) finish();
-        else showSentence();
-      }
-
-      function finish() {
-        $("practice").hidden = true; $("done").hidden = false;
-        $("d-score").textContent = correct + " / " + sentences.length;
-        const pct = Math.round((correct / sentences.length) * 100);
-        $("d-msg").textContent = pct >= 80 ? "Excellent work!" : pct >= 50 ? "Good progress — keep going." : "Keep practicing, you'll get there.";
+        lock(); $("next").focus();
       }
 
       $("start").addEventListener("click", generate);
-      $("again").addEventListener("click", generate);
+      $("next").addEventListener("click", generate);
       $("submit").addEventListener("click", check);
-      $("next").addEventListener("click", next);
-      $("skip").addEventListener("click", next);
       $("reveal").addEventListener("click", reveal);
+      $("restart").addEventListener("click", () => { $("practice").hidden = true; $("setup").hidden = false; });
       $("answer").addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") check(); });
 
       restoreFilters();
