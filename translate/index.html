@@ -31,7 +31,8 @@
       .setup { margin-top: 26px; background: #232326; border: 1px solid #2e2e33; border-radius: 14px; padding: 20px; }
       .setup .vocab { color: #9aa0a6; font-size: 13px; margin-bottom: 14px; }
       .setup .vocab b { color: #7ee2a5; }
-      .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+      .row { display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; }
+      .row .f { display: inline-flex; align-items: center; gap: 8px; }
       .row label { color: #9aa0a6; font-size: 13px; }
       select, input[type="text"] {
         background: #1c1c1e; color: #eee; border: 1px solid #3a3a40; border-radius: 9px; padding: 8px 10px; font-size: 14px; font-family: inherit;
@@ -83,20 +84,20 @@
       <div class="setup" id="setup">
         <div class="vocab" id="vocab">Loading your vocabulary…</div>
         <div class="row">
-          <label for="count">Sentences</label>
-          <select id="count"><option>3</option><option>5</option><option selected>8</option><option>10</option><option>12</option></select>
-          <label for="level">Difficulty</label>
-          <select id="level">
-            <option value="beginner">Beginner</option>
-            <option value="intermediate" selected>Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-          <label for="length">Length</label>
-          <select id="length">
-            <option value="short">Short</option>
-            <option value="medium" selected>Medium</option>
-            <option value="long">Long</option>
-          </select>
+          <span class="f"><label for="count">Sentences</label>
+            <select id="count"><option>3</option><option>5</option><option selected>8</option><option>10</option><option>12</option></select></span>
+          <span class="f"><label for="level">Difficulty</label>
+            <select id="level">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate" selected>Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select></span>
+          <span class="f"><label for="length">Length</label>
+            <select id="length">
+              <option value="short">Short</option>
+              <option value="medium" selected>Medium</option>
+              <option value="long">Long</option>
+            </select></span>
         </div>
         <div class="row" style="margin-top:12px">
           <input type="text" id="instr" placeholder="optional focus, e.g. ordering food, past tense…" />
