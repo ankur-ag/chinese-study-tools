@@ -1,41 +1,50 @@
 import { cors } from "./_redis.js";
 
-// English -> Chinese translation practice, powered by Claude. Two modes:
+// English -> Chinese translation practice, via OpenRouter. Two modes:
 //   POST { mode:"generate", chars, words?, count?, instructions?, avoid? }
 //        -> { sentences: [{ english, chinese }] }  (restricted to `chars`)
 //   POST { mode:"grade", english, chinese, answer }
 //        -> { isCorrect, advice, grammarPoint }
-// Needs ANTHROPIC_API_KEY in the environment (Vercel project settings).
-const MODEL = "claude-haiku-4-5-20251001"; // small + fast + cheap, good limits
+// Needs OPENROUTER_API_KEY in the environment (Vercel project settings).
+// Model defaults to a cheap GLM; override with OPENROUTER_MODEL.
+const MODEL = process.env.OPENROUTER_MODEL || "z-ai/glm-4.6";
 
-async function claude(system, user, maxTokens) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) throw new Error("Missing ANTHROPIC_API_KEY — add it in the Vercel project settings.");
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
+async function chat(system, user, maxTokens) {
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) throw new Error("Missing OPENROUTER_API_KEY — add it in the Vercel project settings.");
+  const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      "x-api-key": key,
-      "anthropic-version": "2023-06-01",
+      Authorization: "Bearer " + key,
       "content-type": "application/json",
+      "X-Title": "Chinese Study Tools",
     },
     body: JSON.stringify({
       model: MODEL,
       max_tokens: maxTokens,
-      system,
-      messages: [{ role: "user", content: user }],
+      // GLM etc. are reasoning models; ask OpenRouter to skip thinking so we get
+      // clean JSON (ignored by models that don't support it).
+      reasoning: { enabled: false },
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
     }),
   });
   const d = await r.json();
-  if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
-  const text = (d.content || []).map((b) => b.text || "").join("").trim();
+  if (d.error) throw new Error((d.error && d.error.message) || JSON.stringify(d.error));
+  const text = ((d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || "").trim();
+  if (!text) throw new Error("Empty response from model");
   return text;
 }
 
 function parseJson(text) {
   let s = text.trim();
-  if (s.startsWith("```")) s = s.replace(/^```[a-z]*\n?/i, "").replace(/```$/, "").trim();
+  const tc = s.lastIndexOf("</think>"); // drop reasoning models' thinking block
+  if (tc >= 0) s = s.slice(tc + 8).trim();
+  if (s.startsWith("```")) s = s.replace(/^```[a-z]*\n?/i, "").replace(/```\s*$/, "").trim();
   const i = s.indexOf("{"), j = s.lastIndexOf("}");
-  if (i > 0 || j < s.length - 1) s = s.slice(i, j + 1);
+  if (i >= 0 && j > i) s = s.slice(i, j + 1);
   return JSON.parse(s);
 }
 
@@ -65,7 +74,7 @@ export default async function handler(req, res) {
         (b.instructions ? `Special request: ${String(b.instructions).slice(0, 300)}\n\n` : "") +
         `Return JSON: {"sentences":[{"english":"...","chinese":"..."}]} with exactly ${count} items. ` +
         `Keep each sentence natural and not too long.`;
-      const out = parseJson(await claude(system, user, 1400));
+      const out = parseJson(await chat(system, user, 1400));
       const sentences = (out.sentences || [])
         .map((s) => ({ english: String(s.english || "").trim(), chinese: String(s.chinese || "").trim() }))
         .filter((s) => s.english && s.chinese);
@@ -91,7 +100,7 @@ export default async function handler(req, res) {
         `- isCorrect: true if the learner's answer is semantically correct (allow minor typos, synonyms, or alternative phrasing).\n` +
         `- advice: friendly, concise note on any mistakes (or praise if correct).\n` +
         `- grammarPoint: one useful grammar or vocabulary tip drawn from the correct sentence.`;
-      const out = parseJson(await claude(system, user, 700));
+      const out = parseJson(await chat(system, user, 700));
       res.setHeader("Cache-Control", "no-store");
       return res.status(200).json({
         isCorrect: !!out.isCorrect,
