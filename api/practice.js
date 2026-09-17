@@ -88,8 +88,9 @@ export default async function handler(req, res) {
       const answer = String(b.answer || "").trim();
       if (!english || !chinese) return res.status(400).json({ error: "english + chinese required" });
       const system =
-        "You are a friendly Traditional Chinese (Taiwan Mandarin) tutor. Evaluate a learner's translation. " +
-        "Explain in English, and only use Traditional characters (never simplified) in any Chinese you write. " +
+        "You are a friendly Traditional Chinese (Taiwan Mandarin) tutor for an ENGLISH-SPEAKING learner. " +
+        "The 'advice' and 'grammarPoint' fields MUST be written in ENGLISH — explain in English prose. " +
+        "You may quote individual Traditional Chinese words inside them (never simplified), but the explanation itself is English. " +
         "Output ONLY valid JSON, no markdown.";
       const user =
         `A learner is translating an English sentence into Chinese.\n` +
@@ -98,8 +99,9 @@ export default async function handler(req, res) {
         `- The learner wrote: "${answer}"\n\n` +
         `Return JSON: {"isCorrect": true/false, "advice": "...", "grammarPoint": "..."}\n` +
         `- isCorrect: true if the learner's answer is semantically correct (allow minor typos, synonyms, or alternative phrasing).\n` +
-        `- advice: friendly, concise note on any mistakes (or praise if correct).\n` +
-        `- grammarPoint: one useful grammar or vocabulary tip drawn from the correct sentence.`;
+        `- advice (WRITE IN ENGLISH): friendly, concise note on any mistakes, or praise if correct.\n` +
+        `- grammarPoint (WRITE IN ENGLISH): one useful grammar or vocabulary tip drawn from the correct sentence.\n` +
+        `Both advice and grammarPoint must be in English, not Chinese.`;
       const out = parseJson(await chat(system, user, 700));
       res.setHeader("Cache-Control", "no-store");
       return res.status(200).json({
