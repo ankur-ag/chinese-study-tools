@@ -61,12 +61,25 @@ export default async function handler(req, res) {
       const count = Math.min(Math.max(parseInt(b.count) || 8, 1), 12);
       const words = Array.isArray(b.words) ? b.words.slice(0, 60) : [];
       const avoid = Array.isArray(b.avoid) ? b.avoid.slice(0, 40) : [];
+      const level = ["beginner", "intermediate", "advanced"].includes(b.level) ? b.level : "intermediate";
+      const length = ["short", "medium", "long"].includes(b.length) ? b.length : "medium";
+      const LEVEL = {
+        beginner: "Difficulty: BEGINNER — very simple, high-frequency words and basic grammar (short statements/questions, present tense). Keep it easy.",
+        intermediate: "Difficulty: INTERMEDIATE — natural everyday sentences with common grammar patterns and some compound sentences.",
+        advanced: "Difficulty: ADVANCED — richer, more varied sentences with subordinate clauses, connectives, and idiomatic Taiwan usage (still only the allowed characters).",
+      };
+      const LENGTH = {
+        short: "Length: SHORT — each sentence about 4-8 Chinese characters, a single clause.",
+        medium: "Length: MEDIUM — each sentence about 8-16 Chinese characters.",
+        long: "Length: LONG — each sentence about 16-30 Chinese characters, often two clauses.",
+      };
       const system =
         "You write natural Traditional Chinese (Taiwan Mandarin) sentences for a learner to translate into, " +
         "and their English translations. Use the way Chinese is actually spoken in Taiwan, never mainland phrasing, " +
         "and only Traditional characters. Output ONLY valid JSON, no markdown.";
       const user =
-        `Generate ${count} short, everyday sentences a learner living in Taiwan would find useful.\n\n` +
+        `Generate ${count} everyday sentences a learner living in Taiwan would find useful.\n` +
+        `${LEVEL[level]}\n${LENGTH[length]}\n\n` +
         `IMPORTANT: the Chinese may ONLY use these characters (plus numbers/punctuation): ${chars}\n` +
         `Do not use any other Chinese character.\n\n` +
         (words.length ? `For inspiration, some words the learner knows:\n${words.join("、")}\n\n` : "") +

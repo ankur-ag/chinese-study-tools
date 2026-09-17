@@ -84,7 +84,21 @@
         <div class="vocab" id="vocab">Loading your vocabulary…</div>
         <div class="row">
           <label for="count">Sentences</label>
-          <select id="count"><option>5</option><option selected>8</option><option>10</option><option>12</option></select>
+          <select id="count"><option>3</option><option>5</option><option selected>8</option><option>10</option><option>12</option></select>
+          <label for="level">Difficulty</label>
+          <select id="level">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate" selected>Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+          <label for="length">Length</label>
+          <select id="length">
+            <option value="short">Short</option>
+            <option value="medium" selected>Medium</option>
+            <option value="long">Long</option>
+          </select>
+        </div>
+        <div class="row" style="margin-top:12px">
           <input type="text" id="instr" placeholder="optional focus, e.g. ordering food, past tense…" />
           <button class="primary" id="start">Start</button>
         </div>
@@ -139,6 +153,10 @@
       const $ = (id) => document.getElementById(id);
       const norm = (s) => (s || "").replace(/[\s，。！？、；：,.!?;:"'「」『』（）()]/g, "").trim();
 
+      const FILTERS = ["count", "level", "length", "instr"];
+      function saveFilters() { try { FILTERS.forEach((k) => localStorage.setItem("tp-" + k, $(k).value)); } catch (e) {} }
+      function restoreFilters() { try { FILTERS.forEach((k) => { const v = localStorage.getItem("tp-" + k); if (v !== null) $(k).value = v; }); } catch (e) {} }
+
       async function loadVocab() {
         try {
           const d = await fetch("/api/cards", { cache: "no-store" }).then((r) => r.json());
@@ -178,11 +196,14 @@
         const label = document.activeElement === again ? again : btn;
         const old = label.textContent; label.innerHTML = '<span class="spinner"></span> Generating…';
         try {
+          saveFilters();
           const body = {
             mode: "generate",
             chars: knownChars,
             words: pickInspiration(),
             count: parseInt($("count").value) || 8,
+            level: $("level").value,
+            length: $("length").value,
             instructions: $("instr").value.trim(),
             avoid: recent.slice(-20),
           };
@@ -285,6 +306,7 @@
       $("reveal").addEventListener("click", reveal);
       $("answer").addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") check(); });
 
+      restoreFilters();
       loadVocab();
     </script>
   </body>
