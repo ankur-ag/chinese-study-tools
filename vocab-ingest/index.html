@@ -95,7 +95,7 @@
     <div class="wrap">
       <a class="back" href="/">← Tools</a>
       <h1>🔎 Enable words</h1>
-      <p class="sub">Enable words two ways: search your deck and tap Enable, or paste a list. Anything not in your TOCFL deck goes to the Preply list, added on the next sync.</p>
+      <p class="sub">Enable words by pasting a list or searching a deck. Each tab has its own search — TOCFL and Preply. Words in neither deck become new Preply cards on the next sync.</p>
       <p class="stale-note" id="stale" hidden></p>
 
       <textarea id="input" placeholder="老師 lǎoshī teacher&#10;圖書館 library&#10;學生 xuéshēng student&#10;朋友、同學"></textarea>
@@ -127,11 +127,23 @@
         </section>
       </div>
 
-      <!-- ============ Preply (not in TOCFL) ============ -->
+      <!-- ============ Preply ============ -->
       <div id="panel-preply" hidden>
+        <input id="q2" type="search" placeholder="搜尋 · search your Preply deck — hanzi, pinyin, or meaning…" autocomplete="off" />
+        <section id="search-sec-p" hidden>
+          <div class="sec-title">Search results · <span id="c-res-p">0</span></div>
+          <div class="rows" id="results-p"></div>
+        </section>
+
+        <section id="sec-psusp" hidden>
+          <div class="sec-title t-susp">◐ In Preply, suspended · <span id="c-psusp">0</span></div>
+          <div class="sec-sub">In your Preply deck but suspended. Add to enable on the next sync, or Skip to set aside.</div>
+          <div class="rows" id="list-psusp"></div>
+        </section>
+
         <section>
-          <div class="sec-title t-new">🆕 Not in TOCFL · <span id="c-new">0</span></div>
-          <div class="sec-sub">Not in your TOCFL deck — the next sync adds these to the Preply deck.</div>
+          <div class="sec-title t-new">🆕 Not in Anki · <span id="c-new">0</span></div>
+          <div class="sec-sub">Not in TOCFL or Preply yet — the next sync adds these to the Preply deck.</div>
           <div class="rows" id="list-new"></div>
         </section>
       </div>
@@ -163,7 +175,8 @@
         return out;
       }
 
-      let mirror = {};       // word -> {py,m,s}
+      let mirror = {};       // word -> {py,m,s}       (TOCFL deck)
+      let preply = {};       // word -> {py,m,s,score} (Preply deck)
       let todo = [];         // [{t,g}]
       const gloss = {};
       let wants = {};        // word -> "suspend"|"unsuspend" (pending, applied on sync)
@@ -173,6 +186,7 @@
         try {
           const d = await fetch("/api/cards", { cache: "no-store" }).then((r) => r.json());
           mirror = d.cards || {};
+          preply = d.preply || {};
           if (!Object.keys(mirror).length) { stale.hidden = false; stale.textContent = "⚠ Anki mirror not synced yet — run sync_anki_upstash.py."; }
           else if (d.generated) {
             const h = (Date.now() - new Date(d.generated).getTime()) / 3.6e6;
@@ -192,11 +206,17 @@
         await fetch("/api/skip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w }) });
       }
 
-      function cat(t) { const m = mirror[t]; if (!m) return "new"; return m.s ? "susp" : "active"; }
+      function cat(t) {
+        const m = mirror[t];
+        if (m) return m.s ? "tocfl-susp" : "active";
+        const p = preply[t];
+        if (p) return p.s ? "preply-susp" : "active";
+        return "new";
+      }
       function glossFor(e) {
         if (gloss[e.t]) return gloss[e.t];
         if (e.g) return e.g;
-        const m = mirror[e.t]; if (m) return [(m.py || ""), (m.m || "")].filter(Boolean).join("  ");
+        const m = mirror[e.t] || preply[e.t]; if (m) return [(m.py || ""), (m.m || "")].filter(Boolean).join("  ");
         return "";
       }
       function rowEl(e, opts) {
@@ -215,32 +235,34 @@
 
       function render() {
         document.getElementById("parsed-count").textContent = parse(input.value).length + " words parsed";
-        const lS = document.getElementById("list-susp"), lN = document.getElementById("list-new");
-        lS.innerHTML = lN.innerHTML = "";
-        let cS = 0, cN = 0;
+        const lS = document.getElementById("list-susp"), lPS = document.getElementById("list-psusp"), lN = document.getElementById("list-new");
+        lS.innerHTML = lPS.innerHTML = lN.innerHTML = "";
+        let cS = 0, cPS = 0, cN = 0;
         todo.forEach((e) => {
           const c = cat(e.t);
           if (c === "active") return; // already active — hide
           if (skipped.has(e.t)) return; // set aside — hide
           const pending = wants[e.t] === "unsuspend";
-          if (c === "susp") {
-            cS++;
-            lS.appendChild(rowEl(e, {
-              cls: pending ? "pending" : "",
-              flag: pending ? "⏳ will enable on sync" : "",
-              onAdd: pending ? null : () => addWord(e.t),
-              onSkip: pending ? null : () => skipWord(e.t),
-              onRemove: pending ? null : () => removeWord(e.t),
-            }));
-          } else { cN++; lN.appendChild(rowEl(e, { onRemove: () => removeWord(e.t) })); }
+          const acts = {
+            cls: pending ? "pending" : "",
+            flag: pending ? "⏳ will enable on sync" : "",
+            onAdd: pending ? null : () => addWord(e.t),
+            onSkip: pending ? null : () => skipWord(e.t),
+            onRemove: pending ? null : () => removeWord(e.t),
+          };
+          if (c === "tocfl-susp") { cS++; lS.appendChild(rowEl(e, acts)); }
+          else if (c === "preply-susp") { cPS++; lPS.appendChild(rowEl(e, acts)); }
+          else { cN++; lN.appendChild(rowEl(e, { onRemove: () => removeWord(e.t) })); }
         });
         if (!cS) lS.innerHTML = '<span class="empty">None.</span>';
         if (!cN) lN.innerHTML = '<span class="empty">None.</span>';
+        document.getElementById("sec-psusp").hidden = !cPS;
         document.getElementById("c-susp").textContent = cS;
+        document.getElementById("c-psusp").textContent = cPS;
         document.getElementById("c-new").textContent = cN;
         document.getElementById("tn-tocfl").textContent = cS ? "· " + cS : "";
-        document.getElementById("tn-preply").textContent = cN ? "· " + cN : "";
-        renderSearch();
+        document.getElementById("tn-preply").textContent = (cPS + cN) ? "· " + (cPS + cN) : "";
+        renderSearch(); renderSearchP();
       }
 
       function showTab(which) {
@@ -284,6 +306,35 @@
       }
       qInput.addEventListener("input", renderSearch);
 
+      // --- Search the Preply deck and enable suspended words directly ---
+      const q2Input = document.getElementById("q2");
+      function renderSearchP() {
+        const sec = document.getElementById("search-sec-p");
+        const box = document.getElementById("results-p");
+        const q = q2Input.value.trim();
+        if (!q) { sec.hidden = true; box.innerHTML = ""; document.getElementById("c-res-p").textContent = 0; return; }
+        sec.hidden = false;
+        const qn = noTone(q);
+        const hits = Object.keys(preply)
+          .filter((w) => w.includes(q) || noTone(preply[w].py).includes(qn) || (preply[w].m || "").toLowerCase().includes(qn))
+          .slice(0, 50);
+        box.innerHTML = "";
+        hits.forEach((w) => {
+          const m = preply[w];
+          const r = document.createElement("div"); r.className = "row";
+          const t = document.createElement("span"); t.className = "t"; t.textContent = w; r.appendChild(t);
+          const py = document.createElement("span"); py.className = "py"; py.textContent = m.py || ""; r.appendChild(py);
+          const me = document.createElement("span"); me.className = "m2"; me.textContent = m.m || ""; r.appendChild(me);
+          if (wants[w] === "unsuspend") { const b = document.createElement("span"); b.className = "badge2 b-queued"; b.textContent = "queued"; r.appendChild(b); }
+          else if (!m.s) { const b = document.createElement("span"); b.className = "badge2 b-active"; b.textContent = "✓ active"; r.appendChild(b); }
+          else { const btn = document.createElement("button"); btn.className = "addb"; btn.textContent = "Enable"; btn.addEventListener("click", () => addWord(w)); r.appendChild(btn); }
+          box.appendChild(r);
+        });
+        if (!hits.length) box.innerHTML = '<span class="empty">No matches in your Preply deck.</span>';
+        document.getElementById("c-res-p").textContent = hits.length;
+      }
+      q2Input.addEventListener("input", renderSearchP);
+
       async function addWord(w) {
         wants[w] = "unsuspend"; render();
         await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "unsuspend" }) });
@@ -310,10 +361,11 @@
           await loadMirror();
           let skipActive = 0, toAdd = [], nSusp = 0, nNew = 0;
           for (const w of parsed) {
-            const m = mirror[w.t];
-            if (m && m.s === false) { skipActive++; continue; }
-            let g = w.g; if (!g && m) g = [(m.py || ""), (m.m || "")].filter(Boolean).join("  ");
-            toAdd.push({ t: w.t, g }); if (m) nSusp++; else nNew++;
+            const m = mirror[w.t], pp = preply[w.t];
+            if ((m && m.s === false) || (pp && pp.s === false)) { skipActive++; continue; }
+            const src = m || pp;
+            let g = w.g; if (!g && src) g = [(src.py || ""), (src.m || "")].filter(Boolean).join("  ");
+            toAdd.push({ t: w.t, g }); if (src) nSusp++; else nNew++;
           }
           if (toAdd.length) {
             await fetch("/api/ingest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ words: toAdd }) });
