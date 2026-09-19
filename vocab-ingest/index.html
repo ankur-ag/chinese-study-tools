@@ -306,7 +306,7 @@
       function renderPreplySusp() {
         const box = document.getElementById("list-psusp");
         const q = q2Input.value.trim(), qn = noTone(q);
-        let list = Object.keys(preply).filter((w) => preply[w].s && !skipped.has(w));
+        let list = Object.keys(preply).filter((w) => preply[w].s && !preply[w].skip && !skipped.has(w));
         if (q) list = list.filter((w) => w.includes(q) || noTone(preply[w].py).includes(qn) || (preply[w].m || "").toLowerCase().includes(qn));
         list.sort((a, b) => (preply[b].score || 0) - (preply[a].score || 0) || a.localeCompare(b));
         const shown = list.slice(0, PREPLY_CAP);
