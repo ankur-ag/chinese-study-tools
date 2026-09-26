@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中文複習 · My Mandarin Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1F4EF;--card:#FBFCFA;--ink:#1E2A27;--muted:#69746E;
+    --jade:#1E7A5E;--jade-deep:#155843;--jade-tint:#E4EEE7;
+    --amber:#BE863A;--rule:#D7DDD4;
+    --shadow:0 1px 2px rgba(30,42,39,.04),0 8px 24px rgba(30,42,39,.05);
+    --tc:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    --tc-serif:"Noto Serif TC","PingFang TC",serif;
+    --display:"Spectral",Georgia,serif;--ui:"Inter",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--ui);line-height:1.5;padding-bottom:4rem}
+  .wrap{max-width:840px;margin:0 auto;padding:0 1.1rem}
+  header{padding:1.4rem 0 1rem}
+  .back{display:inline-block;font-family:var(--ui);font-size:.82rem;color:var(--jade);text-decoration:none;font-weight:500;margin-bottom:1rem}
+  .back:hover{color:var(--jade-deep)}
+  .eyebrow{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--jade);font-weight:600}
+  h1{font-family:var(--tc-serif);font-weight:700;font-size:2.4rem;line-height:1.05;margin:.35rem 0 .15rem}
+  h1 .lat{font-family:var(--display);font-weight:600;font-size:1.25rem;display:block;color:var(--muted);margin-top:.25rem}
+  .meta{color:var(--muted);font-size:.9rem;margin-top:.5rem;max-width:64ch}
+  .bar{position:sticky;top:0;z-index:20;background:rgba(241,244,239,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);padding:.6rem 0;margin:1.2rem 0 1.4rem}
+  .bar-inner{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+  .tabs{display:flex;gap:.25rem;background:var(--jade-tint);padding:.22rem;border-radius:999px;flex-wrap:wrap}
+  .tab{font-family:var(--tc);font-size:.88rem;font-weight:500;color:var(--jade-deep);border:none;background:transparent;padding:.36rem .7rem;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+  .tab .en{font-family:var(--ui);font-size:.68rem;opacity:.7;margin-left:.25rem}
+  .tab[aria-selected="true"]{background:var(--jade);color:#fff;box-shadow:var(--shadow)}
+  .search{flex:1 1 130px;min-width:110px}
+  .search input{width:100%;font-family:var(--tc);font-size:.9rem;color:var(--ink);border:1px solid var(--rule);background:var(--card);border-radius:999px;padding:.4rem .9rem;outline:none;transition:border-color .15s}
+  .search input:focus{border-color:var(--jade)}
+  .toggle{font-family:var(--ui);font-size:.78rem;font-weight:500;color:var(--muted);border:1px solid var(--rule);background:var(--card);padding:.38rem .65rem;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem}
+  .toggle .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--rule)}
+  .toggle[aria-pressed="true"]{color:var(--jade-deep);border-color:var(--jade);background:var(--jade-tint)}
+  .toggle[aria-pressed="true"] .dot{background:var(--jade)}
+  .panel{display:none;animation:fade .3s ease both}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .cat,.tier{margin-bottom:1.9rem}
+  .cat-head,.tier-head{display:flex;align-items:baseline;gap:.6rem;margin:0 .1rem .7rem;padding-bottom:.4rem;border-bottom:1px solid var(--rule)}
+  .tier-head{border-bottom:2px solid var(--jade)}
+  .cat-head .zh,.tier-head .zh{font-family:var(--tc-serif);font-weight:700;font-size:1.18rem}
+  .cat-head .en{font-family:var(--display);font-style:italic;color:var(--muted);font-size:.95rem}
+  .tier-head .n{font-family:var(--display);font-weight:600;font-size:1rem;color:var(--jade);font-style:italic}
+  .cat-head .count,.tier-head .count{margin-left:auto;font-family:var(--ui);font-size:.72rem;color:var(--muted);background:var(--jade-tint);padding:.12rem .5rem;border-radius:999px}
+  .tier-sub,.cat-sub{font-size:.82rem;color:var(--muted);margin:-.4rem .1rem 1rem}
+  .g-card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.1rem;margin-bottom:.65rem;box-shadow:var(--shadow)}
+  .g-pattern{font-family:var(--tc);font-size:1.4rem;font-weight:500;line-height:1.4;display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+  .g-pattern b{color:var(--jade);font-weight:700}
+  .g-pattern .slot{color:var(--amber);font-style:normal;font-family:var(--display);font-weight:600;font-size:1.15rem}
+  .tag{font-family:var(--display);font-size:.72rem;font-weight:600;font-style:italic;color:var(--jade-deep);background:var(--jade-tint);border-radius:6px;padding:.08rem .4rem;flex:0 0 auto;transform:translateY(-1px)}
+  .g-gloss,.fn{font-family:var(--ui);font-size:.88rem;color:var(--muted);margin-top:.35rem}
+  .g-ex{margin-top:.65rem;padding-top:.65rem;border-top:1px dashed var(--rule);display:flex;flex-direction:column;gap:.32rem}
+  .g-ex p{font-family:var(--tc);font-size:1.03rem;color:var(--ink)}
+  .g-ex p b{color:var(--jade-deep);font-weight:700;border-bottom:2px solid var(--jade-tint)}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:13px;padding:.9rem 1rem;margin-bottom:.62rem;box-shadow:var(--shadow);display:grid;grid-template-columns:auto 1fr;gap:.15rem .85rem;align-items:start}
+  .freq{display:flex;gap:.18rem;padding-top:.5rem;grid-row:1/3}
+  .freq i{width:.42rem;height:.42rem;border-radius:50%;background:var(--rule)}
+  .freq i.on{background:var(--jade)}
+  .card-main{grid-column:2}
+  .card .g-ex{border-top-color:var(--rule)}
+  .v-grid{display:grid;grid-template-columns:1fr;gap:.35rem}
+  .legend{display:flex;align-items:center;flex-wrap:wrap;gap:.1rem;font-size:.8rem;color:var(--muted);margin:0 .1rem 1rem}
+  .legend .freq{display:inline-flex;margin:0 .25rem;vertical-align:middle}
+  .v-row .freq{align-self:center}
+  .copybtn{font-family:var(--ui);font-size:.74rem;font-weight:600;color:#fff;background:var(--jade);border:none;border-radius:999px;padding:.28rem .75rem;margin-left:.5rem;cursor:pointer;transition:background .15s,transform .1s}
+  .copybtn:active{transform:scale(.96)}
+  .copybtn.done{background:var(--jade-deep)}
+  .classgroup{margin-bottom:2.3rem}
+  .classhead{display:flex;align-items:baseline;gap:.55rem;flex-wrap:wrap;margin:.2rem .1rem 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--jade)}
+  .classhead .cdate{font-family:var(--display);font-style:italic;font-weight:600;color:var(--jade);font-size:.95rem}
+  .classhead .ctitle{font-family:var(--tc-serif);font-weight:700;font-size:1.35rem}
+  .classhead .cen{font-family:var(--ui);font-size:.8rem;color:var(--muted)}
+  .classhead .ccount{margin-left:auto;font-size:.72rem;color:#fff;background:var(--jade);padding:.15rem .55rem;border-radius:999px;font-weight:600}
+  .classhead .copybtn{margin-left:.4rem;font-size:.68rem;padding:.2rem .6rem}
+  .classgroup .cat{margin-bottom:1.1rem}
+  .classgroup .cat-head .zh{font-size:1.02rem}
+  .classgroup .cat-head .en{font-size:.85rem}
+  .v-row{display:flex;align-items:baseline;gap:.7rem;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:.58rem .85rem}
+  .v-rank{font-family:var(--display);font-style:italic;color:var(--jade);font-size:.85rem;flex:0 0 auto;width:1.4em;text-align:right}
+  .v-zh{font-family:var(--tc);font-size:1.28rem;font-weight:500;flex:0 0 auto;min-width:3.4em}
+  .v-py{font-family:var(--display);font-style:italic;color:var(--jade);font-size:.9rem;flex:0 0 auto;min-width:5.4em}
+  .v-en{font-family:var(--ui);font-size:.88rem;color:var(--muted);flex:1 1 auto}
+  .pair{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.1rem;margin-bottom:.65rem;box-shadow:var(--shadow)}
+  .pair-row{display:flex;gap:.8rem;flex-wrap:wrap}
+  .pair-side{flex:1 1 40%;min-width:150px}
+  .pair-side .v-zh{font-size:1.45rem;display:block}
+  .pair-side .v-py{display:block;margin:.15rem 0}
+  .pair-side .v-en{display:block}
+  .pair-vs{align-self:center;font-family:var(--display);font-style:italic;color:var(--amber);font-size:1rem;font-weight:600}
+  .pair-note{font-family:var(--ui);font-size:.82rem;color:var(--jade-deep);margin-top:.65rem;padding-top:.6rem;border-top:1px dashed var(--rule);display:flex;gap:.4rem;align-items:flex-start}
+  .pair-note::before{content:"⚠︎";color:var(--amber);flex:0 0 auto}
+  body.test .v-en,body.test .g-gloss,body.test .fn,body.test .pair-note{filter:blur(5px);opacity:.35;cursor:pointer;transition:filter .15s,opacity .15s;user-select:none;border-radius:4px}
+  body.test .v-en:hover,body.test .g-gloss:hover,body.test .fn:hover,body.test .pair-note:hover,.revealed{filter:none!important;opacity:1!important}
+  body.nopy .v-py{filter:blur(5px);opacity:.35;cursor:pointer;transition:filter .15s,opacity .15s;user-select:none;border-radius:4px}
+  body.nopy .v-py:hover,.v-py.revealed{filter:none!important;opacity:1!important}
+  .empty{text-align:center;color:var(--muted);font-size:.95rem;padding:2.5rem 0;font-family:var(--tc)}
+  footer{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--rule);color:var(--muted);font-size:.8rem;line-height:1.6}
+  footer b{color:var(--ink)}
+  @media(max-width:520px){h1{font-size:2rem}.g-pattern{font-size:1.22rem}.tab .en{display:none}.v-py{min-width:4.6em}}
+  @media(prefers-reduced-motion:reduce){.panel{animation:none}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="/">← Tools</a>
+    <div class="eyebrow">Preply 台灣華語 · 當代中文課程</div>
+    <h1>中文複習<span class="lat">Everything I'm reviewing, in one place</span></h1>
+    <p class="meta">Preply class vocab &amp; structures, the sound-alike pairs, and the CCC book grammar sorted by spoken frequency. Turn on <b>Test mode</b> to quiz yourself — tap any blurred item to reveal it.</p>
+  </header>
+</div>
+<div class="bar">
+  <div class="wrap bar-inner">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-panel="vocab">單字<span class="en">Vocab</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="struct">句型<span class="en">Structures</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="pairs">易混<span class="en">Pairs</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="book">課本文法<span class="en">Book</span></button>
+    </div>
+    <div class="search"><input id="search" type="search" placeholder="搜尋 · search…" autocomplete="off"></div>
+    <button class="toggle" id="testBtn" aria-pressed="false"><span class="dot"></span>Test</button>
+    <button class="toggle" id="pyBtn" aria-pressed="false"><span class="dot"></span>No pinyin</button>
+    <button class="toggle" id="coreBtn" aria-pressed="false"><span class="dot"></span>Core first</button>
+    <button class="toggle" id="onlyBtn" aria-pressed="false"><span class="dot"></span>★ only</button>
+    <button class="toggle" id="classBtn" aria-pressed="true"><span class="dot"></span>By class</button>
+  </div>
+</div>
+<div class="wrap">
+  <section class="panel active" id="vocab" role="tabpanel"></section>
+  <section class="panel" id="struct" role="tabpanel"></section>
+  <section class="panel" id="pairs" role="tabpanel"></section>
+  <section class="panel" id="book" role="tabpanel"></section>
+  <footer id="foot"></footer>
+</div>
+<script>
+const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful first", sub:"Ranked by everyday spoken usefulness. (體驗 & 塑膠 from this class are already in the sets below.)", ranked:true, w:[
+  ["方式","fāngshì","way / method / manner"],["一直","yìzhí","continuously / always"],
+  ["接受","jiēshòu","to accept / receive"],["哪一間","nǎ yì jiān","which one (shop/venue)"],
+  ["成本","chéngběn","cost / expense"],["高中","gāozhōng","high school"],
+  ["經典","jīngdiǎn","classic / a masterpiece"],["夜店","yèdiàn","nightclub"],
+  ["導遊","dǎoyóu","tour guide"],["紙類","zhǐlèi","paper products (recycling)"],
+  ["魔幻","móhuàn","magical / surreal"],
+]};
+const VOCAB=[
+  NEWWORDS,
+  { zh:"潛水、登山與興趣", en:"Diving, hiking & hobbies", sub:"(海龜, 裝備, 潛水 are already in your sets.)", w:[
+    ["興趣","xìngqù","interest / hobby"],["排球","páiqiú","volleyball"],["旅行","lǚxíng","to travel"],["發音","fāyīn","pronunciation"],["語言","yǔyán","language"],["介面","jièmiàn","interface"],["版本","bǎnběn","version"],["水肺潛水","shuǐfèi qiánshuǐ","scuba diving"],["證照","zhèngzhào","licence / certification"],["浮上來","fú shànglái","to surface / come up"],["爬山","páshān","to hike / climb a mountain"],["陡","dǒu","steep"],["茶壺","cháhú","teapot"],
+  ]},
+  { zh:"動作與交通", en:"Actions & getting around", w:[
+    ["碰","pèng","to touch / bump"],["碰到","pèngdào","to bump into (sth/sb)"],["接","jiē","to pick (sb) up"],["載","zài","to give (sb) a ride"],["纜車","lǎnchē","cable car / gondola"],["檢舉","jiǎnjǔ","to report (to authorities)"],
+  ]},
+  { zh:"地名（台灣 · 日本）", en:"Place names", sub:"(綠島, 九份, 烏來… — mostly situational.)", w:[
+    ["綠島","Lǜdǎo","Green Island"],["小琉球","Xiǎoliúqiú","Xiaoliuqiu (island)"],["南投","Nántóu","Nantou"],["阿里山","Ālǐshān","Alishan"],["嘉義","Jiāyì","Chiayi"],["烏來","Wūlái","Wulai"],["象山","Xiàngshān","Elephant Mountain"],["劍潭","Jiàntán","Jiantan"],["富士山","Fùshìshān","Mt. Fuji"],
+  ]},
+  { zh:"貓咪文化", en:"Cat culture", w:[
+    ["貓咪","māomī","cat / kitty"],["貓奴","māonú","\"cat slave\" (devoted owner)"],["鏟屎官","chǎnshǐguān","\"poop-scooping officer\" (cat owner)"],
+  ]},
+  { zh:"比較城市與生活", en:"Comparing cities & life", sub:"Taipei vs Taichung, US vs Taiwan — comparison vocab.", w:[
+    ["優點","yōudiǎn","advantage / strength"],["缺點","quēdiǎn","disadvantage / weakness"],["適合","shìhé","to suit / be suitable for"],["大眾運輸","dàzhòng yùnshū","public transportation"],["通勤","tōngqín","to commute"],["生活費","shēnghuófèi","cost of living"],["生活步調","shēnghuó bùdiào","pace of life"],["生活空間","shēnghuó kōngjiān","living space"],["生活品質","shēnghuó pǐnzhì","quality of life"],["工作機會","gōngzuò jīhuì","job opportunity"],["重視","zhòngshì","to value / prioritize"],["相較之下","xiāngjiào zhīxià","by comparison"],["面向","miànxiàng","aspect / dimension"],["班次","bāncì","service frequency (of transit)"],["房租","fángzū","rent"],["健保","jiànbǎo","National Health Insurance"],
+  ]},
+  { zh:"跑步與運動", en:"Running & exercise", sub:"(拉筋 & 痠 are in the workout set; 熱身 ≈ 暖身.)", w:[
+    ["慢跑","mànpǎo","jogging"],["戶外跑","hùwài pǎo","outdoor running"],["跑步機","pǎobùjī","treadmill"],["熱身","rèshēn","to warm up (≈ 暖身)"],["公里","gōnglǐ","kilometre"],["路線","lùxiàn","route"],["距離","jùlí","distance"],["配速","pèisù","pace"],["體力分配","tǐlì fēnpèi","to pace oneself"],["成長紀錄","chéngzhǎng jìlù","growth record"],["運動傷害","yùndòng shānghài","sports injury"],["受傷","shòushāng","to get injured"],["喘","chuǎn","to pant / gasp"],["喘不過氣","chuǎn bú guò qì","out of breath"],["撐","chēng","hang in there / hold on"],["撐不住","chēng bú zhù","can't keep going"],["拳擊","quánjí","boxing"],["運動中心","yùndòng zhōngxīn","sports centre"],
+  ]},
+  { zh:"跑步課常用詞", en:"Common words", w:[
+    ["休息","xiūxí","to rest"],["停","tíng","to stop"],["散步","sànbù","to stroll / walk"],["放空","fàngkōng","to zone out"],["曾經","céngjīng","once / have ever (before)"],["告訴","gàosu","to tell"],["選擇","xuǎnzé","choice / to choose"],["便宜","piányí","cheap"],["好用","hǎoyòng","handy / works well"],["流行","liúxíng","popular / trendy"],["有名","yǒumíng","famous"],["當然","dāngrán","of course"],["一定","yídìng","definitely"],["費用","fèiyòng","fee / cost"],["花費","huāfèi","expense"],["程度","chéngdù","level / degree"],["新手","xīnshǒu","beginner / newbie"],["初學者","chūxuézhě","novice"],
+  ]},
+  { zh:"跑步課其他", en:"Misc", w:[
+    ["老鼠","lǎoshǔ","mouse / rat"],["腦子","nǎozi","brain / mind"],["河濱公園","hébīn gōngyuán","riverside park"],["挑剔","tiāotì","picky / fussy"],["帽子","màozi","hat"],["不妨","bùfáng","might as well"],["乾脆","gāncuì","just / simply"],["最少","zuìshǎo","at least"],["最多","zuìduō","at most"],
+  ]},
+  { zh:"健身與動作", en:"Workout & exercises", sub:"(健身房 & 教練 are already in Diving & sports.)", w:[
+    ["練","liàn","to train / work out"],["有氧運動","yǒuyǎng yùndòng","cardio / aerobic exercise"],["重訓","zhòngxùn","weight training"],["自由重訓","zìyóu zhòngxùn","free weights"],["深蹲","shēndūn","squat"],["硬舉","yìngjǔ","deadlift"],["划船","huáchuán","row (exercise)"],["引體向上","yǐntǐ xiàngshàng","pull-up"],["伏地挺身","fúdì tǐngshēn","push-up"],["暖身","nuǎnshēn","to warm up"],["拉筋","lājīn","to stretch"],["跑步","pǎobù","to run / jog"],["動作","dòngzuò","movement / exercise"],["組","zǔ","set (of reps)"],["下","xià","rep (measure word)"],["器材","qìcái","(gym) equipment"],["啞鈴","yǎlíng","dumbbell"],["槓鈴","gànglíng","barbell"],["避免","bìmiǎn","to avoid"],["力氣","lìqì","physical strength"],["痠","suān","sore / achy"],
+  ]},
+  { zh:"身體部位", en:"Body parts", w:[
+    ["上半身","shàng bànshēn","upper body"],["下半身","xià bànshēn","lower body"],["核心","héxīn","core"],["胸","xiōng","chest"],["背","bèi","back"],["腿","tuǐ","leg"],["手臂","shǒubì","arm"],["肩","jiān","shoulder"],["腳","jiǎo","foot"],["膝蓋","xīgài","knee"],["背痛","bèi tòng","back pain"],["體重","tǐzhòng","body weight"],
+  ]},
+  { zh:"健身課相關詞", en:"Related words", w:[
+    ["討厭","tǎoyàn","to dislike / hate"],["輕","qīng","light (in weight)"],["重","zhòng","heavy"],["安全","ānquán","safe"],["小心","xiǎoxīn","careful"],["特地","tèdì","specially / on purpose"],["隔天","gétiān","the next day"],["試著","shìzhe","to try to"],["教材","jiàocái","teaching material"],
+  ]},
+  { zh:"起床與盥洗", en:"Waking up & grooming", sub:"(起床, 醒來, 賴床, 睡午覺, 鬧鐘 are in Daily routine.)", w:[
+    ["睡著","shuìzháo","fall asleep"],["失眠","shīmián","insomnia"],["半夜","bànyè","middle of the night"],["再睡一下","zài shuì yíxià","sleep a little longer"],["回籠覺","huílóngjiào","go back to sleep (morning)"],["換衣服","huàn yīfú","change clothes"],["刷牙","shuā yá","brush teeth"],["洗臉","xǐ liǎn","wash your face"],["洗澡","xǐzǎo","shower / bathe"],["刮鬍子","guā húzi","to shave"],["化妝","huàzhuāng","put on makeup"],["整理","zhěnglǐ","to tidy / sort out"],["整理頭髮","zhěnglǐ tóufà","do your hair"],
+  ]},
+  { zh:"在家與鞋子", en:"At home & shoes", w:[
+    ["穿鞋子","chuān xiézi","put on shoes"],["脫鞋子","tuō xiézi","take off shoes"],["拖鞋","tuōxié","slippers"],["室內鞋","shìnèi xié","indoor shoes"],["地毯","dìtǎn","carpet / rug"],["出門","chūmén","go out / leave home"],["回家","huíjiā","go home"],["髒","zāng","dirty"],["罵","mà","to scold"],
+  ]},
+  { zh:"這堂課其他", en:"More from this class", w:[
+    ["好處","hǎochù","upside / benefit"],["壞處","huàichù","downside / drawback"],["以內","yǐnèi","within (a limit)"],["少於","shǎoyú","less than"],["超過","chāoguò","to exceed / more than"],["剩下","shèngxià","to be left / remaining"],["學期","xuéqī","semester"],["生活","shēnghuó","life / to live"],["好玩","hǎowán","fun"],["八卦","bāguà","gossip"],["準備","zhǔnbèi","to prepare"],["慢","màn","slow"],["喉嚨","hóulóng","throat"],["高蛋白","gāo dànbái","high-protein"],["蒸籠","zhēnglóng","steamer basket"],["饅頭","mántóu","steamed bun"],
+  ]},
+  { zh:"慶祝與消費", en:"Celebration & consumer", sub:"(失望, 難過 & 繼續 are already in your sets.)", w:[
+    ["慶祝","qìngzhù","to celebrate"],["慶生","qìngshēng","celebrate a birthday"],["入場費","rùchǎngfèi","entrance fee"],["品牌","pǐnpái","brand"],["生產","shēngchǎn","to produce / manufacture"],["壞掉","huàidiào","broken / not working"],["划算","huásuàn","worth it / good value"],["實用","shíyòng","practical"],["電動車","diàndòngchē","electric scooter / e-bike"],["塞車","sāichē","traffic jam"],["劇 / 影集","jù / yǐngjí","show / TV series"],
+  ]},
+  { zh:"口語表達", en:"Colloquial phrases", w:[
+    ["你在幹嘛","nǐ zài gànmá","what are you doing?"],["摸","mō","to touch"],["還是算了","háishì suàn le","never mind / forget it"],
+  ]},
+  { zh:"環島旅行", en:"Around-the-island trip", sub:"(裝備 & 租 are already in your sets.)", w:[
+    ["環島","huándǎo","travel around the island"],["租機車","zū jīchē","rent a scooter"],["第一天","dìyī tiān","the first day"],["隔天早上","gétiān zǎoshang","the next morning"],["民宿員工","mínsù yuángōng","homestay / hostel staff"],["員工","yuángōng","staff / employee"],["走去","zǒuqù","walk over to"],["海灘","hǎitān","beach"],["海浪","hǎilàng","wave"],["海龜","hǎiguī","sea turtle"],["燈塔","dēngtǎ","lighthouse"],["碼頭","mǎtóu","pier / wharf"],["船","chuán","boat / ship"],["搭船","dā chuán","take a boat / ferry"],["取消","qǔxiāo","to cancel"],["打包行李 / 收行李","dǎbāo / shōu xínglǐ","pack luggage"],["多待一天","duō dāi yì tiān","stay one more day"],["失望","shīwàng","disappointed"],["可以再更好","kěyǐ zài gèng hǎo","it could be even better"],
+  ]},
+  { zh:"說故事與對話", en:"Storytelling & conversation", w:[
+    ["經驗","jīngyàn","experience (a thing that happened)"],["背景","bèijǐng","background / context"],["反應","fǎnyìng","reaction / response"],["遇到","yùdào","to encounter / run into"],["印象很深","yìnxiàng hěn shēn","memorable / left a strong impression"],["傳訊息","chuán xùnxí","to send a message"],["訊息","xùnxí","message"],["更新","gēngxīn","to update / refresh"],["秒","miǎo","second(s)"],["單字","dānzì","vocabulary word"],
+  ]},
+  { zh:"故事連接詞", en:"Story connectors", sub:"(原來 is in School/work; 雖然…但是 is in Structures & Book.)", w:[
+    ["原本 / 本來","yuánběn / běnlái","originally"],["後來","hòulái","later / afterwards"],["剛開始","gāng kāishǐ","at first / in the beginning"],["突然","tūrán","suddenly"],["可惜","kěxí","a pity / unfortunate"],
+  ]},
+  { zh:"作息與回收", en:"Daily routine & recycling", sub:"(倒垃圾 is already in Renting & home.)", w:[
+    ["起床","qǐchuáng","get out of bed"],["醒來","xǐnglái","wake up"],["早起","zǎoqǐ","get up early"],["賴床","làichuáng","laze in bed"],["鬧鐘","nàozhōng","alarm clock"],["設鬧鐘","shè nàozhōng","set an alarm"],["響","xiǎng","to ring / sound"],["睡午覺","shuì wǔjiào","take an afternoon nap"],["固定","gùdìng","fixed / regular"],["大概","dàgài","roughly / probably"],["故意","gùyì","on purpose"],["垃圾車","lèsè chē","garbage truck"],["丟垃圾","diū lèsè","throw out trash"],["回收","huíshōu","recycling"],["垃圾桶","lèsè tǒng","trash can"],["追垃圾車","zhuī lèsè chē","chase the garbage truck"],["需要","xūyào","to need"],
+  ]},
+  { zh:"買東西與服務", en:"Shopping & service", w:[
+    ["店員","diànyuán","shop clerk"],["服務生","fúwùshēng","waiter / server"],["超商","chāoshāng","convenience store"],["飲料店","yǐnliào diàn","drinks shop"],["菜市場","cài shìchǎng","(wet) market"],["水果行","shuǐguǒ háng","fruit shop (行 = háng)"],["芭樂","bālè","guava"],["酪梨","luòlí","avocado"],["顆","kē","MW for eggs / round fruit"],
+  ]},
+  { zh:"人際與感受", en:"People & feelings", w:[
+    ["熟 / 熟悉","shú / shúxī","familiar / close with"],["誇獎","kuājiǎng","to praise / compliment"],["難過","nánguò","sad / upset"],["合理","hélǐ","reasonable"],["話題","huàtí","topic (of conversation)"],["想不起來","xiǎng bù qǐlái","can't recall"],["常常 / 比較常","chángcháng / bǐjiào cháng","often / more often"],
+  ]},
+  { zh:"冰品與美食", en:"Shaved ice & food", w:[
+    ["剉冰","cuòbīng","shaved ice"],["綜合芋圓冰","zònghé yùyuán bīng","mixed taro-ball ice"],["芋圓","yùyuán","taro balls"],["地瓜圓","dìguā yuán","sweet-potato balls"],["抹茶","mǒchá","matcha"],["珍珠","zhēnzhū","tapioca pearls"],["布丁","bùdīng","pudding"],["椰果","yēguǒ","coconut jelly"],["愛玉","àiyù","aiyu jelly"],["煉乳","liànrǔ","condensed milk"],["花豆","huādòu","kidney beans"],["紅豆","hóngdòu","red beans"],["綠豆","lǜdòu","mung beans"],["碎冰","suìbīng","crushed ice"],["糖水","tángshuǐ","sugar syrup"],["配料","pèiliào","toppings"],["籽","zǐ","seed / pit"],["豐富","fēngfù","rich / abundant"],["清爽","qīngshuǎng","refreshing"],["賣完了","mài wán le","sold out"],["海鮮","hǎixiān","seafood"],["素食 / 吃素","sùshí / chī sù","vegetarian / to be veg."],["漢堡","hànbǎo","burger"],["鮭魚","guīyú","salmon"],["生魚片","shēngyúpiàn","sashimi"],["炸雞","zhájī","fried chicken"],["雞排","jīpái","chicken cutlet"],["果汁","guǒzhī","juice"],["便當","biàndāng","bento / lunchbox"],["美食","měishí","great food / cuisine"],
+  ]},
+  { zh:"口感與味道", en:"Texture & taste", w:[
+    ["口感","kǒugǎn","mouthfeel / texture"],["觸感","chùgǎn","tactile feel"],["質感","zhìgǎn","quality; classy"],["味道","wèidào","flavor / taste"],["軟","ruǎn","soft"],["硬","yìng","hard"],["Q","Q","chewy & springy"],["脆","cuì","crispy"],["甜","tián","sweet"],["香","xiāng","fragrant"],["油","yóu","greasy"],["乾","gān","dry"],["塑膠","sùjiāo","plastic"],["橡膠","xiàngjiāo","rubber"],["舒服","shūfú","comfortable"],["不錯","búcuò","pretty good"],
+  ]},
+  { zh:"租房與居家", en:"Renting & home", w:[
+    ["電費","diànfèi","electricity bill"],["包含","bāohán","to include"],["一度","yí dù","one unit (kWh)"],["付","fù","to pay"],["租","zū","to rent"],["房東","fángdōng","landlord"],["鑰匙","yàoshi","key"],["合約","héyuē","contract / lease"],["左右","zuǒyòu","approximately"],["搬家","bānjiā","to move house"],["公寓","gōngyù","apartment"],["宿舍","sùshè","dorm"],["冷氣","lěngqì","air conditioning"],["民宿","mínsù","B&B / homestay"],["網路費","wǎnglùfèi","internet bill"],["倒垃圾","dào lèsè","take out trash"],["氛圍","fēnwéi","vibe / atmosphere"],
+  ]},
+  { zh:"潛水與運動", en:"Diving & sports", w:[
+    ["自由潛水","zìyóu qiánshuǐ","freediving"],["潛水","qiánshuǐ","to dive"],["深","shēn","deep"],["憋氣","biēqì","hold your breath"],["平壓","píngyā","equalize ear pressure"],["裝備","zhuāngbèi","equipment"],["教練","jiàoliàn","coach / instructor"],["飛盤","fēipán","frisbee"],["草皮","cǎopí","turf / lawn"],["網子","wǎngzi","net"],["健身房","jiànshēnfáng","gym"],["瑜珈","yújiā","yoga"],
+  ]},
+  { zh:"地方與旅行", en:"Places & travel", w:[
+    ["捷運站","jiéyùnzhàn","MRT station"],["附近","fùjìn","nearby"],["火車","huǒchē","train"],["搭 / 坐","dā / zuò","to take (transport)"],["台東","Táidōng","Taitung"],["蘭嶼","Lányǔ","Orchid Island"],["澎湖","Pénghú","Penghu"],["九份老街","Jiǔfèn lǎojiē","Jiufen Old Street"],["燈籠","dēnglóng","lantern"],["沿路","yánlù","along the way"],["風景","fēngjǐng","scenery"],["熱鬧","rènào","lively / bustling"],["冷清","lěngqīng","deserted / quiet"],["放鬆","fàngsōng","to relax"],["家鄉","jiāxiāng","hometown"],
+  ]},
+  { zh:"工作", en:"Work", w:[
+    ["投資","tóuzī","to invest"],["股票","gǔpiào","stock"],["股東","gǔdōng","shareholder"],["正職","zhèngzhí","full-time job"],["副業","fùyè","side business"],["打工","dǎgōng","part-time work"],["自由接案","zìyóu jiē'àn","to freelance"],["自由接案者","…zhě","freelancer"],["軟體工程師","ruǎntǐ gōngchéngshī","software engineer"],["團隊合作","tuánduì hézuò","teamwork"],["打工度假","dǎgōng dùjià","working holiday"],
+  ]},
+  { zh:"學習", en:"Learning", w:[
+    ["輸入","shūrù","input"],["輸出","shūchū","output"],["筆記","bǐjì","notes"],["看得懂","kàn de dǒng","understand (reading)"],["聽得懂","tīng de dǒng","understand (hearing)"],["讀得懂","dú de dǒng","understand (text)"],["長知識了","zhǎng zhīshì le","learned something new!"],["校外教學","xiàowài jiàoxué","field trip"],["同學","tóngxué","classmate"],["有趣","yǒuqù","interesting"],["亞洲","Yàzhōu","Asia"],["國家","guójiā","country"],
+  ]},
+  { zh:"生活與其他", en:"Life & misc", w:[
+    ["有道理","yǒu dàolǐ","that makes sense"],["延長","yáncháng","to extend"],["信心","xìnxīn","confidence (in sth)"],["自信","zìxìn","self-confidence"],["逼 / 逼迫","bī / bīpò","to force / pressure"],["貼心","tiēxīn","thoughtful / sweet"],["新的興趣","xīn de xìngqù","new hobby"],["臨時居留證","línshí jūliú zhèng","temp. residence permit"],["永久居留證","yǒngjiǔ jūliú zhèng","perm. residence permit"],["動物","dòngwù","animal"],["植物","zhíwù","plant"],["種植","zhòngzhí","to plant / grow"],["駭客","hàikè","hacker"],["真人版","zhēnrénbǎn","live-action version"],["卡卡的","kǎkǎ de","not flowing smoothly"],["真的假的","zhēn de jiǎ de","really?! / no way"],["通常","tōngcháng","usually"],["平常","píngcháng","normally"],
+  ]},
+  { zh:"宗教與文化", en:"Religion & culture", w:[
+    ["信仰","xìnyǎng","belief / faith"],["體驗","tǐyàn","to experience"],["廟","miào","folk/Taoist temple"],["寺","sì","Buddhist temple"],["香","xiāng","incense"],["擲筊","pua̍h-pue","throw divination blocks"],["神聖","shénshèng","sacred / holy"],
+  ]},
+  { zh:"感情與社交", en:"Relationships & social", w:[
+    ["感情","gǎnqíng","feelings / relationship"],["約會","yuēhuì","date"],["邀請","yāoqǐng","to invite"],["朋友圈","péngyǒuquān","friend circle / Moments"],["社交軟體","shèjiāo ruǎntǐ","social media apps"],["隨便","suíbiàn","whatever / up to you"],["都可以","dōu kěyǐ","either is fine"],["就這樣","jiù zhèyàng","that's it / like that"],["坐我對面","zuò wǒ duìmiàn","sit across from me"],["請吃晚餐","qǐng chī wǎncān","treat sb to dinner"],["傳","chuán","to send / pass on"],["連結","liánjié","link / connection"],["輪流","lúnliú","take turns"],["很久沒見到你","hěn jiǔ méi jiàn dào nǐ","long time no see"],
+  ]},
+  { zh:"學校、工作與表達", en:"School, work & expressions", w:[
+    ["競爭","jìngzhēng","competition"],["回饋","huíkuì","feedback"],["複習考","fùxí kǎo","review / mock exam"],["平均","píngjūn","average"],["作業","zuòyè","homework"],["面試","miànshì","interview"],["加分","jiāfēn","bonus points / adds value"],["再待一個學期","zài dāi yí ge xuéqī","stay one more semester"],["繼續","jìxù","to continue"],["持續","chíxù","to sustain / persist"],["最好","zuìhǎo","had better / best"],["有一天","yǒu yì tiān","someday"],["這次","zhè cì","this time"],["原來","yuánlái","turned out that…"],["再看看","zài kànkan","see how it goes"],["負擔不起","fùdān bù qǐ","can't afford"],
+  ]},
+];
+const STRUCT=[
+  { zh:"比較 Comparison", items:[
+    {p:'<s>A</s> 比 <s>B</s> + <b>Adj</b>', g:"A is more Adj than B — never 很/非常/太", ex:['台灣的芒果<b>比</b>別的國家好吃']},
+    {p:'<s>A</s> 比 <s>B</s> + <b>更 / 還要</b> + Adj', g:"even more · 更 = comparison, 很 = plain degree", ex:['我的公寓<b>比</b>宿舍<b>更</b>大']},
+    {p:'<s>A</s> 比 <s>B</s> + Adj + <b>一點 / 多 / 得多</b>', g:"say by how much", ex:['公寓比宿舍大<b>得多</b>','比我們國家的甜<b>多了</b>']},
+    {p:'沒有 <s>B</s> + <b>那麼</b> + Adj', g:"not as Adj as B", ex:['沒有下<b>那麼</b>多雨 ＝ 只有下一點雨','台中的運輸沒有台北<b>那麼</b>方便']},
+    {p:'<b>比起</b> <s>A</s>，<s>B</s> …', g:"compared with A, B… (states the reference point first)", ex:['<b>比起</b>美國，台灣的交通比較方便','<b>比起</b>吃火鍋，我比較想吃披薩']},
+    {p:'<s>A</s> 和 <s>B</s> <b>各有各的</b> …', g:"A and B each have their own …", ex:['台北和台中<b>各有各的</b>優點']},
+    {p:'<b>相較之下</b>, …', g:"by comparison / on the other hand (links two sides of a comparison)", ex:['美國工作機會多；<b>相較之下</b>，台灣的生活比較適合我']},
+  ]},
+  { zh:"位置與方向 Location", items:[
+    {p:'<s>A</s> <b>離</b> <s>B</s> 遠/近', g:"distance from something", ex:['公寓<b>離</b>學校遠一點']},
+    {p:'在 … <b>附近</b>', g:"in the vicinity of (not distance)", ex:['捷運站<b>附近</b>']},
+    {p:'<b>從</b> <s>A</s> <b>往</b> <s>B</s> 走 / 去', g:"from A, head toward B", ex:['<b>從</b>捷運站<b>往</b>夜市<b>走</b>']},
+  ]},
+  { zh:"時態與經驗 Time & aspect", items:[
+    {p:'V <b>了</b> ( … <b>就</b> )', g:"completed action · 了…就 = once X, then right away Y", ex:['我<b>喝了</b>牛奶，肚子<b>就</b>很痛']},
+    {p:'V <b>過</b>', g:"experience — have ever done (neg 沒…過)", ex:['我去<b>過</b>台南','沒吃<b>過</b>臭豆腐']},
+    {p:'V <b>了</b> + 時間 + <b>了</b>', g:"duration, still ongoing; verb repeats around object", ex:['上課<b>上了</b>一個月<b>了</b>']},
+    {p:'… <b>才</b> …', g:"only then / not until — later than expected", ex:['我四月<b>才</b>搬來台北']},
+    {p:'數字 + <b>個</b> + 時間', g:"counting time needs 個 (年 is the exception: 一年多)", ex:['一<b>個</b>多月','一<b>個</b>多小時']},
+    {p:'<b>通常</b> vs <b>平常</b>', g:"通常 = usually (habit) · 平常 = normally (everyday)", ex:['我<b>通常</b>七點起床']},
+    {p:'<b>已經</b> … <b>了</b>', g:"already", ex:['我<b>已經</b>住了一年<b>了</b>']},
+    {p:'<b>越來越</b> + Adj', g:"more and more (change over time)", ex:['我跟同學<b>越來越</b>熟','天氣<b>越來越</b>冷']},
+    {p:'V + <b>久了</b>', g:"after doing sth a long time, a result appears", ex:['住<b>久了</b>，有時候會覺得有點累','看電視看<b>久了</b>，眼睛會累']},
+    {p:'住在 <s>地方</s> + 時間長度', g:"duration goes AFTER the place, not before", ex:['住在日本<b>幾年</b> ✓ ／ <b>幾年</b>住在日本 ✗']},
+  ]},
+  { zh:"感受與狀態 Perception & state", items:[
+    {p:'V + <b>起來</b>', g:"how it seems, from the action", ex:['芋圓<b>吃起來</b>很Q','果汁<b>喝起來</b>很清爽','炸雞<b>聞起來</b>很香']},
+    {p:'V + <b>著</b>', g:"a state that persists · '-ing'", ex:['燈籠<b>掛著</b>','東西<b>放著</b>']},
+    {p:'<b>一邊</b> … <b>一邊</b> …', g:"two actions at once (usually no 了)", ex:['<b>一邊</b>吃剉冰<b>一邊</b>看風景']},
+    {p:'V + <b>得</b> + Adj', g:"how well you do it; verb repeats around object", ex:['考試考<b>得</b>很好']},
+    {p:'V + <b>得懂</b>', g:"able to understand, by channel", ex:['<b>看得懂</b> · <b>聽得懂</b> · <b>讀得懂</b>']},
+    {p:'Adj → <b>AABB</b> 疊詞', g:"reduplicate a 2-syllable adjective — livelier, softer feel", ex:['輕鬆 → <b>輕輕鬆鬆</b>','舒服 → <b>舒舒服服</b>','開心 → <b>開開心心</b>']},
+    {p:'<b>不太</b> + Adj/V', g:"not very / not really (softened negative)", ex:['我<b>不太</b>喜歡','<b>不太</b>方便']},
+  ]},
+  { zh:"動作、給予及其他 Doing & giving", items:[
+    {p:'<s>S</s> <b>把</b> <s>O</s> + V + 結果', g:"do something to a specific object (front-loaded)", ex:['房東<b>把</b>鑰匙給我<b>了</b>']},
+    {p:'<b>給</b> + 人 + V', g:"do something for someone", ex:['我煮飯<b>給</b>朋友吃']},
+    {p:'… <b>們</b>', g:"plural — people only (我們/朋友們), never objects", ex:['朋友<b>們</b> ✓ ／ 書<b>們</b> ✗']},
+    {p:'<b>都</b>', g:"'all' — also 'has always / stayed the same' (with 一直)", ex:['髮型一直<b>都</b>一樣嗎？']},
+    {p:'<b>怎麼會</b> …？', g:"how come? — surprise, more casual than 為什麼", ex:['你<b>怎麼會</b>知道這件事？']},
+    {p:'A <b>還是</b> B？', g:"'or' in questions (statements use 或)", ex:['你說英文<b>還是</b>中文？']},
+    {p:'<b>除了</b> … <b>以外</b>，還 …', g:"besides X, also Y", ex:['<b>除了</b>聊天<b>以外</b>，還一起吃飯']},
+    {p:'<b>只要</b> … <b>就</b> …', g:"as long as X, then Y", ex:['<b>只要</b>設鬧鐘<b>就</b>不會遲到']},
+    {p:'<b>的</b> / <b>得</b> / <b>地</b>', g:"three de: 的 = noun modifier · 得 = after verb (how well) · 地 = before verb (adverb)", ex:['漂亮<b>的</b>花','跑<b>得</b>很快','慢慢<b>地</b>走']},
+    {p:'<b>雖然</b> … <b>但是/可是</b> …', g:"although … still …", ex:['<b>雖然</b>有點可惜，<b>但是</b>還是很好玩']},
+    {p:'<s>A</s> <b>被</b> (<s>B</s>) V', g:"passive — A gets V-ed (often unwanted)", ex:['我會<b>被</b>媽媽罵','鞋子<b>被</b>穿出門過']},
+    {p:'…，<b>而且</b> …', g:"and moreover / on top of that", ex:['很累，<b>而且</b>隔天很痠']},
+    {p:'<b>不然的話</b>, …', g:"otherwise / or else", ex:['要小心一點，<b>不然的話</b>背會痛']},
+    {p:'…，<b>而且</b> …', g:"and moreover / on top of that", ex:['很累，<b>而且</b>隔天很痠']},
+    {p:'<b>不然的話</b>, …', g:"otherwise / or else", ex:['要小心一點，<b>不然的話</b>背會痛']},
+  ]},
+  { zh:"實用句型 Useful frames", items:[
+    {p:'V <b>得起</b> / <b>不起</b>', g:"can / can't afford to (potential complement)", ex:['我負擔<b>不起</b>這裡的房租']},
+    {p:'A <b>而不是</b> B', g:"A rather than / instead of B", ex:['我想學好，<b>而不是</b>學快']},
+    {p:'<b>對我來說</b>, …', g:"as for me / in my view", ex:['<b>對我來說</b>，中文很有趣']},
+    {p:'<b>再</b> + V', g:"do more / for longer / and then see", ex:['<b>再</b>待一個學期','<b>再</b>看看']},
+    {p:'S 跟 O <b>說過</b>', g:"told someone before (過 = experience)", ex:['我<b>跟</b>你<b>說過</b>']},
+  ]},
+];
+const PAIRS=[
+  {a:["素食","sùshí","vegetarian food"],b:["速食","sùshí","fast food"],note:"Identical pinyin AND tone — context is your only cue (素的漢堡 vs 速食店)."},
+  {a:["通常","tōngcháng","usually (habit)"],b:["平常","píngcháng","normally (everyday)"],note:"Mostly interchangeable; 通常 leans on habit, 平常 on ordinary situations."},
+  {a:["信心","xìnxīn","confidence IN sth"],b:["自信","zìxìn","self-confidence (trait)"],note:"我對考試有信心 vs 他是個有自信的人."},
+  {a:["逼","bī","force (casual)"],b:["逼迫","bīpò","force / pressure (formal)"],note:"Same meaning; 逼迫 is the more formal register."},
+  {a:["副業","fùyè","your own side business"],b:["打工","dǎgōng","part-time for someone else"],note:"副業 = income from your own skills; 打工 = hourly/shift work at a company."},
+  {a:["廟","miào","folk / Taoist temple"],b:["寺","sì","Buddhist temple"],note:"廟 for Mazu/Tudigong etc.; 寺 is where monks & nuns practise."},
+  {a:["潛水","qiánshuǐ","diving"],b:["淺水","qiǎnshuǐ","shallow water"],note:"One tone apart — qián² vs qiǎn³ — and both about water."},
+  {a:["鮭魚","guīyú","salmon"],b:["鯨魚","jīngyú","whale"],note:"Both in the 魚 family; easy to mix up reading fast."},
+  {a:["了","le","completed / did it"],b:["過","guò","have ever done"],note:"我去了台南 = went (a trip) · 我去過台南 = have been (experience)."},
+  {a:["很","hěn","very (degree, alone)"],b:["更","gèng","even more (comparison, 比)"],note:"Never put 很 inside a 比 sentence — use 更."},
+  {a:["繼續","jìxù","continue (keep doing)"],b:["持續","chíxù","persist / be sustained"],note:"繼續 takes an action (繼續學); 持續 describes something ongoing (雨持續下)."},
+  {a:["摸","mō","touch / stroke (on purpose)"],b:["碰","pèng","touch / bump (contact, often accidental)"],note:"摸海龜 = stroke it; 不能碰海龜 = don't make contact with it. 碰到 also = to run into sb/sth."},
+];
+const BOOK={
+  1:{ zh:"核心句型", en:"Essential — almost every conversation", items:[
+    {p:'<s>A</s> <b>是</b> <s>B</s>', t:"1.1", f:"A is B — identity (neg: 不是)", ex:['我<b>是</b>學生','他<b>不是</b>老師']},
+    {p:'… <b>嗎</b> / <b>呢</b> / <b>吧</b>', t:"1.1, 1.3", f:"question & tone particles: yes-no / follow-up / suggestion", ex:['你好<b>嗎</b>？','我很好，你<b>呢</b>？','走<b>吧</b>！']},
+    {p:'<b>不</b> / <b>沒(有)</b>', t:"1.1, 1.13", f:"negation — 不 general/future/stative · 沒 for 有 & completed", ex:['我<b>不</b>喝咖啡','我<b>沒</b>去']},
+    {p:'<b>有</b> / <b>沒有</b>', t:"1.2, 1.6", f:"have / there is (exist)", ex:['我<b>有</b>問題','這裡<b>沒有</b>人']},
+    {p:'… <b>的</b> …', t:"1.2", f:"modification & possession", ex:['我<b>的</b>書','很貴<b>的</b>房子']},
+    {p:'<b>也</b> / <b>都</b>', t:"1.2, 1.3", f:"also / all — both go before the verb", ex:['我<b>也</b>是','我們<b>都</b>喜歡']},
+    {p:'<b>想</b>/<b>要</b>/<b>會</b>/<b>可以</b> + V', t:"1.5, 1.7", f:"modals: want / will·want / can (skill) / may·can", ex:['我<b>想</b>去','我<b>會</b>說中文']},
+    {p:'V + <b>了</b>', t:"1.13", f:"completed action", ex:['我吃<b>了</b>飯','他來<b>了</b>']},
+    {p:'… <b>了</b>', t:"1.10", f:"change of state — new situation now", ex:['我懂<b>了</b>','天氣冷<b>了</b>']},
+    {p:'<b>在</b> + 地方 / <b>在</b> + V', t:"1.6, 1.7", f:"located at · or ongoing action", ex:['我<b>在</b>家','我<b>在</b>吃飯']},
+    {p:'數 + <b>MW</b> + 名', t:"1.2, 1.4", f:"measure word between number and noun", ex:['一<b>個</b>人','兩<b>杯</b>咖啡']},
+    {p:'什麼/誰/哪/幾/多少/怎麼', t:"1.1–8", f:"question words stay in place (no fronting)", ex:['你要<b>什麼</b>？','<b>怎麼</b>去？']},
+    {p:'S + <b>很</b> + Adj', t:"1.1", f:"adjectives take 很; dropping it implies contrast", ex:['她<b>很</b>忙','今天不忙']},
+    {p:'時間 + V', t:"1.3, 1.7", f:"time-when comes BEFORE the verb", ex:['我<b>明天</b>去','我<b>七點</b>起床']},
+    {p:'<b>給</b> + 人 (+ V)', t:"1.13", f:"give / do for someone", ex:['我<b>給</b>你錢','打電話<b>給</b>我']},
+    {p:'<b>太</b> + Adj + <b>了</b>', t:"1.4", f:"too / excessively", ex:['<b>太</b>貴<b>了</b>！']},
+    {p:'(<b>有</b>)<b>一點</b> + Adj', t:"1.5", f:"a little (usually a negative nuance)", ex:['我<b>有一點</b>累']},
+    {p:'<b>覺得</b> / <b>喜歡</b> + …', t:"1.3, 1.8", f:"think that / like to", ex:['我<b>覺得</b>很好','我<b>喜歡</b>吃麵']},
+    {p:'<b>跟</b> …（一起 / 說）', t:"1.8", f:"with / and · together / speak to", ex:['我<b>跟</b>朋友一起去']},
+    {p:'去/來 + 地方 + V', t:"1.3, 1.11", f:"go/come somewhere to do something", ex:['我<b>去</b>商店<b>買</b>東西']},
+  ]},
+  2:{ zh:"常用句型", en:"Common — daily, not every sentence", items:[
+    {p:'<s>A</s> <b>比</b> <s>B</s> + Adj', t:"1.8", f:"comparison — never 很/太; use 更 to strengthen", ex:['我<b>比</b>你高']},
+    {p:'V + <b>得</b> + Adj', t:"1.5, 2.5", f:"degree complement — how well the action is done", ex:['他說<b>得</b>很好']},
+    {p:'V + <b>完/到/懂/好/錯</b>', t:"1.5, 2.4", f:"resultative complements — the outcome of the verb", ex:['吃<b>完</b>了','聽<b>懂</b>了']},
+    {p:'V + <b>來 / 去</b> (方向)', t:"1.11, 2.4", f:"directional complements — motion toward/away", ex:['進<b>來</b>','拿<b>出來</b>']},
+    {p:'V + <b>過</b>', t:"2.3", f:"experience — have ever done (neg 沒…過)", ex:['我去<b>過</b>日本']},
+    {p:'V + <b>了</b> + 時間 (+ 了)', t:"1.9, 1.14", f:"duration — how long; final 了 = still ongoing", ex:['我學<b>了</b>三年','來台灣一年<b>了</b>']},
+    {p:'<b>快(要)</b> … <b>了</b>', t:"1.14", f:"about to / imminent", ex:['火車<b>快要</b>來<b>了</b>']},
+    {p:'<b>因為</b> … <b>所以</b> …', t:"1.4", f:"because … so …", ex:['<b>因為</b>下雨，<b>所以</b>我沒去']},
+    {p:'<b>雖然</b> … <b>可是/但是</b> …', t:"2", f:"although … still …", ex:['<b>雖然</b>貴，<b>可是</b>好吃']},
+    {p:'<b>從</b> … <b>到</b> …', t:"1.7", f:"from … to … (place or time)", ex:['<b>從</b>台北<b>到</b>台南']},
+    {p:'<s>A</s> <b>離</b> <s>B</s> 遠/近', t:"2.1", f:"distance from something", ex:['我家<b>離</b>學校很近']},
+    {p:'<b>一</b> … <b>就</b> …', t:"1.13", f:"as soon as X, then Y", ex:['我<b>一</b>到家<b>就</b>睡覺']},
+    {p:'<b>越來越</b> / <b>越</b>…<b>越</b>…', t:"2.3", f:"more and more / the more … the more", ex:['<b>越來越</b>冷','<b>越</b>吃<b>越</b>餓']},
+    {p:'<b>先</b> … <b>再/然後</b> …', t:"2", f:"first … then …", ex:['<b>先</b>吃飯<b>再</b>工作']},
+    {p:'<b>還是</b> …（<b>吧</b>）', t:"2.2", f:"'or' in questions · 還是…吧 = better do this", ex:['<b>還是</b>坐捷運<b>吧</b>']},
+    {p:'<b>幫</b> + 人 + V', t:"1.4", f:"help / do something for someone", ex:['我<b>幫</b>你買']},
+    {p:'<b>讓</b> + 人 + V', t:"2", f:"let / make someone do", ex:['老師<b>讓</b>我們寫作業']},
+    {p:'… <b>的時候</b>', t:"1.9", f:"when / at the time of", ex:['我小<b>的時候</b>很矮']},
+    {p:'<b>又</b> … <b>又</b> …', t:"1.8", f:"both … and … (two qualities)", ex:['<b>又</b>便宜<b>又</b>好吃']},
+    {p:'<b>這麼/那麼</b> + Adj', t:"1.14, 2.5", f:"so / to such a degree", ex:['<b>這麼</b>冷！']},
+    {p:'<b>多</b> + Adj ？', t:"1.4, 1.12", f:"how + adj (asking extent)", ex:['你<b>多</b>大？','<b>多</b>久？']},
+    {p:'<b>把</b> + O + V + 結果', t:"1.15, 2.4", f:"do something to a specific object (front-loaded)", ex:['請<b>把</b>門關上']},
+    {p:'<b>比較</b> / <b>更</b> + Adj', t:"1.8, 1.14", f:"relatively / even more", ex:['這個<b>比較</b>好','那個<b>更</b>好']},
+    {p:'<b>花</b> + 時間/錢', t:"2", f:"spend (time or money)", ex:['<b>花</b>了很多錢']},
+    {p:'V + <b>一下</b> / VV', t:"1.6, 2.2", f:"do briefly / soften the tone", ex:['看<b>一下</b>','等<b>等</b>']},
+  ]},
+  3:{ zh:"情境句型", en:"Situational — lower frequency (don't let these fade)", items:[
+    {p:'<b>是</b> … <b>的</b>', t:"2", f:"focus on the time / place / manner of a past event", ex:['我<b>是</b>坐飛機來<b>的</b>']},
+    {p:'<b>除了</b> … <b>以外</b>', t:"2", f:"besides / except", ex:['<b>除了</b>中文<b>以外</b>，我也會日文']},
+    {p:'<b>對</b> … <b>來說</b>', t:"2", f:"as for … / from … point of view", ex:['<b>對</b>我<b>來說</b>，這很難']},
+    {p:'<b>一邊</b> … <b>一邊</b> …', t:"2.4", f:"two actions at the same time", ex:['<b>一邊</b>走<b>一邊</b>看手機']},
+    {p:'… <b>才</b> …', t:"2.3", f:"only then / not until — later than expected", ex:['我昨天<b>才</b>知道']},
+    {p:'<b>不但</b> … <b>而且</b> …', t:"2", f:"not only … but also …", ex:['<b>不但</b>便宜<b>而且</b>好吃']},
+    {p:'<b>有的</b> … <b>有的</b> …', t:"1", f:"some … others …", ex:['<b>有的</b>喜歡，<b>有的</b>不喜歡']},
+    {p:'<b>為了</b> …', t:"2", f:"in order to / for the sake of", ex:['<b>為了</b>學中文，我來台灣']},
+    {p:'<b>只要</b>…<b>就</b> / <b>只有</b>…<b>才</b>', t:"2", f:"as long as … / only if …", ex:['<b>只要</b>努力<b>就</b>會進步']},
+    {p:'<b>好</b> + V', t:"1.12", f:"pleasant / easy to V", ex:['<b>好</b>吃','<b>好</b>看','<b>好</b>聽']},
+    {p:'<b>連</b> … <b>都/也</b> …', t:"2 ›5", f:"even …", ex:['<b>連</b>他<b>都</b>不知道']},
+    {p:'<b>被</b> + (人) + V', t:"2 ›5", f:"passive — was done to (often unwanted)", ex:['我的傘<b>被</b>拿走了']},
+  ]},
+};
+const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
+const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
+const PRIO={
+"方式":3,"一直":3,"接受":3,"失望":3,"訊息":3,"秒":3,"單字":3,"起床":3,"醒來":3,"大概":3,"需要":3,"店員":3,"服務生":3,"難過":3,"常常 / 比較常":3,"果汁":3,"便當":3,"味道":3,"軟":3,"硬":3,"甜":3,"舒服":3,"不錯":3,"付":3,"租":3,"左右":3,"公寓":3,"冷氣":3,"捷運站":3,"附近":3,"火車":3,"搭 / 坐":3,"放鬆":3,"看得懂":3,"聽得懂":3,"讀得懂":3,"同學":3,"有趣":3,"真的假的":3,"通常":3,"平常":3,"隨便":3,"都可以":3,"就這樣":3,"作業":3,"繼續":3,"最好":3,"這次":3,"原來":3,"經驗":3,"反應":3,"遇到":3,"傳訊息":3,"員工":3,"原本 / 本來":3,"後來":3,"突然":3,"剛開始":3,"可惜":3,"慶祝":3,"塞車":3,"品牌":3,"壞掉":3,"划算":3,"實用":3,"你在幹嘛":3,"還是算了":3,"睡著":3,"換衣服":3,"刷牙":3,"洗臉":3,"洗澡":3,"整理":3,"穿鞋子":3,"脫鞋子":3,"出門":3,"回家":3,"髒":3,"好處":3,"壞處":3,"超過":3,"生活":3,"好玩":3,"準備":3,"慢":3,"練":3,"跑步":3,"動作":3,"避免":3,"背":3,"腿":3,"手臂":3,"腳":3,"體重":3,"討厭":3,"輕":3,"重":3,"安全":3,"小心":3,"試著":3,"慢跑":3,"距離":2,"受傷":3,"喘":3,"休息":3,"停":3,"散步":3,"曾經":3,"告訴":3,"選擇":3,"便宜":3,"當然":3,"一定":3,"程度":2,"優點":3,"缺點":3,"適合":3,"通勤":3,"房租":3,"重視":3,"生活品質":3,"大眾運輸":2,"生活費":3,"健保":2,"工作機會":2,"興趣":3,"旅行":3,"爬山":3,"發音":3,"語言":3,"碰":3,"碰到":3,"接":3,"載":2,"版本":2,"排球":2,"貓咪":2,
+"夜店":1,"導遊":1,"紙類":1,"魔幻":1,"民宿員工":1,"海龜":1,"燈塔":1,"碼頭":1,"追垃圾車":1,"芭樂":1,"酪梨":1,"剉冰":1,"綜合芋圓冰":1,"芋圓":1,"地瓜圓":1,"椰果":1,"愛玉":1,"煉乳":1,"花豆":1,"碎冰":1,"糖水":1,"籽":1,"鮭魚":1,"生魚片":1,"觸感":1,"橡膠":1,"一度":1,"自由潛水":1,"憋氣":1,"平壓":1,"飛盤":1,"草皮":1,"網子":1,"台東":1,"蘭嶼":1,"澎湖":1,"九份老街":1,"燈籠":1,"股東":1,"自由接案":1,"自由接案者":1,"軟體工程師":1,"打工度假":1,"長知識了":1,"校外教學":1,"臨時居留證":1,"永久居留證":1,"種植":1,"駭客":1,"真人版":1,"信仰":1,"擲筊":1,"神聖":1,"朋友圈":1,"坐我對面":1,"複習考":1,"再待一個學期":1
+};
+const prio=w=>PRIO[w[0]]||2;
+function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span></div>`;}
+const CLASSMAP={
+"潛水、登山與興趣":"c0926","動作與交通":"c0926","地名（台灣 · 日本）":"c0926","貓咪文化":"c0926",
+"比較城市與生活":"c0921",
+"跑步與運動":"c0918","跑步課常用詞":"c0918","跑步課其他":"c0918",
+"健身與動作":"c0909","身體部位":"c0909","健身課相關詞":"c0909",
+"起床與盥洗":"c0902","在家與鞋子":"c0902","這堂課其他":"c0902",
+"環島旅行":"c0831","說故事與對話":"c0831","故事連接詞":"c0831",
+"作息與回收":"c0821","買東西與服務":"c0821","人際與感受":"c0821",
+"宗教與文化":"c0731",
+"工作":"c0720","學習":"c0720","生活與其他":"c0720",
+"新字（依實用度）":"cnew",
+"慶祝與消費":"cceleb","口語表達":"cceleb",
+"感情與社交":"crel","學校、工作與表達":"crel",
+"冰品與美食":"cice","口感與味道":"cice",
+"租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
+};
+const CLASSES=[
+ {id:"c0926",date:"2026-09-26",t:"潛水、登山與貓咪",en:"Diving, hiking & cats"},
+ {id:"c0921",date:"2026-09-21",t:"比較城市與生活",en:"Comparing cities & life"},
+ {id:"c0918",date:"2026-09-18",t:"跑步與拳擊",en:"Running & boxing"},
+ {id:"c0909",date:"2026-09-09",t:"健身與重訓",en:"Gym & weight training"},
+ {id:"c0902",date:"2026-09-02",t:"早晨作息與居家",en:"Morning routine & home"},
+ {id:"c0831",date:"2026-08-31",t:"綠島旅行與說故事",en:"Green Island trip & storytelling"},
+ {id:"c0821",date:"2026-08-21",t:"作息、購物與人際",en:"Routine, shopping & people"},
+ {id:"c0731",date:"2026-07-31",t:"宗教與文化",en:"Religion & culture (from class sheet)"},
+ {id:"c0720",date:"2026-07-20",t:"工作、學習與生活",en:"Work, learning & life (from class sheet)"},
+ {id:"cnew",date:"",t:"綜合新字",en:"Assorted new words"},
+ {id:"cceleb",date:"",t:"慶祝與消費",en:"Celebration & consumer"},
+ {id:"crel",date:"",t:"感情與社交",en:"Relationships & social"},
+ {id:"cice",date:"",t:"剉冰與口感",en:"Shaved ice & texture"},
+ {id:"crent",date:"",t:"租房、潛水與旅行",en:"Renting, diving & travel"}
+];
+let byClass=true;
+function sectionHTML(c,core){
+  const ws=core?[...c.w].sort((a,b)=>prio(b)-prio(a)):c.w;
+  return `<div class="cat">
+    <div class="cat-head"><span class="zh">${c.zh}</span><span class="en">${c.en}</span><span class="count">${c.w.length}</span></div>
+    ${c.sub?`<p class="cat-sub">${c.sub}</p>`:''}
+    <div class="v-grid">${ws.map(vRow).join('')}</div>
+  </div>`;
+}
+function renderVocab(core){
+  const legend=`<p class="legend">Dots = how commonly used: ${dots(3)} learn first · ${dots(2)} common · ${dots(1)} situational. <button class="copybtn" id="copyBtn">⧉ Copy all</button></p>`;
+  let body;
+  if(byClass){
+    body=CLASSES.map(cl=>{
+      const secs=VOCAB.filter(c=>CLASSMAP[c.zh]===cl.id);
+      if(!secs.length)return '';
+      const total=secs.reduce((n,c)=>n+c.w.length,0);
+      return `<div class="classgroup" data-cls="${cl.id}">
+        <div class="classhead"><span class="cdate">${cl.date||'date n/a'}</span><span class="ctitle">${cl.t}</span><span class="cen">${cl.en}</span><span class="ccount">${total}</span><button class="copybtn" data-copycls="${cl.id}">⧉ Copy</button></div>
+        ${secs.map(c=>sectionHTML(c,core)).join('')}
+      </div>`;
+    }).join('');
+  } else {
+    body=VOCAB.map(c=>sectionHTML(c,core)).join('');
+  }
+  document.getElementById('vocab').innerHTML=legend+body;
+}
+renderVocab(false);
+document.getElementById('struct').innerHTML=STRUCT.map(c=>`
+  <div class="cat">
+    <div class="cat-head"><span class="zh">${c.zh}</span><span class="count">${c.items.length}</span></div>
+    ${c.items.map(it=>`<div class="g-card"><div class="g-pattern">${slot(it.p)}</div><div class="g-gloss">${it.g}</div><div class="g-ex">${it.ex.map(e=>`<p>${e}</p>`).join('')}</div></div>`).join('')}
+  </div>`).join('');
+document.getElementById('pairs').innerHTML=`<div class="cat">
+  <div class="cat-head"><span class="zh">易混淆</span><span class="en">Sound-alikes & mix-ups</span><span class="count">${PAIRS.length}</span></div>
+  ${PAIRS.map(p=>`<div class="pair"><div class="pair-row">
+    <div class="pair-side"><span class="v-zh">${p.a[0]}</span><span class="v-py">${p.a[1]}</span><span class="v-en">${p.a[2]}</span></div>
+    <span class="pair-vs">vs</span>
+    <div class="pair-side"><span class="v-zh">${p.b[0]}</span><span class="v-py">${p.b[1]}</span><span class="v-en">${p.b[2]}</span></div>
+  </div><div class="pair-note">${p.note}</div></div>`).join('')}
+</div>`;
+document.getElementById('book').innerHTML=Object.entries(BOOK).map(([tier,d])=>{
+  const f=tier==='1'?3:tier==='2'?2:1;
+  return `<div class="tier">
+    <div class="tier-head"><span class="n">Tier ${tier}</span><span class="zh">${d.zh}</span><span class="count">${d.items.length}</span></div>
+    <p class="tier-sub">${d.en}</p>
+    ${d.items.map(it=>`<div class="card">${dots(f)}<div class="card-main"><div class="g-pattern">${slot(it.p)}<span class="tag">${it.t}</span></div><div class="fn">${it.f}</div><div class="g-ex">${it.ex.map(e=>`<p>${e}</p>`).join('')}</div></div></div>`).join('')}
+  </div>`;
+}).join('');
+document.getElementById('foot').innerHTML=`<b>One site, four tabs.</b> 單字 vocab defaults to <b>By class</b> (each class dated, with its own ⧉ Copy button); turn off “By class” to group by theme, “Core first”/“★ only” to prioritise by frequency. Dates come from when each file was uploaded; classes pasted as text (no file) get a content title and “date n/a”. · 句型 Preply structures · 易混 sound-alikes · 課本文法 CCC Book 1→2.1 grammar, tagged <b>book.lesson</b>. Traditional characters, Taiwan usage. Test mode blurs meanings — tap to reveal.`;
+const tabs=[...document.querySelectorAll('.tab')];
+const panels={vocab:document.getElementById('vocab'),struct:document.getElementById('struct'),pairs:document.getElementById('pairs'),book:document.getElementById('book')};
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.setAttribute('aria-selected','false'));t.setAttribute('aria-selected','true');
+  Object.values(panels).forEach(p=>p.classList.remove('active'));panels[t.dataset.panel].classList.add('active');
+  applySearch();
+}));
+const testBtn=document.getElementById('testBtn'),pyBtn=document.getElementById('pyBtn');
+testBtn.addEventListener('click',()=>{const on=testBtn.getAttribute('aria-pressed')==='true';testBtn.setAttribute('aria-pressed',String(!on));document.body.classList.toggle('test',!on);});
+pyBtn.addEventListener('click',()=>{const on=pyBtn.getAttribute('aria-pressed')==='true';pyBtn.setAttribute('aria-pressed',String(!on));document.body.classList.toggle('nopy',!on);});
+const coreBtn=document.getElementById('coreBtn'),onlyBtn=document.getElementById('onlyBtn');
+coreBtn.addEventListener('click',()=>{const on=coreBtn.getAttribute('aria-pressed')==='true';coreBtn.setAttribute('aria-pressed',String(!on));renderVocab(!on);applySearch();});
+onlyBtn.addEventListener('click',()=>{const on=onlyBtn.getAttribute('aria-pressed')==='true';onlyBtn.setAttribute('aria-pressed',String(!on));document.body.classList.toggle('coreonly',!on);applySearch();});
+const classBtn=document.getElementById('classBtn');
+classBtn.addEventListener('click',()=>{const on=classBtn.getAttribute('aria-pressed')==='true';byClass=!on;classBtn.setAttribute('aria-pressed',String(byClass));const core=coreBtn.getAttribute('aria-pressed')==='true';renderVocab(core);applySearch();});
+document.addEventListener('click',e=>{const t=e.target.closest('.v-en,.g-gloss,.fn,.pair-note,.v-py');if(t&&(document.body.classList.contains('test')||document.body.classList.contains('nopy')))t.classList.toggle('revealed');});
+const search=document.getElementById('search');
+function applySearch(){
+  const q=search.value.trim().toLowerCase();
+  const active=document.querySelector('.panel.active');
+  active.querySelectorAll('.cat,.tier').forEach(sec=>{
+    let any=false;
+    sec.querySelectorAll('.v-row,.g-card,.pair,.card').forEach(item=>{
+      let hit=!q||item.textContent.toLowerCase().includes(q);
+      if(hit&&document.body.classList.contains('coreonly')){const p=item.getAttribute('data-p');if(p&&p!=='3')hit=false;}
+      item.style.display=hit?'':'none';if(hit)any=true;
+    });
+    sec.style.display=any?'':'none';
+  });
+  active.querySelectorAll('.classgroup').forEach(g=>{
+    const vis=[...g.querySelectorAll('.cat')].some(c=>c.style.display!=='none');
+    g.style.display=vis?'':'none';
+  });
+  let ph=active.querySelector('.empty');
+  const none=![...active.querySelectorAll('.cat,.tier')].some(c=>c.style.display!=='none');
+  if(none&&q){if(!ph){ph=document.createElement('p');ph.className='empty';ph.textContent='沒有結果 · no matches';active.appendChild(ph);}ph.style.display='';}
+  else if(ph){ph.style.display='none';}
+}
+search.addEventListener('input',applySearch);
+document.addEventListener('click',async e=>{
+  const btn=e.target.closest('#copyBtn,[data-copycls]'); if(!btn) return;
+  const scope=btn.hasAttribute('data-copycls')?btn.closest('.classgroup'):document.getElementById('vocab');
+  const rows=[...scope.querySelectorAll('.v-row')].filter(r=>r.style.display!=='none');
+  const text=rows.map(r=>[r.querySelector('.v-zh').textContent,r.querySelector('.v-py').textContent,r.querySelector('.v-en').textContent].join('\t')).join('\n');
+  let ok=false;
+  try{await navigator.clipboard.writeText(text);ok=true;}catch(_){}
+  if(!ok){try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.top='-1000px';document.body.appendChild(ta);ta.focus();ta.select();ok=document.execCommand('copy');document.body.removeChild(ta);}catch(_){ok=false;}}
+  const orig=btn.textContent;
+  btn.textContent=ok?('✓ '+rows.length):'Copy failed';
+  btn.classList.add('done');
+  setTimeout(()=>{btn.textContent=orig;btn.classList.remove('done');},1600);
+});
+</script>
+</body>
+</html>
