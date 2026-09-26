@@ -152,6 +152,9 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"觀光、烤肉與步道", en:"Sightseeing, BBQ & trails", w:[
+    ["清醒","qīngxǐng","sober / clear-headed"],["早睡早起","zǎo shuì zǎo qǐ","early to bed, early to rise"],["爬山","páshān","to hike / climb a mountain"],["觀光客","guānguāngkè","tourist"],["烤肉","kǎoròu","BBQ / to grill meat"],["政府","zhèngfǔ","government"],["柚子","yòuzi","pomelo"],["做成","zuòchéng","to make into"],["提高","tígāo","to raise / improve"],["做夢","zuòmèng","to dream"],["教學經驗","jiàoxué jīngyàn","teaching experience"],["足夠","zúgòu","enough / sufficient"],["包裝","bāozhuāng","packaging / to package"],["享受","xiǎngshòu","to enjoy"],["即使","jíshǐ","even if / even though"],["分辨","fēnbiàn","to tell apart / distinguish"],["改","gǎi","to change / correct"],["日期","rìqī","date"],["再","zài","again / then (afterward)"],["步道","bùdào","trail / footpath"],["瀑布","pùbù","waterfall"],["預定","yùdìng","to reserve / book in advance"],["訂","dìng","to book / order (訂東西)"],["利用","lìyòng","to use / take advantage of"],["低於","dīyú","below / lower than"],["少於","shǎoyú","less than"],
+  ]},
   { zh:"潛水、登山與興趣", en:"Diving, hiking & hobbies", sub:"(海龜, 裝備, 潛水 are already in your sets.)", w:[
     ["興趣","xìngqù","interest / hobby"],["排球","páiqiú","volleyball"],["旅行","lǚxíng","to travel"],["發音","fāyīn","pronunciation"],["語言","yǔyán","language"],["介面","jièmiàn","interface"],["版本","bǎnběn","version"],["水肺潛水","shuǐfèi qiánshuǐ","scuba diving"],["證照","zhèngzhào","licence / certification"],["浮上來","fú shànglái","to surface / come up"],["爬山","páshān","to hike / climb a mountain"],["陡","dǒu","steep"],["茶壺","cháhú","teapot"],
   ]},
@@ -253,6 +256,11 @@ const VOCAB=[
   ]},
 ];
 const STRUCT=[
+  { zh:"本課句型 This class", items:[
+    {p:'V + <b>一點</b> + N', g:"do a bit of / a little of an activity", ex:['<b>爬一點</b>山','走<b>一點</b>路']},
+    {p:'<b>即使</b> … <b>也</b> …', g:"even if … still …", ex:['<b>即使</b>下雨，我<b>也</b>要去爬山']},
+    {p:'A + <b>低於 / 少於</b> + B', g:"A is below / less than B (低於 amounts/levels · 少於 counts)", ex:['價格<b>低於</b>一百塊','人數<b>少於</b>十個']},
+  ]},
   { zh:"比較 Comparison", items:[
     {p:'<s>A</s> 比 <s>B</s> + <b>Adj</b>', g:"A is more Adj than B — never 很/非常/太", ex:['台灣的芒果<b>比</b>別的國家好吃']},
     {p:'<s>A</s> 比 <s>B</s> + <b>更 / 還要</b> + Adj', g:"even more · 更 = comparison, 很 = plain degree", ex:['我的公寓<b>比</b>宿舍<b>更</b>大']},
@@ -395,12 +403,14 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"爬山":3,"烤肉":3,"提高":3,"享受":3,"即使":3,"改":3,"日期":3,"再":3,"利用":3,"少於":3,"分辨":3,"預定":3,"訂":3,"清醒":2,"早睡早起":2,"觀光客":3,"政府":2,"柚子":2,"做成":2,"做夢":2,"足夠":3,"包裝":2,"步道":2,"瀑布":2,"低於":2,"教學經驗":1,
 "方式":3,"一直":3,"接受":3,"失望":3,"訊息":3,"秒":3,"單字":3,"起床":3,"醒來":3,"大概":3,"需要":3,"店員":3,"服務生":3,"難過":3,"常常 / 比較常":3,"果汁":3,"便當":3,"味道":3,"軟":3,"硬":3,"甜":3,"舒服":3,"不錯":3,"付":3,"租":3,"左右":3,"公寓":3,"冷氣":3,"捷運站":3,"附近":3,"火車":3,"搭 / 坐":3,"放鬆":3,"看得懂":3,"聽得懂":3,"讀得懂":3,"同學":3,"有趣":3,"真的假的":3,"通常":3,"平常":3,"隨便":3,"都可以":3,"就這樣":3,"作業":3,"繼續":3,"最好":3,"這次":3,"原來":3,"經驗":3,"反應":3,"遇到":3,"傳訊息":3,"員工":3,"原本 / 本來":3,"後來":3,"突然":3,"剛開始":3,"可惜":3,"慶祝":3,"塞車":3,"品牌":3,"壞掉":3,"划算":3,"實用":3,"你在幹嘛":3,"還是算了":3,"睡著":3,"換衣服":3,"刷牙":3,"洗臉":3,"洗澡":3,"整理":3,"穿鞋子":3,"脫鞋子":3,"出門":3,"回家":3,"髒":3,"好處":3,"壞處":3,"超過":3,"生活":3,"好玩":3,"準備":3,"慢":3,"練":3,"跑步":3,"動作":3,"避免":3,"背":3,"腿":3,"手臂":3,"腳":3,"體重":3,"討厭":3,"輕":3,"重":3,"安全":3,"小心":3,"試著":3,"慢跑":3,"距離":2,"受傷":3,"喘":3,"休息":3,"停":3,"散步":3,"曾經":3,"告訴":3,"選擇":3,"便宜":3,"當然":3,"一定":3,"程度":2,"優點":3,"缺點":3,"適合":3,"通勤":3,"房租":3,"重視":3,"生活品質":3,"大眾運輸":2,"生活費":3,"健保":2,"工作機會":2,"興趣":3,"旅行":3,"爬山":3,"發音":3,"語言":3,"碰":3,"碰到":3,"接":3,"載":2,"版本":2,"排球":2,"貓咪":2,
 "夜店":1,"導遊":1,"紙類":1,"魔幻":1,"民宿員工":1,"海龜":1,"燈塔":1,"碼頭":1,"追垃圾車":1,"芭樂":1,"酪梨":1,"剉冰":1,"綜合芋圓冰":1,"芋圓":1,"地瓜圓":1,"椰果":1,"愛玉":1,"煉乳":1,"花豆":1,"碎冰":1,"糖水":1,"籽":1,"鮭魚":1,"生魚片":1,"觸感":1,"橡膠":1,"一度":1,"自由潛水":1,"憋氣":1,"平壓":1,"飛盤":1,"草皮":1,"網子":1,"台東":1,"蘭嶼":1,"澎湖":1,"九份老街":1,"燈籠":1,"股東":1,"自由接案":1,"自由接案者":1,"軟體工程師":1,"打工度假":1,"長知識了":1,"校外教學":1,"臨時居留證":1,"永久居留證":1,"種植":1,"駭客":1,"真人版":1,"信仰":1,"擲筊":1,"神聖":1,"朋友圈":1,"坐我對面":1,"複習考":1,"再待一個學期":1
 };
 const prio=w=>PRIO[w[0]]||2;
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span></div>`;}
 const CLASSMAP={
+"觀光、烤肉與步道":"c0926b",
 "潛水、登山與興趣":"c0926","動作與交通":"c0926","地名（台灣 · 日本）":"c0926","貓咪文化":"c0926",
 "比較城市與生活":"c0921",
 "跑步與運動":"c0918","跑步課常用詞":"c0918","跑步課其他":"c0918",
@@ -417,6 +427,7 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c0926b",date:"2026-09-26",t:"觀光、烤肉與步道",en:"Sightseeing, BBQ & trails"},
  {id:"c0926",date:"2026-09-26",t:"潛水、登山與貓咪",en:"Diving, hiking & cats"},
  {id:"c0921",date:"2026-09-21",t:"比較城市與生活",en:"Comparing cities & life"},
  {id:"c0918",date:"2026-09-18",t:"跑步與拳擊",en:"Running & boxing"},
