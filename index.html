@@ -6,72 +6,90 @@
     <title>Chinese Study Tools</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
+      :root {
+        --bg: #1c1c1e; --card: #232326; --card-h: #2a2a2f;
+        --line: #2e2e33; --line-h: #3a3a42;
+        --fg: #eee; --muted: #9aa0a6; --dim: #7c828a;
+        --accent: #7ee2a5;
+      }
       body {
-        background: #1c1c1e;
-        color: #eee;
+        background: var(--bg);
+        color: var(--fg);
         font-family: "PingFang TC", "Noto Sans TC", -apple-system,
           BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         line-height: 1.5;
         min-height: 100vh;
       }
-      .wrap { max-width: 760px; margin: 0 auto; padding: 48px 20px 60px; }
-      header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.01em; }
-      header p { color: #999; font-size: 16px; margin-top: 8px; }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 44px 20px 60px; }
 
-      .tools { margin-top: 32px; display: grid; gap: 14px; }
-      a.tool {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-        background: #232326;
-        border: 1px solid #2e2e33;
-        border-radius: 14px;
-        padding: 18px 20px;
-        transition: background 0.15s ease, border-color 0.15s ease;
-      }
-      a.tool:hover { background: #2a2a2f; border-color: #3a3a42; }
-      .tool .emoji { font-size: 24px; }
-      .tool h2 { font-size: 18px; font-weight: 700; margin-top: 6px; }
-      .tool p { color: #9aa0a6; font-size: 14px; margin-top: 4px; }
-      .tool.soon { opacity: 0.5; }
-      .badge {
-        float: right;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #7c828a;
-        border: 1px solid #3a3a42;
-        border-radius: 999px;
-        padding: 2px 9px;
-        margin-top: 4px;
-      }
-      footer { margin-top: 40px; color: #666; font-size: 13px; }
-      .mirror { margin-top: 26px; font-size: 13px; color: #9aa0a6; display: flex; align-items: center; gap: 8px; }
-      .mirror .dot { width: 9px; height: 9px; border-radius: 50%; background: #6b7280; flex: 0 0 auto; }
+      header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+      header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.01em; }
+      header p { color: var(--muted); font-size: 15px; width: 100%; margin-top: 4px; }
+      .mirror { margin-left: auto; font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+      .mirror .dot { width: 8px; height: 8px; border-radius: 50%; background: #6b7280; flex: 0 0 auto; }
       .mirror.fresh .dot { background: #4ade80; }
       .mirror.ok .dot { background: #d1a54a; }
       .mirror.stale .dot { background: #f87171; }
       .mirror b { color: #ddd; font-weight: 600; }
 
-      .chart { margin-top: 36px; }
+      .tools {
+        margin-top: 26px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 12px;
+      }
+      a.tool {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 16px;
+        transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+      }
+      a.tool:hover { background: var(--card-h); border-color: var(--line-h); transform: translateY(-2px); }
+      .tool .emoji {
+        width: 40px; height: 40px; flex: 0 0 auto;
+        display: grid; place-items: center;
+        font-size: 21px;
+        background: #2b2b30; border: 1px solid var(--line);
+        border-radius: 11px;
+        margin-bottom: 11px;
+      }
+      .tool h2 { font-size: 16px; font-weight: 700; }
+      .tool p { color: var(--muted); font-size: 13px; margin-top: 5px; }
+
+      .chart {
+        margin-top: 22px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px 20px 20px;
+      }
+      .chart .chead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
       .chart h2 { font-size: 15px; font-weight: 700; color: #ddd; }
-      .chart .csub { font-size: 12px; color: #7c828a; margin: 2px 0 8px; }
-      .chart .total { font-size: 22px; font-weight: 800; color: #7ee2a5; margin: 0 0 16px; }
-      .chart .total span { font-size: 14px; font-weight: 500; color: #9aa0a6; }
+      .chart .total { font-size: 20px; font-weight: 800; color: var(--accent); }
+      .chart .total span { font-size: 13px; font-weight: 500; color: var(--muted); }
+      .chart .csub { font-size: 12px; color: var(--dim); margin: 3px 0 14px; }
       .lvrow { display: flex; align-items: center; gap: 12px; margin: 7px 0; }
-      .lvrow .lbl { width: 2.2em; font-size: 13px; color: #9aa0a6; font-weight: 600; flex: 0 0 auto; }
+      .lvrow .lbl { width: 2.2em; font-size: 13px; color: var(--muted); font-weight: 600; flex: 0 0 auto; }
       .lvrow .track { flex: 1 1 auto; height: 20px; background: #262629; border-radius: 6px; position: relative; overflow: hidden; }
       .lvrow .tot { position: absolute; left: 0; top: 0; height: 100%; background: #3a3a40; border-radius: 6px; }
       .lvrow .act { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, #15803d, #4ade80); border-radius: 6px; transition: width 0.5s ease; }
-      .lvrow .num { flex: 0 0 auto; font-size: 12px; color: #9aa0a6; min-width: 7.5em; text-align: right; }
-      .lvrow .num b { color: #7ee2a5; font-weight: 700; }
+      .lvrow .num { flex: 0 0 auto; font-size: 12px; color: var(--muted); min-width: 7.5em; text-align: right; }
+      .lvrow .num b { color: var(--accent); font-weight: 700; }
       .chart .empty { color: #666; font-size: 13px; }
+
+      footer { margin-top: 30px; color: #666; font-size: 13px; }
     </style>
   </head>
   <body>
     <div class="wrap">
       <header>
         <h1>Chinese Study Tools</h1>
+        <div class="mirror" id="mirror"><span class="dot"></span><span id="mirror-txt">checking…</span></div>
         <p>A small toolbox my teachers and I use to keep my studying on track.</p>
       </header>
 
@@ -79,49 +97,45 @@
         <a class="tool" href="/word-review/">
           <div class="emoji">📖</div>
           <h2>Word review</h2>
-          <p>Review TOCFL and Preply words in tabs — add to enable on sync,
-            or skip to suspend.</p>
+          <p>Review TOCFL and Preply words in tabs — add to enable, or skip to suspend.</p>
         </a>
 
         <a class="tool" href="/vocab-ingest/">
           <div class="emoji">🔎</div>
           <h2>Enable words</h2>
-          <p>Search your deck or paste a list to enable words. Anything not in
-            TOCFL becomes a Preply card on the next sync.</p>
+          <p>Search a deck or paste a list. Words not in TOCFL become Preply cards.</p>
         </a>
 
         <a class="tool" href="/reading/">
           <div class="emoji">📚</div>
           <h2>Reading</h2>
-          <p>A short Taiwan-Mandarin piece built from the words you recently
-            started studying — English tucked away until you need it.</p>
+          <p>A short Taiwan-Mandarin piece from words you recently started studying.</p>
         </a>
 
         <a class="tool" href="/translate/">
           <div class="emoji">✍️</div>
           <h2>Translate practice</h2>
-          <p>Translate English into Chinese using only words you know; an AI
-            tutor checks your answer and explains.</p>
+          <p>Translate English into Chinese using words you know; an AI tutor checks it.</p>
         </a>
 
         <a class="tool" href="/class-notes/">
           <div class="emoji">📒</div>
           <h2>Class notes</h2>
-          <p>Vocab, structures, sound-alike pairs and book grammar from Preply
-            classes — searchable, by class, with a test mode.</p>
+          <p>Vocab, structures, sound-alikes and book grammar from Preply classes.</p>
         </a>
 
         <!-- Add more tools here as they're built. -->
       </div>
 
       <section class="chart">
-        <h2>TOCFL progress</h2>
+        <div class="chead">
+          <h2>TOCFL progress</h2>
+          <p class="total" id="chart-total"></p>
+        </div>
         <p class="csub">Unsuspended words per level, L0–L5 (from the Anki mirror).</p>
-        <p class="total" id="chart-total"></p>
         <div id="chart-rows"><span class="empty">Loading…</span></div>
       </section>
 
-      <div class="mirror" id="mirror"><span class="dot"></span><span id="mirror-txt">Anki mirror: checking…</span></div>
       <footer>Built with Anki + a few gists. More tools coming.</footer>
     </div>
     <script>
@@ -141,7 +155,7 @@
           d = await fetch("/api/cards", { cache: "no-store" }).then((r) => r.json());
         } catch (e) {
           el.className = "mirror stale";
-          txt.textContent = "Anki mirror: unavailable";
+          txt.textContent = "mirror unavailable";
           rows.innerHTML = '<span class="empty">Mirror unavailable.</span>';
           return;
         }
@@ -149,11 +163,11 @@
         // Last-synced indicator
         if (!d.generated) {
           el.className = "mirror stale";
-          txt.innerHTML = "Anki mirror: <b>not synced yet</b> — run sync_anki_upstash.py";
+          txt.innerHTML = "<b>not synced yet</b>";
         } else {
           const secs = (Date.now() - new Date(d.generated).getTime()) / 1000;
           el.className = "mirror " + (secs < 3600 ? "fresh" : secs < 86400 ? "ok" : "stale");
-          txt.innerHTML = "Anki mirror: <b>synced " + ago(d.generated) + "</b> · " + d.count + " words";
+          txt.innerHTML = "synced <b>" + ago(d.generated) + "</b> · " + d.count + " words";
         }
 
         // Per-level chart. Level is encoded in the order field: o = level*1e6 + pos.
