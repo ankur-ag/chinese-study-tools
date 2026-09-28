@@ -81,6 +81,7 @@
       .row .psc { color: #7ee2a5; font-size: 12px; font-weight: 700; flex: 0 0 auto; min-width: 1.6em; text-align: right; }
       .badge2 { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; flex: 0 0 auto; }
       .b-active { color: #7ee2a5; background: #14361f; }
+      .b-skip { color: #cbd0d6; background: #2c2c30; }
       .b-queued { color: #7dd3fc; background: #123047; }
       .divider { display: flex; align-items: center; gap: 12px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin: 26px 4px 4px; }
       .divider::before, .divider::after { content: ""; flex: 1 1 auto; height: 1px; background: #2e2e33; }
@@ -133,7 +134,7 @@
         <input id="q2" type="search" placeholder="搜尋 · filter your Preply deck — hanzi, pinyin, or meaning…" autocomplete="off" />
         <section>
           <div class="sec-title t-susp">◐ In Preply, suspended · <span id="c-psusp">0</span></div>
-          <div class="sec-sub">Suspended Preply words, most useful first. Add to enable on the next sync.</div>
+          <div class="sec-sub">Suspended Preply words, most useful first. Add to enable on the next sync, or Skip to set aside (won't be re-activated by scoring).</div>
           <div class="rows" id="list-psusp"></div>
         </section>
 
@@ -319,7 +320,11 @@
           const py = document.createElement("span"); py.className = "py"; py.textContent = m.py || ""; r.appendChild(py);
           const me = document.createElement("span"); me.className = "m2"; me.textContent = m.m || ""; r.appendChild(me);
           if (wants[w] === "unsuspend") { const b = document.createElement("span"); b.className = "badge2 b-queued"; b.textContent = "queued"; r.appendChild(b); }
-          else { const btn = document.createElement("button"); btn.className = "addb"; btn.textContent = "Add"; btn.title = "Enable on the next sync"; btn.addEventListener("click", () => addWord(w)); r.appendChild(btn); }
+          else if (wants[w] === "suspend") { const b = document.createElement("span"); b.className = "badge2 b-skip"; b.textContent = "skip queued"; r.appendChild(b); }
+          else {
+            const btn = document.createElement("button"); btn.className = "addb"; btn.textContent = "Add"; btn.title = "Enable on the next sync"; btn.addEventListener("click", () => addWord(w)); r.appendChild(btn);
+            const sk = document.createElement("button"); sk.className = "skipb"; sk.textContent = "Skip"; sk.title = "Set aside — won't be enabled or re-activated by scoring"; sk.addEventListener("click", () => skipPreply(w)); r.appendChild(sk);
+          }
           box.appendChild(r);
         });
         if (!shown.length) box.innerHTML = '<span class="empty">' + (q ? "No suspended Preply words match." : "No suspended Preply words.") + "</span>";
@@ -333,6 +338,11 @@
       async function addWord(w) {
         wants[w] = "unsuspend"; render();
         await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "unsuspend" }) });
+      }
+
+      async function skipPreply(w) {
+        wants[w] = "suspend"; render();  // sync tags preply-skip -> stays suspended, scoring won't re-activate
+        await fetch("/api/want", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: w, action: "suspend" }) });
       }
 
       async function refresh() {
