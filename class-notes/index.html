@@ -152,6 +152,21 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"正面情緒", en:"Positive emotions", sub:"Adjectives usually take 的 before a noun (欣喜的心情). Stored here in dictionary form.", w:[
+    ["欣喜","xīnxǐ","delighted / joyful"],["高興","gāoxìng","happy / glad"],["興高采烈","xìnggāocǎiliè","in high spirits / elated"],["歡快","huānkuài","cheerful / lively"],["感激","gǎnjī","grateful (deeply)"],["感謝","gǎnxiè","to thank / grateful"],["感恩","gǎn'ēn","gratitude / to be thankful"],["滿意","mǎnyì","satisfied"],["滿足","mǎnzú","content / satisfied"],["自信","zìxìn","confident"],["放鬆","fàngsōng","to relax / relaxed"],["輕鬆","qīngsōng","relaxed / easy"],["充滿希望","chōngmǎn xīwàng","hopeful / full of hope"],["平靜","píngjìng","calm / peaceful"],["冷靜","lěngjìng","calm / composed"],["冷清","lěngqīng","deserted / cheerless"],["驕傲","jiāo'ào","proud"],["自豪","zìháo","proud of"],["熱情","rèqíng","enthusiastic / warm"],["熱心","rèxīn","warm-hearted / eager to help"],
+  ]},
+  { zh:"負面情緒", en:"Negative emotions", w:[
+    ["沮喪","jǔsàng","dejected / upset"],["挫敗","cuòbài","frustrated / defeated"],["焦慮","jiāolǜ","anxious"],["不安","bù'ān","uneasy / restless"],["失望","shīwàng","disappointed"],["嫉妒","jídù","jealous / envious"],["吃醋","chīcù","jealous (in love)"],["尷尬","gāngà","embarrassed / awkward"],["孤獨","gūdú","lonely / solitary"],["寂寞","jìmò","lonely"],["孤單","gūdān","alone / lonely"],["孤兒","gū'ér","orphan"],["內疚","nèijiù","guilty (conscience)"],["罪惡感","zuì'ègǎn","sense of guilt"],["缺乏","quēfá","to lack"],["安全感","ānquángǎn","sense of security"],["煩躁","fánzào","irritable / agitated"],["抑鬱","yìyù","depressed"],["憂鬱","yōuyù","depressed / melancholy"],["情緒","qíngxù","emotion / mood"],["情緒化","qíngxùhuà","emotional / moody"],["理性","lǐxìng","rational / reason"],["冒險","màoxiǎn","to take risks / adventure"],["要求","yāoqiú","request / demand / requirement"],["比如說","bǐrúshuō","for example"],
+  ]},
+  { zh:"複合情緒", en:"Neutral & complex emotions", w:[
+    ["困惑","kùnhuò","confused / puzzled"],["筋疲力盡","jīnpílìjìn","exhausted"],["吃驚","chījīng","startled / surprised"],["驚訝","jīngyà","surprised / astonished"],["驚喜","jīngxǐ","(pleasant) surprise"],["震驚","zhènjīng","shocked / stunned"],["好奇","hàoqí","curious"],["急躁","jízào","impatient / impetuous"],["鬆一口氣","sōng yìkǒuqì","to feel relieved"],["可惜","kěxī","a pity / a shame"],["無聊","wúliáo","bored / boring"],["緊張","jǐnzhāng","nervous / tense"],["練腿日","liàntuǐrì","leg day (gym slang)"],
+  ]},
+  { zh:"租房子與搬家", en:"Renting & moving house", sub:"From the 美玲／東健 rental dialogue — finding, signing & moving.", w:[
+    ["房子","fángzi","house / place (to live)"],["搬家","bānjiā","to move house"],["合約","héyuē","contract / lease"],["簽","qiān","to sign"],["到期","dàoqí","to expire / come due"],["房租","fángzū","rent"],["規定","guīdìng","rule / regulation"],["安靜","ānjìng","quiet"],["準時","zhǔnshí","on time / punctual"],["付","fù","to pay"],["環境","huánjìng","environment / surroundings"],["光線","guāngxiàn","light / lighting"],["合適","héshì","suitable / a good fit"],["乾淨","gānjìng","clean"],["地方","dìfāng","place"],["離","lí","(distance) away from"],["近","jìn","near / close"],["北邊","běibiān","north side"],["願意","yuànyì","to be willing to"],["資料","zīliào","information / data"],["網站","wǎngzhàn","website"],["樓梯","lóutī","stairs"],["爬樓梯","pá lóutī","to climb the stairs"],["電梯","diàntī","elevator / lift"],["搭電梯","dā diàntī","to take the elevator"],["一樓","yīlóu","first / ground floor"],["蟲","chóng","bug / insect"],["螞蟻","mǎyǐ","ant"],["怕","pà","to fear / be afraid of"],["容易","róngyì","easy / prone to"],["需要","xūyào","to need"],["自己","zìjǐ","oneself"],["倒","dào","to dump / take out (rubbish)"],["準備","zhǔnbèi","to prepare"],["多久","duōjiǔ","how long"],["小時","xiǎoshí","hour"],["分鐘","fēnzhōng","minute"],["那時","nàshí","at that time / back then"],
+  ]},
+  { zh:"素食、運動與其他", en:"Vegetarian, sports & misc", sub:"Vegetarian types, ball sports, saving money & festival words.", w:[
+    ["宗教","zōngjiào","religion"],["素食","sùshí","vegetarian food"],["吃素","chīsù","to eat vegetarian"],["全素","quánsù","vegan / fully vegetarian"],["蛋奶素","dànnǎisù","lacto-ovo vegetarian"],["排球","páiqiú","volleyball"],["籃球","lánqiú","basketball"],["羽毛球","yǔmáoqiú","badminton"],["羽毛","yǔmáo","feather"],["存","cún","to save / store"],["存錢","cúnqián","to save money"],["銀行","yínháng","bank"],["雲端","yúnduān","the cloud (storage)"],["列印","lièyìn","to print"],["隨身碟","suíshēndié","USB flash drive"],["中秋節","Zhōngqiūjié","Mid-Autumn Festival"],["憂鬱","yōuyù","depressed / melancholy"],["錯","cuò","wrong / a mistake"],["腳踏車","jiǎotàchē","bicycle"],["河邊","hébiān","riverside"],
+  ]},
   { zh:"影集與生活比較", en:"TV series & comparing life", sub:"Comparing US/Taiwan cost of living, discussing a series & a legendary racer.", w:[
     ["生活費","shēnghuófèi","cost of living"],["面向","miànxiàng","aspect / perspective"],["影集","yǐngjí","TV series"],["美劇","Měijù","American TV series"],["黑色喜劇","hēisè xǐjù","dark comedy"],["主角","zhǔjué","main character"],["發生","fāshēng","to happen / take place"],["主要","zhǔyào","mainly / primary"],["負責","fùzé","to be responsible for"],["面對","miànduì","to face"],["金錢","jīnqián","money / financial matters"],["困難","kùnnán","difficulty"],["想辦法","xiǎng bànfǎ","to find a way"],["沒辦法","méi bànfǎ","have no way / can't help it"],["互相幫忙","hùxiāng bāngmáng","to help one another"],["賽車手","sàichēshǒu","race-car driver"],["比賽","bǐsài","competition / race"],["贏","yíng","to win"],["過世","guòshì","to pass away"],["傳奇","chuánqí","legend / legendary"],["推薦","tuījiàn","to recommend"],
   ]},
@@ -259,7 +274,16 @@ const VOCAB=[
   ]},
 ];
 const STRUCT=[
-  { zh:"本課句型 This class (9/28 影集)", items:[
+  { zh:"本課句型 This class (9/29 租房)", items:[
+    {p:'<b>快</b> … <b>了 / 到期</b>', g:"about to / soon (快 + V/state + 了)", ex:['我的<b>合約快到期了</b>','電影<b>快</b>開始<b>了</b>']},
+    {p:'<s>A</s> <b>離</b> <s>B</s> 近/遠 <b>一點</b>', g:"a bit nearer / farther from B", ex:['我想搬到<b>離</b>學校<b>近一點</b>的地方','<b>離</b>仁愛路<b>近一點</b>']},
+    {p:'V <b>了</b> + 時間 + (<b>了</b>) · V 了多久？', g:"how long an action lasted", ex:['你<b>打了多久</b>？','我<b>打了</b>三個小時','我<b>準備了</b>十五分鐘']},
+    {p:'很 <b>容易</b> + V', g:"easily / prone to — something happens readily", ex:['一樓<b>很容易</b>有蟲']},
+    {p:'打 + 球類（<b>排球 / 籃球 / 羽毛球</b>）', g:"打 + a ball sport", ex:['我喜歡<b>打羽毛球</b>']},
+    {p:'<b>不需要自己</b> + V', g:"don't have to do it yourself", ex:['<b>不需要自己</b>倒垃圾','<b>不需要自己</b>搬']},
+    {p:'<b>是因為</b> …', g:"it's because … (giving a reason)", ex:['我不常吃牛肉，<b>是因為</b>宗教']},
+  ]},
+  { zh:"9/28 影集句型", items:[
     {p:'<b>從不同的面向來</b>比較', g:"introduce an organized comparison — from different aspects", ex:['我們可以<b>從不同的面向來</b>比較台灣和美國的生活']},
     {p:'<b>片 · 劇 · 影集</b>', g:"片 movie categories · 劇 dramas · 影集 a TV / streaming series", ex:['我比較喜歡電影，因為<b>影集</b>比較花時間']},
     {p:'<b>主要在講</b> …', g:"explain what a story is mainly about", ex:['這部影集<b>主要在講</b>一個家庭的生活']},
@@ -417,6 +441,8 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"高興":3,"滿意":3,"自信":3,"放鬆":3,"輕鬆":3,"冷靜":3,"平靜":3,"驕傲":3,"熱情":3,"失望":3,"尷尬":3,"緊張":3,"好奇":3,"可惜":3,"無聊":3,"感謝":3,"感恩":3,"要求":3,"比如說":3,"情緒":3,"冷清":1,"孤兒":1,"練腿日":1,
+"房子":3,"搬家":3,"合約":3,"到期":3,"安靜":3,"準時":3,"乾淨":3,"地方":3,"近":3,"願意":3,"資料":3,"網站":3,"樓梯":3,"電梯":3,"容易":3,"準備":3,"多久":3,"小時":3,"分鐘":3,"自己":3,"怕":3,"錯":3,"環境":3,"全素":1,"蛋奶素":1,
 "面向":3,"影集":3,"美劇":2,"黑色喜劇":1,"主角":3,"發生":3,"主要":3,"負責":3,"面對":3,"金錢":2,"困難":3,"想辦法":3,"沒辦法":3,"互相幫忙":2,"賽車手":1,"比賽":3,"贏":3,"過世":2,"傳奇":2,"推薦":3,
 "爬山":3,"烤肉":3,"提高":3,"享受":3,"即使":3,"改":3,"日期":3,"再":3,"利用":3,"少於":3,"分辨":3,"預定":3,"訂":3,"清醒":2,"早睡早起":2,"觀光客":3,"政府":2,"柚子":2,"做成":2,"做夢":2,"足夠":3,"包裝":2,"步道":2,"瀑布":2,"低於":2,"教學經驗":1,
 "方式":3,"一直":3,"接受":3,"失望":3,"訊息":3,"秒":3,"單字":3,"起床":3,"醒來":3,"大概":3,"需要":3,"店員":3,"服務生":3,"難過":3,"常常 / 比較常":3,"果汁":3,"便當":3,"味道":3,"軟":3,"硬":3,"甜":3,"舒服":3,"不錯":3,"付":3,"租":3,"左右":3,"公寓":3,"冷氣":3,"捷運站":3,"附近":3,"火車":3,"搭 / 坐":3,"放鬆":3,"看得懂":3,"聽得懂":3,"讀得懂":3,"同學":3,"有趣":3,"真的假的":3,"通常":3,"平常":3,"隨便":3,"都可以":3,"就這樣":3,"作業":3,"繼續":3,"最好":3,"這次":3,"原來":3,"經驗":3,"反應":3,"遇到":3,"傳訊息":3,"員工":3,"原本 / 本來":3,"後來":3,"突然":3,"剛開始":3,"可惜":3,"慶祝":3,"塞車":3,"品牌":3,"壞掉":3,"划算":3,"實用":3,"你在幹嘛":3,"還是算了":3,"睡著":3,"換衣服":3,"刷牙":3,"洗臉":3,"洗澡":3,"整理":3,"穿鞋子":3,"脫鞋子":3,"出門":3,"回家":3,"髒":3,"好處":3,"壞處":3,"超過":3,"生活":3,"好玩":3,"準備":3,"慢":3,"練":3,"跑步":3,"動作":3,"避免":3,"背":3,"腿":3,"手臂":3,"腳":3,"體重":3,"討厭":3,"輕":3,"重":3,"安全":3,"小心":3,"試著":3,"慢跑":3,"距離":2,"受傷":3,"喘":3,"休息":3,"停":3,"散步":3,"曾經":3,"告訴":3,"選擇":3,"便宜":3,"當然":3,"一定":3,"程度":2,"優點":3,"缺點":3,"適合":3,"通勤":3,"房租":3,"重視":3,"生活品質":3,"大眾運輸":2,"生活費":3,"健保":2,"工作機會":2,"興趣":3,"旅行":3,"爬山":3,"發音":3,"語言":3,"碰":3,"碰到":3,"接":3,"載":2,"版本":2,"排球":2,"貓咪":2,
@@ -425,6 +451,8 @@ const PRIO={
 const prio=w=>PRIO[w[0]]||2;
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span></div>`;}
 const CLASSMAP={
+"正面情緒":"c0930","負面情緒":"c0930","複合情緒":"c0930",
+"租房子與搬家":"c0929","素食、運動與其他":"c0929",
 "影集與生活比較":"c0928",
 "觀光、烤肉與步道":"c0926b",
 "潛水、登山與興趣":"c0926","動作與交通":"c0926","地名（台灣 · 日本）":"c0926","貓咪文化":"c0926",
@@ -443,6 +471,8 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c0930",date:"2026-09-30",t:"情緒詞彙",en:"Emotions vocabulary"},
+ {id:"c0929",date:"2026-09-29",t:"租房子與搬家",en:"Renting & moving house"},
  {id:"c0928",date:"2026-09-28",t:"影集與生活比較",en:"TV series & comparing life"},
  {id:"c0926b",date:"2026-09-26",t:"觀光、烤肉與步道",en:"Sightseeing, BBQ & trails"},
  {id:"c0926",date:"2026-09-26",t:"潛水、登山與貓咪",en:"Diving, hiking & cats"},
