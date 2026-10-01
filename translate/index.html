@@ -138,6 +138,7 @@
       let knownChars = "", knownWords = [];
       let current = null, round = 0;
       const recent = []; // recent Chinese paragraphs, to reduce repeats
+      let nextItem = null, nextPromise = null; // a paragraph prefetched in the background
 
       const $ = (id) => document.getElementById(id);
       const norm = (s) => (s || "").replace(/[\s，。！？、；：,.!?;:"'「」『』（）()]/g, "").trim();
@@ -169,24 +170,55 @@
         return a.slice(0, 50);
       }
 
+      function buildBody() {
+        return {
+          mode: "generate", chars: knownChars, words: pickInspiration(),
+          lines: parseInt($("lines").value) || 8, level: $("level").value, length: $("length").value,
+          instructions: $("instr").value.trim(), avoid: recent.slice(-6),
+        };
+      }
+
+      async function fetchParagraph(body) {
+        const d = await fetch("/api/practice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json());
+        if (d.error) throw new Error(d.error);
+        if (!d.english || !d.chinese) throw new Error("Nothing came back — try again.");
+        return { english: d.english, chinese: d.chinese };
+      }
+
+      function clearPrefetch() { nextItem = null; nextPromise = null; }
+
+      // Generate the NEXT paragraph in the background while the user works on the
+      // current one, so "New paragraph →" is instant. Uses the filters/avoid as
+      // they are now; changing a filter invalidates it (see listeners below).
+      function prefetchNext() {
+        if (nextItem || nextPromise) return;
+        const p = fetchParagraph(buildBody());
+        nextPromise = p;
+        p.then((it) => { if (nextPromise === p) nextItem = it; })
+          .catch(() => {})                                   // stay awaitable, no unhandled rejection
+          .finally(() => { if (nextPromise === p) nextPromise = null; });
+      }
+
       async function generate() {
         $("setup-err").hidden = true;
         const src = $("practice").hidden ? $("start") : $("next");
-        const old = src.textContent; src.disabled = true; src.innerHTML = '<span class="spinner"></span> Generating…';
+        const old = src.textContent; src.disabled = true;
         try {
           saveFilters();
-          const body = {
-            mode: "generate", chars: knownChars, words: pickInspiration(),
-            lines: parseInt($("lines").value) || 8, level: $("level").value, length: $("length").value,
-            instructions: $("instr").value.trim(), avoid: recent.slice(-6),
-          };
-          const d = await fetch("/api/practice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json());
-          if (d.error) throw new Error(d.error);
-          if (!d.english || !d.chinese) throw new Error("Nothing came back — try again.");
-          current = { english: d.english, chinese: d.chinese };
-          recent.push(d.chinese); round++;
+          let item = nextItem;
+          if (item) { nextItem = null; nextPromise = null; }   // ready — instant
+          else {
+            src.innerHTML = '<span class="spinner"></span> Generating…';
+            const p = nextPromise || fetchParagraph(buildBody());
+            nextPromise = null;
+            item = await p;                                      // in-flight prefetch or a fresh call
+          }
+          current = item;
+          recent.push(item.chinese); round++;
           showRound();
+          prefetchNext();                                        // start the next one now
         } catch (e) {
+          clearPrefetch();
           $("setup-err").hidden = false; $("setup-err").textContent = "Could not generate: " + e.message;
           if ($("practice").hidden) $("setup").hidden = false;
         } finally { src.textContent = old; src.disabled = false; }
@@ -240,7 +272,10 @@
       $("next").addEventListener("click", generate);
       $("submit").addEventListener("click", check);
       $("reveal").addEventListener("click", reveal);
-      $("restart").addEventListener("click", () => { $("practice").hidden = true; $("setup").hidden = false; });
+      $("restart").addEventListener("click", () => { clearPrefetch(); $("practice").hidden = true; $("setup").hidden = false; });
+      // A buffered paragraph uses the current filters — drop it if they change.
+      FILTERS.forEach((k) => $(k).addEventListener("change", clearPrefetch));
+      $("instr").addEventListener("input", clearPrefetch);
       $("answer").addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") check(); });
 
       restoreFilters();
