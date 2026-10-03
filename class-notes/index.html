@@ -152,6 +152,12 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"溫泉與戶外", en:"Hot springs & the outdoors", sub:"From the 烏來／陽明山 hot-spring class — soaking, tours & river trips.", w:[
+    ["泡溫泉","pào wēnquán","to soak in a hot spring"],["泡湯","pàotāng","to soak in a hot spring (colloq.)"],["溫泉","wēnquán","hot spring"],["野溪溫泉","yěxī wēnquán","wild riverside hot spring"],["泡腳","pàojiǎo","to soak one's feet"],["地熱","dìrè","geothermal heat"],["冒煙","màoyān","to give off steam / smoke"],["湖","hú","lake"],["池","chí","pool"],["私人","sīrén","private"],["溫度","wēndù","temperature"],["置物櫃","zhìwùguì","locker"],["車程","chēchéng","travel time (by vehicle)"],["行程","xíngchéng","itinerary"],["路程","lùchéng","distance / route of a trip"],["一日團","yírì tuán","one-day tour"],["溯溪","sùxī","river tracing"],["報名","bàomíng","to sign up / register"],["參加","cānjiā","to join / take part"],["跳水","tiàoshuǐ","to dive into water"],["敢","gǎn","to dare"],["勇敢","yǒnggǎn","brave"],["猶豫","yóuyù","to hesitate"],["訓練","xùnliàn","to train / training"],["搭船","dāchuán","to take a boat"],["景觀","jǐngguān","landscape / view"],["風景","fēngjǐng","scenery"],["過河","guòhé","to cross a river"],["直達","zhídá","direct / non-stop"],["互換","hùhuàn","to swap / interchange"],["溫暖","wēnnuǎn","warm"],["暖和","nuǎnhuo","warm (cozy)"],["涼快","liángkuài","pleasantly cool"],["戶外","hùwài","outdoors"],["室內","shìnèi","indoors"],["顧","gù","to look after / tend"],["關閉","guānbì","to close down / shut"],
+  ]},
+  { zh:"地名（陽明山）", en:"Place names", sub:"Yangmingshan hot-spring spots — mostly situational.", w:[
+    ["陽明山","Yángmíngshān","Yangmingshan"],["小油坑","Xiǎoyóukēng","Xiaoyoukeng (Yangmingshan)"],["冷水坑","Lěngshuǐkēng","Lengshuikeng (Yangmingshan)"],
+  ]},
   { zh:"正面情緒", en:"Positive emotions", sub:"Adjectives usually take 的 before a noun (欣喜的心情). Stored here in dictionary form.", w:[
     ["欣喜","xīnxǐ","delighted / joyful"],["高興","gāoxìng","happy / glad"],["興高采烈","xìnggāocǎiliè","in high spirits / elated"],["歡快","huānkuài","cheerful / lively"],["感激","gǎnjī","grateful (deeply)"],["感謝","gǎnxiè","to thank / grateful"],["感恩","gǎn'ēn","gratitude / to be thankful"],["滿意","mǎnyì","satisfied"],["滿足","mǎnzú","content / satisfied"],["自信","zìxìn","confident"],["放鬆","fàngsōng","to relax / relaxed"],["輕鬆","qīngsōng","relaxed / easy"],["充滿希望","chōngmǎn xīwàng","hopeful / full of hope"],["平靜","píngjìng","calm / peaceful"],["冷靜","lěngjìng","calm / composed"],["冷清","lěngqīng","deserted / cheerless"],["驕傲","jiāo'ào","proud"],["自豪","zìháo","proud of"],["熱情","rèqíng","enthusiastic / warm"],["熱心","rèxīn","warm-hearted / eager to help"],
   ]},
@@ -274,7 +280,14 @@ const VOCAB=[
   ]},
 ];
 const STRUCT=[
-  { zh:"本課句型 This class (9/29 租房)", items:[
+  { zh:"本課句型 This class (10/1 溫泉)", items:[
+    {p:'行程 · 車程 · 路程', g:"行程 itinerary · 車程 travel time by vehicle · 路程 distance of the trip", ex:['一個小時的<b>車程</b>就可以到，<b>路程</b>不遠']},
+    {p:'跳 + 水域（跳<b>水</b>/跳<b>溪</b>/跳<b>河</b>）', g:"jump / dive into a body of water", ex:['你敢<b>跳水</b>嗎？']},
+    {p:'你 <b>敢</b> … 嗎？', g:"do you dare to …? (敢 = dare; 猶豫 = hesitate)", ex:['你<b>敢</b>玩嗎？','我不會<b>猶豫</b>']},
+    {p:'<b>有的</b> … 比較 …，<b>有的</b> … 比較 …', g:"some are more X, some are more Y", ex:['<b>有的</b>溫泉比較溫暖，<b>有的</b>比較熱']},
+    {p:'<b>直接的 / 直達的</b> + N', g:"direct / non-stop (bus, train…)", ex:['從台北有<b>直達的</b>公車']},
+  ]},
+  { zh:"9/29 租房句型", items:[
     {p:'<b>快</b> … <b>了 / 到期</b>', g:"about to / soon (快 + V/state + 了)", ex:['我的<b>合約快到期了</b>','電影<b>快</b>開始<b>了</b>']},
     {p:'<s>A</s> <b>離</b> <s>B</s> 近/遠 <b>一點</b>', g:"a bit nearer / farther from B", ex:['我想搬到<b>離</b>學校<b>近一點</b>的地方','<b>離</b>仁愛路<b>近一點</b>']},
     {p:'V <b>了</b> + 時間 + (<b>了</b>) · V 了多久？', g:"how long an action lasted", ex:['你<b>打了多久</b>？','我<b>打了</b>三個小時','我<b>準備了</b>十五分鐘']},
@@ -441,6 +454,7 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"溫泉":3,"泡溫泉":3,"湖":3,"溫度":3,"報名":3,"參加":3,"敢":3,"勇敢":3,"猶豫":3,"訓練":3,"風景":3,"戶外":3,"室內":3,"溫暖":3,"暖和":3,"涼快":3,"行程":3,"過河":3,"直達":3,"陽明山":1,"小油坑":1,"冷水坑":1,
 "高興":3,"滿意":3,"自信":3,"放鬆":3,"輕鬆":3,"冷靜":3,"平靜":3,"驕傲":3,"熱情":3,"失望":3,"尷尬":3,"緊張":3,"好奇":3,"可惜":3,"無聊":3,"感謝":3,"感恩":3,"要求":3,"比如說":3,"情緒":3,"冷清":1,"孤兒":1,"練腿日":1,
 "房子":3,"搬家":3,"合約":3,"到期":3,"安靜":3,"準時":3,"乾淨":3,"地方":3,"近":3,"願意":3,"資料":3,"網站":3,"樓梯":3,"電梯":3,"容易":3,"準備":3,"多久":3,"小時":3,"分鐘":3,"自己":3,"怕":3,"錯":3,"環境":3,"全素":1,"蛋奶素":1,
 "面向":3,"影集":3,"美劇":2,"黑色喜劇":1,"主角":3,"發生":3,"主要":3,"負責":3,"面對":3,"金錢":2,"困難":3,"想辦法":3,"沒辦法":3,"互相幫忙":2,"賽車手":1,"比賽":3,"贏":3,"過世":2,"傳奇":2,"推薦":3,
@@ -451,6 +465,7 @@ const PRIO={
 const prio=w=>PRIO[w[0]]||2;
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span></div>`;}
 const CLASSMAP={
+"溫泉與戶外":"c1001","地名（陽明山）":"c1001",
 "正面情緒":"c0930","負面情緒":"c0930","複合情緒":"c0930",
 "租房子與搬家":"c0929","素食、運動與其他":"c0929",
 "影集與生活比較":"c0928",
@@ -471,6 +486,7 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c1001",date:"2026-10-01",t:"溫泉與戶外",en:"Hot springs & the outdoors"},
  {id:"c0930",date:"2026-09-30",t:"情緒詞彙",en:"Emotions vocabulary"},
  {id:"c0929",date:"2026-09-29",t:"租房子與搬家",en:"Renting & moving house"},
  {id:"c0928",date:"2026-09-28",t:"影集與生活比較",en:"TV series & comparing life"},
