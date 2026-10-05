@@ -99,18 +99,35 @@
       .cs.tone-4 { color: #c084fc; }
       .cs.tone-5 { color: #9ca3af; }
 
-      /* View toggle + card layout */
-      .viewtog { margin-left: auto; align-self: center; font-size: 13px; padding: 6px 12px; }
-      .view-cards .rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-      .view-cards .row { flex-direction: column; align-items: center; text-align: center; gap: 5px; padding: 16px 12px; }
-      .view-cards .row .t { font-size: 34px; min-width: 0; line-height: 1.15; }
-      .view-cards .row .py { min-width: 0; font-size: 15px; }
-      .view-cards .row .g, .view-cards .row .m2 { min-width: 0; white-space: normal; overflow: visible; text-overflow: clip; flex: 0 0 auto; }
-      .view-cards .row .psc { min-width: 0; text-align: center; }
-      .view-cards .row .addb, .view-cards .row .skipb { align-self: stretch; margin-top: 2px; }
-      .view-cards .row .flag { font-size: 11px; }
-      .view-cards .row .x { position: absolute; top: 6px; right: 8px; }
-      .view-cards .row { position: relative; }
+      /* Flashcard launch button */
+      .flashbtn { margin-left: auto; align-self: center; font-size: 13px; padding: 6px 12px; }
+
+      /* Flashcard viewer overlay — one card at a time, swipe/arrow to move */
+      .fc-overlay { position: fixed; inset: 0; background: #141416; z-index: 50; display: flex; flex-direction: column; }
+      .fc-top { display: flex; align-items: center; gap: 12px; padding: 16px 18px 8px; color: #9aa0a6; font-size: 14px; }
+      .fc-top .prog { font-weight: 700; color: #eee; }
+      .fc-top .src { color: #7c828a; }
+      .fc-close { margin-left: auto; background: none; border: none; color: #9aa0a6; font-size: 24px; cursor: pointer; padding: 2px 8px; line-height: 1; }
+      .fc-close:hover { color: #eee; }
+      .fc-stage { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; padding: 10px 18px; overflow: hidden; }
+      .fc-card { width: 100%; max-width: 520px; background: #232326; border: 1px solid #2e2e33; border-radius: 22px;
+        padding: 36px 24px; min-height: 46vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        text-align: center; cursor: pointer; user-select: none; position: relative; touch-action: pan-y; transition: transform 0.12s ease, opacity 0.12s ease; }
+      .fc-score { position: absolute; top: 16px; left: 20px; color: #7ee2a5; font-size: 13px; font-weight: 700; }
+      .fc-count { position: absolute; top: 16px; right: 20px; color: #6b7280; font-size: 13px; }
+      .fc-hanzi { font-size: 76px; font-weight: 600; line-height: 1.12; }
+      .fc-tap { margin-top: 24px; color: #6b7280; font-size: 13px; }
+      .fc-reveal { margin-top: 22px; }
+      .fc-py { font-size: 24px; color: #93b3f0; }
+      .fc-m { font-size: 18px; color: #cbd0d6; margin-top: 12px; line-height: 1.5; }
+      .fc-ctrls { display: flex; gap: 10px; padding: 8px 18px 10px; align-items: center; justify-content: center; max-width: 560px; margin: 0 auto; width: 100%; }
+      .fc-nav { background: #2c2c30; border: 1px solid #3a3a40; color: #ddd; border-radius: 12px; padding: 12px 16px; font-size: 15px; cursor: pointer; flex: 0 0 auto; }
+      .fc-nav:hover { background: #34343a; }
+      .fc-nav:disabled { opacity: 0.4; cursor: default; }
+      .fc-act { flex: 1 1 auto; }
+      .fc-add { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+      .fc-add:hover { background: #2563eb; }
+      .fc-hint { text-align: center; color: #555; font-size: 12px; padding: 4px 16px 18px; }
 
       [hidden] { display: none !important; }
     </style>
@@ -133,7 +150,7 @@
       <div class="tabs">
         <button class="tab on" id="tab-tocfl">TOCFL <span class="n" id="tn-tocfl"></span></button>
         <button class="tab" id="tab-preply">Preply <span class="n" id="tn-preply"></span></button>
-        <button class="viewtog" id="view-toggle" title="Toggle card / list view">▦ Cards</button>
+        <button class="flashbtn" id="flash-btn" title="Flip through the suspended words as flashcards">⚡ Flashcards</button>
       </div>
 
       <!-- ============ TOCFL (in your Anki deck) ============ -->
@@ -167,6 +184,34 @@
           <div class="rows" id="list-new"></div>
         </section>
       </div>
+    </div>
+
+    <!-- ============ Flashcard viewer ============ -->
+    <div id="fc" class="fc-overlay" hidden>
+      <div class="fc-top">
+        <span class="prog" id="fc-prog"></span>
+        <span class="src" id="fc-src"></span>
+        <button class="fc-close" id="fc-close" title="Close (Esc)">✕</button>
+      </div>
+      <div class="fc-stage" id="fc-stage">
+        <div class="fc-card" id="fc-card">
+          <span class="fc-score" id="fc-score"></span>
+          <span class="fc-count" id="fc-count"></span>
+          <div class="fc-hanzi" id="fc-hanzi"></div>
+          <div class="fc-tap" id="fc-tap">tap to reveal</div>
+          <div class="fc-reveal" id="fc-reveal" hidden>
+            <div class="fc-py" id="fc-py"></div>
+            <div class="fc-m" id="fc-m"></div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-ctrls">
+        <button class="fc-nav" id="fc-prev" title="Previous (←)">◀</button>
+        <button class="fc-nav fc-act" id="fc-skip" title="Skip (S)">Skip</button>
+        <button class="fc-nav fc-act fc-add" id="fc-add" title="Add (A)">Add</button>
+        <button class="fc-nav" id="fc-next" title="Next (→)">▶</button>
+      </div>
+      <div class="fc-hint">tap card to reveal · ← → or swipe to move · A add · S skip · Esc close</div>
     </div>
 
     <script>
@@ -347,19 +392,102 @@
       document.getElementById("tab-tocfl").addEventListener("click", () => showTab("tocfl"));
       document.getElementById("tab-preply").addEventListener("click", () => showTab("preply"));
 
-      // --- List / card view toggle (CSS-only switch via a body class) ---
-      let cardView = false;
-      try { cardView = localStorage.getItem("enable-view") === "cards"; } catch (e) {}
-      function applyView() {
-        document.body.classList.toggle("view-cards", cardView);
-        document.getElementById("view-toggle").textContent = cardView ? "☰ List" : "▦ Cards";
+      // --- Flashcard viewer: flip through the current tab's suspended words one
+      //     at a time, swipe/arrow to move, tap to reveal, Add/Skip in place. ---
+      let fcList = [], fcIdx = 0, fcFlipped = false;
+      const fcEl = (id) => document.getElementById(id);
+
+      function buildFcList() {
+        const onPreply = !document.getElementById("panel-preply").hidden;
+        if (onPreply) {
+          let list = Object.keys(preply).filter((w) => preply[w].s && !preply[w].skip && !skipped.has(w) && wants[w] !== "suspend");
+          list.sort((a, b) => (preply[b].score || 0) - (preply[a].score || 0) || a.localeCompare(b));
+          return list.map((w) => ({ w, py: preply[w].py, m: preply[w].m, score: preply[w].score, pre: true }));
+        }
+        const seen = new Set(), out = [];
+        todo.forEach((e) => {
+          if (cat(e.t) === "tocfl-susp" && !skipped.has(e.t) && wants[e.t] !== "unsuspend" && !seen.has(e.t)) {
+            seen.add(e.t); const m = mirror[e.t] || {}; out.push({ w: e.t, py: m.py, m: m.m, score: 0, pre: false });
+          }
+        });
+        return out;
       }
-      document.getElementById("view-toggle").addEventListener("click", () => {
-        cardView = !cardView;
-        try { localStorage.setItem("enable-view", cardView ? "cards" : "list"); } catch (e) {}
-        applyView();
-      });
-      applyView();
+
+      function openFc() {
+        fcList = buildFcList();
+        if (!fcList.length) { status.className = "err"; status.textContent = "Nothing to review on this tab — the list is empty."; return; }
+        fcIdx = 0; fcFlipped = false;
+        fcEl("fc").hidden = false;
+        document.addEventListener("keydown", fcKey);
+        renderFc();
+      }
+      function closeFc() {
+        fcEl("fc").hidden = true;
+        document.removeEventListener("keydown", fcKey);
+        render(); // reflect any Add/Skip made inside
+      }
+      function setFlip(f) { fcFlipped = f; fcEl("fc-reveal").hidden = !f; fcEl("fc-tap").hidden = f; }
+      function renderFc() {
+        const it = fcList[fcIdx];
+        if (!it) { closeFc(); return; }
+        fcEl("fc-prog").textContent = (fcIdx + 1) + " / " + fcList.length;
+        fcEl("fc-src").textContent = it.pre ? "Preply · by usefulness" : "TOCFL · suspended";
+        fcEl("fc-score").textContent = it.score ? "★ " + it.score : "";
+        fcEl("fc-hanzi").innerHTML = toneHTML(it.w, it.py);
+        fcEl("fc-py").textContent = it.py || "";
+        fcEl("fc-m").textContent = it.m || "(no meaning yet)";
+        fcEl("fc-prev").disabled = fcIdx === 0;
+        fcEl("fc-next").disabled = fcIdx === fcList.length - 1;
+        setFlip(false);
+        const card = fcEl("fc-card"); card.style.transform = ""; card.style.opacity = "1";
+      }
+      function fcGo(delta) {
+        const ni = fcIdx + delta;
+        if (ni < 0 || ni >= fcList.length) return;
+        const card = fcEl("fc-card");
+        card.style.transform = "translateX(" + (delta < 0 ? "40px" : "-40px") + ")"; card.style.opacity = "0";
+        setTimeout(() => { fcIdx = ni; renderFc(); }, 100);
+      }
+      function fcDropCurrent() {
+        fcList.splice(fcIdx, 1);
+        if (!fcList.length) { closeFc(); return; }
+        if (fcIdx >= fcList.length) fcIdx = fcList.length - 1;
+        renderFc();
+      }
+      function fcAdd() { const it = fcList[fcIdx]; if (!it) return; addWord(it.w); fcDropCurrent(); }
+      function fcSkip() { const it = fcList[fcIdx]; if (!it) return; it.pre ? skipPreply(it.w) : skipWord(it.w); fcDropCurrent(); }
+
+      function fcKey(e) {
+        if (fcEl("fc").hidden) return;
+        if (e.key === "ArrowRight") { e.preventDefault(); fcGo(1); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); fcGo(-1); }
+        else if (e.key === " " || e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); setFlip(!fcFlipped); }
+        else if (e.key === "a" || e.key === "A") { e.preventDefault(); fcAdd(); }
+        else if (e.key === "s" || e.key === "S") { e.preventDefault(); fcSkip(); }
+        else if (e.key === "Escape") { e.preventDefault(); closeFc(); }
+      }
+
+      fcEl("flash-btn").addEventListener("click", openFc);
+      fcEl("fc-close").addEventListener("click", closeFc);
+      fcEl("fc-prev").addEventListener("click", () => fcGo(-1));
+      fcEl("fc-next").addEventListener("click", () => fcGo(1));
+      fcEl("fc-add").addEventListener("click", fcAdd);
+      fcEl("fc-skip").addEventListener("click", fcSkip);
+      fcEl("fc-card").addEventListener("click", () => { if (fcSwiped) { fcSwiped = false; return; } setFlip(!fcFlipped); });
+
+      // Touch swipe: drag horizontally to move; a near-tap flips (via click).
+      let tsX = 0, tsY = 0, tMoved = false, fcSwiped = false;
+      const stage = fcEl("fc-stage");
+      stage.addEventListener("touchstart", (e) => { const t = e.changedTouches[0]; tsX = t.clientX; tsY = t.clientY; tMoved = false; }, { passive: true });
+      stage.addEventListener("touchmove", (e) => {
+        const t = e.changedTouches[0], dx = t.clientX - tsX, dy = t.clientY - tsY;
+        if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { tMoved = true; fcEl("fc-card").style.transform = "translateX(" + dx + "px)"; }
+      }, { passive: true });
+      stage.addEventListener("touchend", (e) => {
+        const t = e.changedTouches[0], dx = t.clientX - tsX;
+        const card = fcEl("fc-card"); card.style.transform = "";
+        if (tMoved) { fcSwiped = true; if (Math.abs(dx) > 55) { dx < 0 ? fcGo(1) : fcGo(-1); } }
+      }, { passive: true });
 
       // --- Fast lookup: search the deck and enable suspended words directly ---
       const qInput = document.getElementById("q");
