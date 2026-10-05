@@ -391,8 +391,8 @@
       document.getElementById("tab-tocfl").addEventListener("click", () => showTab("tocfl"));
       document.getElementById("tab-preply").addEventListener("click", () => showTab("preply"));
 
-      // --- Flashcard viewer: flip through the current tab's suspended words one
-      //     at a time, swipe/arrow to move, tap to reveal, Add/Skip in place. ---
+      // --- Flashcard viewer: skim the current tab's suspended words one at a
+      //     time (meaning shown by default), swipe/arrow to move, Add/Skip in place. ---
       let fcList = [], fcIdx = 0;
       const fcEl = (id) => document.getElementById(id);
 
