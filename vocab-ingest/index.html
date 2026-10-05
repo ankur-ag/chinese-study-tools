@@ -198,8 +198,7 @@
           <span class="fc-score" id="fc-score"></span>
           <span class="fc-count" id="fc-count"></span>
           <div class="fc-hanzi" id="fc-hanzi"></div>
-          <div class="fc-tap" id="fc-tap">tap to reveal</div>
-          <div class="fc-reveal" id="fc-reveal" hidden>
+          <div class="fc-reveal" id="fc-reveal">
             <div class="fc-py" id="fc-py"></div>
             <div class="fc-m" id="fc-m"></div>
           </div>
@@ -211,7 +210,7 @@
         <button class="fc-nav fc-act fc-add" id="fc-add" title="Add (A)">Add</button>
         <button class="fc-nav" id="fc-next" title="Next (→)">▶</button>
       </div>
-      <div class="fc-hint">tap card to reveal · ← → or swipe to move · A add · S skip · Esc close</div>
+      <div class="fc-hint">← → or swipe to skim · A add · S skip · Esc close</div>
     </div>
 
     <script>
@@ -394,7 +393,7 @@
 
       // --- Flashcard viewer: flip through the current tab's suspended words one
       //     at a time, swipe/arrow to move, tap to reveal, Add/Skip in place. ---
-      let fcList = [], fcIdx = 0, fcFlipped = false;
+      let fcList = [], fcIdx = 0;
       const fcEl = (id) => document.getElementById(id);
 
       function buildFcList() {
@@ -416,7 +415,7 @@
       function openFc() {
         fcList = buildFcList();
         if (!fcList.length) { status.className = "err"; status.textContent = "Nothing to review on this tab — the list is empty."; return; }
-        fcIdx = 0; fcFlipped = false;
+        fcIdx = 0;
         fcEl("fc").hidden = false;
         document.addEventListener("keydown", fcKey);
         renderFc();
@@ -426,7 +425,6 @@
         document.removeEventListener("keydown", fcKey);
         render(); // reflect any Add/Skip made inside
       }
-      function setFlip(f) { fcFlipped = f; fcEl("fc-reveal").hidden = !f; fcEl("fc-tap").hidden = f; }
       function renderFc() {
         const it = fcList[fcIdx];
         if (!it) { closeFc(); return; }
@@ -438,7 +436,6 @@
         fcEl("fc-m").textContent = it.m || "(no meaning yet)";
         fcEl("fc-prev").disabled = fcIdx === 0;
         fcEl("fc-next").disabled = fcIdx === fcList.length - 1;
-        setFlip(false);
         const card = fcEl("fc-card"); card.style.transform = ""; card.style.opacity = "1";
       }
       function fcGo(delta) {
@@ -459,9 +456,8 @@
 
       function fcKey(e) {
         if (fcEl("fc").hidden) return;
-        if (e.key === "ArrowRight") { e.preventDefault(); fcGo(1); }
+        if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); fcGo(1); }
         else if (e.key === "ArrowLeft") { e.preventDefault(); fcGo(-1); }
-        else if (e.key === " " || e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); setFlip(!fcFlipped); }
         else if (e.key === "a" || e.key === "A") { e.preventDefault(); fcAdd(); }
         else if (e.key === "s" || e.key === "S") { e.preventDefault(); fcSkip(); }
         else if (e.key === "Escape") { e.preventDefault(); closeFc(); }
@@ -473,7 +469,7 @@
       fcEl("fc-next").addEventListener("click", () => fcGo(1));
       fcEl("fc-add").addEventListener("click", fcAdd);
       fcEl("fc-skip").addEventListener("click", fcSkip);
-      fcEl("fc-card").addEventListener("click", () => { if (fcSwiped) { fcSwiped = false; return; } setFlip(!fcFlipped); });
+      fcEl("fc-card").addEventListener("click", () => { if (fcSwiped) { fcSwiped = false; return; } fcGo(1); });
 
       // Touch swipe: drag horizontally to move; a near-tap flips (via click).
       let tsX = 0, tsY = 0, tMoved = false, fcSwiped = false;
