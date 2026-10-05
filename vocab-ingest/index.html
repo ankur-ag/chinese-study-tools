@@ -90,6 +90,28 @@
       .tab:hover { background: none; color: #ddd; }
       .tab.on { color: #fff; border-bottom-color: #60a5fa; }
       .tab .n { color: #7c828a; font-weight: 500; font-size: 13px; }
+
+      /* Tone-colored hanzi — same scheme as the Anki TOCFL template (dark palette):
+         1 red · 2 green · 3 blue · 4 purple · 5 neutral. */
+      .cs.tone-1 { color: #f87171; }
+      .cs.tone-2 { color: #00c000; }
+      .cs.tone-3 { color: #4444ff; }
+      .cs.tone-4 { color: #c084fc; }
+      .cs.tone-5 { color: #9ca3af; }
+
+      /* View toggle + card layout */
+      .viewtog { margin-left: auto; align-self: center; font-size: 13px; padding: 6px 12px; }
+      .view-cards .rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+      .view-cards .row { flex-direction: column; align-items: center; text-align: center; gap: 5px; padding: 16px 12px; }
+      .view-cards .row .t { font-size: 34px; min-width: 0; line-height: 1.15; }
+      .view-cards .row .py { min-width: 0; font-size: 15px; }
+      .view-cards .row .g, .view-cards .row .m2 { min-width: 0; white-space: normal; overflow: visible; text-overflow: clip; flex: 0 0 auto; }
+      .view-cards .row .psc { min-width: 0; text-align: center; }
+      .view-cards .row .addb, .view-cards .row .skipb { align-self: stretch; margin-top: 2px; }
+      .view-cards .row .flag { font-size: 11px; }
+      .view-cards .row .x { position: absolute; top: 6px; right: 8px; }
+      .view-cards .row { position: relative; }
+
       [hidden] { display: none !important; }
     </style>
   </head>
@@ -111,6 +133,7 @@
       <div class="tabs">
         <button class="tab on" id="tab-tocfl">TOCFL <span class="n" id="tn-tocfl"></span></button>
         <button class="tab" id="tab-preply">Preply <span class="n" id="tn-preply"></span></button>
+        <button class="viewtog" id="view-toggle" title="Toggle card / list view">▦ Cards</button>
       </div>
 
       <!-- ============ TOCFL (in your Anki deck) ============ -->
@@ -211,15 +234,68 @@
         return "new";
       }
       function glossFor(e) {
+        // Prefer the polished Anki meaning over the raw class gloss, so candidate
+        // words read the same clean meaning you'll study in Anki.
+        const m = mirror[e.t] || preply[e.t];
+        if (m && (m.m || m.py)) return [(m.py || ""), (m.m || "")].filter(Boolean).join("  ");
         if (gloss[e.t]) return gloss[e.t];
         if (e.g) return e.g;
-        const m = mirror[e.t] || preply[e.t]; if (m) return [(m.py || ""), (m.m || "")].filter(Boolean).join("  ");
         return "";
+      }
+      // Pinyin for a word, for tone coloring: the deck's pinyin if known, else the
+      // first token of the pasted gloss (which is "pinyin meaning").
+      function pyFor(e) {
+        const m = mirror[e.t] || preply[e.t];
+        if (m && m.py) return m.py;
+        const g = (gloss[e.t] || e.g || "").trim();
+        return g ? g.split(/\s+/)[0] : "";
+      }
+
+      // --- Tone coloring, ported from the Anki TOCFL card template so the colors
+      //     match exactly (1 red · 2 green · 3 blue · 4 purple · 5 neutral). ---
+      const TONE_MARK = { "ā":1,"ē":1,"ī":1,"ō":1,"ū":1,"ǖ":1,"á":2,"é":2,"í":2,"ó":2,"ú":2,"ǘ":2,"ǎ":3,"ě":3,"ǐ":3,"ǒ":3,"ǔ":3,"ǚ":3,"à":4,"è":4,"ì":4,"ò":4,"ù":4,"ǜ":4 };
+      const VOWEL = "aeiouü" + Object.keys(TONE_MARK).join("");
+      const isV = (c) => VOWEL.indexOf(c) >= 0;
+      function toneOf(s) { for (let i = 0; i < s.length; i++) if (TONE_MARK[s[i]]) return TONE_MARK[s[i]]; return 5; }
+      // Split one space-free pinyin run into syllables (the Anki template algorithm).
+      function splitCore(s) {
+        const o = []; let cur = "", sv = false; const i2 = { zh: 1, ch: 1, sh: 1 };
+        for (let i = 0; i < s.length; i++) {
+          const c = s[i], c2 = s.substr(i, 2), i2ok = i < s.length - 1 && i2[c2];
+          const iok = i2ok || "bpmfdtnlgkhjqxyzcsrwy".indexOf(c) >= 0;
+          if (i > 0 && iok && sv) {
+            if (i2ok) { if (cur) o.push(cur); cur = c2; i++; sv = isV(s[i]); continue; }
+            if (c === "n" && (isV(cur.slice(-1)) || TONE_MARK[cur.slice(-1)])) { cur += c; continue; }
+            if (c === "g" && cur.slice(-1) === "n" && !(i + 1 < s.length && isV(s[i + 1]))) { cur += c; continue; }
+            if (c === "r" && cur.length > 0 && i === s.length - 1) { cur += c; continue; }
+            if (cur) o.push(cur); cur = c; sv = isV(c);
+          } else { cur += c; if (isV(c) || TONE_MARK[c]) sv = true; }
+        }
+        if (cur) o.push(cur);
+        return o;
+      }
+      // Split a whole pinyin string into syllables. Web pinyin has inconsistent
+      // spacing ("pào wēnquán"), so split each space-chunk and concat — this keeps
+      // the right syllable-per-character alignment regardless of stray spaces.
+      function splitSyll(s) {
+        s = (s || "").trim(); if (!s) return [];
+        let o = [];
+        for (const chunk of s.split(/\s+/)) if (chunk) o = o.concat(splitCore(chunk));
+        return o.length ? o : [s];
+      }
+      const escHtml = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+      function toneHTML(trad, py) {
+        const chars = Array.from(trad || ""), syl = splitSyll(py);
+        return chars.map((ch, i) => {
+          if (!/[一-鿿㐀-䶿]/.test(ch)) return escHtml(ch);
+          const t = toneOf(syl[i] || (syl.length === 1 ? syl[0] : "") || "");
+          return '<span class="cs tone-' + t + '">' + escHtml(ch) + "</span>";
+        }).join("");
       }
       function rowEl(e, opts) {
         const row = document.createElement("div");
         row.className = "row" + (opts.cls ? " " + opts.cls : "");
-        const t = document.createElement("span"); t.className = "t"; t.textContent = e.t; row.appendChild(t);
+        const t = document.createElement("span"); t.className = "t"; t.innerHTML = toneHTML(e.t, pyFor(e)); row.appendChild(t);
         const g = document.createElement("span"); const gv = glossFor(e);
         g.className = "g" + (gv ? "" : " none"); g.textContent = gv || "— no meaning"; row.appendChild(g);
         if (opts.flag) { const f = document.createElement("span"); f.className = "flag"; f.textContent = opts.flag; row.appendChild(f); }
@@ -271,6 +347,20 @@
       document.getElementById("tab-tocfl").addEventListener("click", () => showTab("tocfl"));
       document.getElementById("tab-preply").addEventListener("click", () => showTab("preply"));
 
+      // --- List / card view toggle (CSS-only switch via a body class) ---
+      let cardView = false;
+      try { cardView = localStorage.getItem("enable-view") === "cards"; } catch (e) {}
+      function applyView() {
+        document.body.classList.toggle("view-cards", cardView);
+        document.getElementById("view-toggle").textContent = cardView ? "☰ List" : "▦ Cards";
+      }
+      document.getElementById("view-toggle").addEventListener("click", () => {
+        cardView = !cardView;
+        try { localStorage.setItem("enable-view", cardView ? "cards" : "list"); } catch (e) {}
+        applyView();
+      });
+      applyView();
+
       // --- Fast lookup: search the deck and enable suspended words directly ---
       const qInput = document.getElementById("q");
       const noTone = (s) => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -288,7 +378,7 @@
         hits.forEach((w) => {
           const m = mirror[w];
           const r = document.createElement("div"); r.className = "row";
-          const t = document.createElement("span"); t.className = "t"; t.textContent = w; r.appendChild(t);
+          const t = document.createElement("span"); t.className = "t"; t.innerHTML = toneHTML(w, m.py); r.appendChild(t);
           const py = document.createElement("span"); py.className = "py"; py.textContent = m.py || ""; r.appendChild(py);
           const me = document.createElement("span"); me.className = "m2"; me.textContent = m.m || ""; r.appendChild(me);
           if (wants[w] === "unsuspend") { const b = document.createElement("span"); b.className = "badge2 b-queued"; b.textContent = "queued"; r.appendChild(b); }
@@ -316,7 +406,7 @@
           const m = preply[w];
           const r = document.createElement("div"); r.className = "row";
           const sc = document.createElement("span"); sc.className = "psc"; sc.textContent = m.score || ""; r.appendChild(sc);
-          const t = document.createElement("span"); t.className = "t"; t.textContent = w; r.appendChild(t);
+          const t = document.createElement("span"); t.className = "t"; t.innerHTML = toneHTML(w, m.py); r.appendChild(t);
           const py = document.createElement("span"); py.className = "py"; py.textContent = m.py || ""; r.appendChild(py);
           const me = document.createElement("span"); me.className = "m2"; me.textContent = m.m || ""; r.appendChild(me);
           if (wants[w] === "unsuspend") { const b = document.createElement("span"); b.className = "badge2 b-queued"; b.textContent = "queued"; r.appendChild(b); }
