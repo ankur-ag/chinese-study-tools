@@ -56,14 +56,27 @@ export default async function handler(req, res) {
           .filter((w) => w.t);
         const lines = Math.min(Math.max(parseInt(mk.lines) || 6, 3), 12);
         const wl = words.map((w) => `${w.t}${w.py ? " (" + w.py + ")" : ""}${w.m ? " — " + w.m : ""}`).join("\n");
+
+        // Restrict the passage to characters the learner already knows PLUS the
+        // target words' own characters, so it never introduces unlearned vocab.
+        // `chars` is the learner's known-character set (active deck); the target
+        // words are always allowed even if some of their characters aren't in it.
+        const targetChars = words.map((w) => w.t).join("");
+        const allowed = ((mk.chars ? String(mk.chars) : "") + targetChars);
+        const constraint = allowed
+          ? `\nHARD CONSTRAINT: the Chinese may use ONLY these characters (plus Arabic numerals and punctuation):\n${allowed}\n` +
+            `Do NOT use any Chinese character outside this set. If a natural word would need a forbidden character, choose a simpler way to say it or leave it out. This matters more than richness.\n`
+          : "";
+
         const system =
-          "You write a short, coherent Traditional Chinese (Taiwan Mandarin) reading passage for a learner, " +
+          "You write a SHORT, EASY, coherent Traditional Chinese (Taiwan Mandarin) reading passage for a beginner-to-intermediate learner, " +
           "plus its English translation and tone-marked pinyin. Taiwan usage, only Traditional characters. " +
-          "Output ONLY valid JSON, no markdown.";
+          "Keep sentences short and simple; prefer high-frequency everyday words. Output ONLY valid JSON, no markdown.";
         const user =
-          `Write ONE coherent, natural paragraph of about ${lines} sentences a learner in Taiwan would find useful, ` +
-          `weaving in AS MANY of these words as fit naturally (you need not use all):\n${wl}\n\n` +
-          `Return JSON: {"zh":"<the paragraph>","py":"<the same paragraph in tone-marked pinyin, syllable by syllable>",` +
+          `Write ONE coherent, natural paragraph of about ${lines} short sentences a learner in Taiwan would find useful. ` +
+          `BUILD IT AROUND these target words, using as many as fit naturally:\n${wl}\n` +
+          constraint +
+          `\nReturn JSON: {"zh":"<the paragraph>","py":"<the same paragraph in tone-marked pinyin, syllable by syllable>",` +
           `"en":"<English translation>","used":["詞", ...]}. "used" = the target words you actually included.`;
         const out = parseJson(await chat(system, user, 1800));
         if (!String(out.zh || "").trim()) return res.status(502).json({ error: "generation returned no passage" });
@@ -74,6 +87,7 @@ export default async function handler(req, res) {
           title: (mk.title || "Class reading").toString().slice(0, 120),
           generated,
           words: gloss.length ? gloss : words,
+          targets: words.map((w) => w.t), // the words being learned, for highlighting
           passages: [{ zh: String(out.zh || ""), py: String(out.py || ""), en: String(out.en || "") }],
         };
         await redis(["HSET", KEY, generated, JSON.stringify(doc)]);
