@@ -152,6 +152,12 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"方向補語與把字句", en:"Directional complements & 把", sub:"美玲 class — V+來/去 directions, the 把 construction, overnight trips.", w:[
+    ["過夜","guòyè","to stay overnight"],["民宿","mínsù","B&B / homestay"],["旅館","lǚguǎn","hotel"],["夜景","yèjǐng","night view"],["風景","fēngjǐng","scenery"],["追","zhuī","to chase / pursue"],["午睡","wǔshuì","afternoon nap"],["暖身","nuǎnshēn","to warm up"],["校園","xiàoyuán","campus"],["公共空間","gōnggòng kōngjiān","public space"],["抽煙","chōuyān","to smoke"],["規定","guīdìng","rule / regulation"],["高鐵","gāotiě","high-speed rail (HSR)"],["要不然","yàoburán","otherwise / or else"],["變貴","biàn guì","to get more expensive"],["賣完","mài wán","to be sold out"],["正式","zhèngshì","formal"],["禮物","lǐwù","gift"],["汽水","qìshuǐ","soda / soft drink"],["紙杯","zhǐbēi","paper cup"],
+  ]},
+  { zh:"當代L9 那個城市好漂亮", en:"CCC Bk2 L9 · That city is beautiful", sub:"當代中文 第二冊 第9課 — holidays, cuisines, V起來.", w:[
+    ["假期","jiàqī","holiday / vacation"],["節日","jiérì","festival / holiday"],["新年","xīnnián","New Year"],["春節","Chūnjié","Chinese New Year"],["春假","chūnjià","spring break"],["聖誕節","Shèngdànjié","Christmas"],["沒想到","méi xiǎngdào","unexpectedly; didn't expect"],["以為","yǐwéi","to assume (mistakenly)"],["料理","liàolǐ","cuisine; cooking"],["火鍋","huǒguō","hot pot"],["烤肉","kǎoròu","grilled meat; BBQ"],["速食","sùshí","fast food"],["泰國","Tàiguó","Thailand"],["泰國菜","Tàiguó cài","Thai food"],["日本料理","Rìběn liàolǐ","Japanese cuisine"],["台灣料理","Táiwān liàolǐ","Taiwanese cuisine"],["聽起來","tīng qǐlái","sounds (like)"],["看起來","kàn qǐlái","looks; seems"],["嚐起來","cháng qǐlái","tastes"],["聞起來","wén qǐlái","smells"],["討論","tǎolùn","to discuss"],["旅遊","lǚyóu","to travel; tourism"],["餅乾","bǐnggān","cookie; biscuit"],["臭","chòu","smelly; stinky"],["甜","tián","sweet"],
+  ]},
   { zh:"溫泉與戶外", en:"Hot springs & the outdoors", sub:"From the 烏來／陽明山 hot-spring class — soaking, tours & river trips.", w:[
     ["泡溫泉","pào wēnquán","to soak in a hot spring"],["泡湯","pàotāng","to soak in a hot spring (colloq.)"],["溫泉","wēnquán","hot spring"],["野溪溫泉","yěxī wēnquán","wild riverside hot spring"],["泡腳","pàojiǎo","to soak one's feet"],["地熱","dìrè","geothermal heat"],["冒煙","màoyān","to give off steam / smoke"],["湖","hú","lake"],["池","chí","pool"],["私人","sīrén","private"],["溫度","wēndù","temperature"],["置物櫃","zhìwùguì","locker"],["車程","chēchéng","travel time (by vehicle)"],["行程","xíngchéng","itinerary"],["路程","lùchéng","distance / route of a trip"],["一日團","yírì tuán","one-day tour"],["溯溪","sùxī","river tracing"],["報名","bàomíng","to sign up / register"],["參加","cānjiā","to join / take part"],["跳水","tiàoshuǐ","to dive into water"],["敢","gǎn","to dare"],["勇敢","yǒnggǎn","brave"],["猶豫","yóuyù","to hesitate"],["訓練","xùnliàn","to train / training"],["搭船","dāchuán","to take a boat"],["景觀","jǐngguān","landscape / view"],["風景","fēngjǐng","scenery"],["過河","guòhé","to cross a river"],["直達","zhídá","direct / non-stop"],["互換","hùhuàn","to swap / interchange"],["溫暖","wēnnuǎn","warm"],["暖和","nuǎnhuo","warm (cozy)"],["涼快","liángkuài","pleasantly cool"],["戶外","hùwài","outdoors"],["室內","shìnèi","indoors"],["顧","gù","to look after / tend"],["關閉","guānbì","to close down / shut"],
   ]},
@@ -280,6 +286,21 @@ const VOCAB=[
   ]},
 ];
 const STRUCT=[
+  { zh:"本課句型 This class (方向補語與把字句)", items:[
+    {p:'V + <b>來 / 去</b>（上/下/進/出/回/過）', g:"directional complement — 來 = toward the speaker, 去 = away from the speaker", ex:['弟弟從外面跑<b>進來</b>（speaker inside）','你快<b>出去</b>吧（speaker inside, they leave）','老闆從套房走<b>出去</b>']},
+    {p:'<b>過來</b> vs <b>過去</b>', g:"過來 come over (to me) · 過去 go over (to there)", ex:['紅燈，我不能<b>過去</b>','你<b>過來</b>一下']},
+    {p:'<b>把</b> + O + V + 來/去', g:"handle the object, then say which direction it moves", ex:['你可以<b>把</b>蛋糕送<b>上來</b>嗎？','不能<b>把</b>垃圾丟<b>下去</b>','<b>把</b>早飯拿<b>上去</b>給他']},
+    {p:'<b>要不然</b> …', g:"otherwise / or else (states the bad alternative)", ex:['現在就去買，<b>要不然</b>高鐵票會賣完']},
+    {p:'<b>為了</b> …', g:"in order to / for the sake of", ex:['<b>為了</b>見客戶，我今天穿得很正式']},
+    {p:'<b>你不覺得</b> … <b>嗎</b>？', g:"don't you think …? (seek agreement)", ex:['<b>你不覺得</b>這個禮物太貴了<b>嗎</b>？']},
+    {p:'<b>以為</b> …', g:"mistakenly assumed (turned out wrong)", ex:['我<b>以為</b>你已經出國了，沒想到你還在台灣']},
+  ]},
+  { zh:"當代L9 句型", items:[
+    {p:'<b>沒想到</b> …', g:"unexpectedly / who would have thought", ex:['我<b>以為</b>她很壞，<b>沒想到</b>她人很好']},
+    {p:'Adj + <b>極了</b>', g:"extremely / very (strong degree)", ex:['好吃<b>極了</b>！','那個城市美<b>極了</b>']},
+    {p:'N + <b>看/聽/嚐/聞起來</b> + Adj', g:"seems / sounds / tastes / smells …", ex:['這個人<b>看起來</b>好高','這片餅乾<b>嚐起來</b>好甜','這件衣服<b>聞起來</b>好臭']},
+    {p:'<b>除了</b> … ，<b>還有</b> …', g:"besides … , there's also …", ex:['<b>除了</b>很多吃的，<b>還有</b>很漂亮的風景']},
+  ]},
   { zh:"本課句型 This class (10/1 溫泉)", items:[
     {p:'行程 · 車程 · 路程', g:"行程 itinerary · 車程 travel time by vehicle · 路程 distance of the trip", ex:['一個小時的<b>車程</b>就可以到，<b>路程</b>不遠']},
     {p:'跳 + 水域（跳<b>水</b>/跳<b>溪</b>/跳<b>河</b>）', g:"jump / dive into a body of water", ex:['你敢<b>跳水</b>嗎？']},
@@ -470,6 +491,8 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"過夜":3,"民宿":2,"旅館":3,"夜景":2,"追":3,"午睡":3,"暖身":2,"校園":2,"抽煙":2,"高鐵":3,"要不然":3,"賣完":3,"正式":3,"禮物":3,"汽水":2,"紙杯":2,"公共空間":2,"變貴":2,
+"料理":3,"火鍋":3,"烤肉":3,"速食":3,"聖誕節":2,"泰國":2,"節日":3,"春節":3,"旅遊":3,"餅乾":3,"討論":3,"沒想到":3,"以為":3,
 "溫泉":3,"泡溫泉":3,"湖":3,"溫度":3,"報名":3,"參加":3,"敢":3,"勇敢":3,"猶豫":3,"訓練":3,"風景":3,"戶外":3,"室內":3,"溫暖":3,"暖和":3,"涼快":3,"行程":3,"過河":3,"直達":3,"陽明山":1,"小油坑":1,"冷水坑":1,
 "高興":3,"滿意":3,"自信":3,"放鬆":3,"輕鬆":3,"冷靜":3,"平靜":3,"驕傲":3,"熱情":3,"失望":3,"尷尬":3,"緊張":3,"好奇":3,"可惜":3,"無聊":3,"感謝":3,"感恩":3,"要求":3,"比如說":3,"情緒":3,"冷清":1,"孤兒":1,"練腿日":1,
 "房子":3,"搬家":3,"合約":3,"到期":3,"安靜":3,"準時":3,"乾淨":3,"地方":3,"近":3,"願意":3,"資料":3,"網站":3,"樓梯":3,"電梯":3,"容易":3,"準備":3,"多久":3,"小時":3,"分鐘":3,"自己":3,"怕":3,"錯":3,"環境":3,"全素":1,"蛋奶素":1,
@@ -481,6 +504,8 @@ const PRIO={
 const prio=w=>PRIO[w[0]]||2;
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span></div>`;}
 const CLASSMAP={
+"方向補語與把字句":"cmei",
+"當代L9 那個城市好漂亮":"cL9b2",
 "溫泉與戶外":"c1001","地名（陽明山）":"c1001",
 "正面情緒":"c0930","負面情緒":"c0930","複合情緒":"c0930",
 "租房子與搬家":"c0929","素食、運動與其他":"c0929",
@@ -502,6 +527,8 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"cmei",date:"2026-10-11",t:"方向補語與把字句",en:"Directional complements & 把"},
+ {id:"cL9b2",date:"2026-10-08",t:"當代L9 那個城市好漂亮",en:"CCC Bk2 L9 · That city is beautiful"},
  {id:"c1001",date:"2026-10-01",t:"溫泉與戶外",en:"Hot springs & the outdoors"},
  {id:"c0930",date:"2026-09-30",t:"情緒詞彙",en:"Emotions vocabulary"},
  {id:"c0929",date:"2026-09-29",t:"租房子與搬家",en:"Renting & moving house"},
