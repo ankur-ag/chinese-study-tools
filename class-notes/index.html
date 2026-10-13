@@ -92,6 +92,9 @@
   .addw{margin-left:.5rem;flex:0 0 auto;align-self:center;font-family:var(--ui);font-size:.72rem;font-weight:600;color:var(--jade);background:var(--jade-tint);border:1px solid transparent;border-radius:999px;padding:.2rem .6rem;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
   .addw:hover{background:var(--jade);color:#fff}
   .addw.done{background:var(--jade-deep);color:#fff;cursor:default}
+  .wstat{margin-left:.5rem;flex:0 0 auto;align-self:center;font-family:var(--ui);font-size:.7rem;font-weight:600;border-radius:999px;padding:.18rem .55rem;white-space:nowrap}
+  .wstat.active{color:var(--muted);background:transparent;border:1px solid var(--rule)}
+  .wstat.queued{color:#fff;background:var(--jade-deep)}
   .classindex{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:.7rem .85rem;margin:0 .1rem 1.5rem}
   .classindex .ihead{font-family:var(--ui);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
   .idxwrap{display:flex;flex-wrap:wrap;gap:.4rem}
@@ -514,8 +517,24 @@ const PRIO={
 };
 const prio=w=>PRIO[w[0]]||2;
 let queued=new Set();try{queued=new Set(JSON.parse(localStorage.getItem('cn-queued')||'[]'));}catch(e){}
-function addBtn(zh){const done=queued.has(zh);return `<button class="addw${done?' done':''}">${done?'✓ queued':'＋ Add'}</button>`;}
-function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span>${addBtn(w[0])}</div>`;}
+// Live word status from the Anki mirror (loaded async). Until it loads, words
+// show an Add button; once loaded, already-active words show "✓ active" (no Add).
+let STAT={cards:{},preply:{},wants:{}};
+function wordState(zh){
+  const m=STAT.cards[zh],p=STAT.preply[zh];
+  if((m&&m.s===false)||(p&&p.s===false)) return 'active';   // already studying it
+  if(queued.has(zh)||STAT.wants[zh]==='unsuspend') return 'queued';
+  if((m&&m.s===true)||(p&&p.s===true)) return 'susp';       // in deck, suspended
+  return 'new';
+}
+function ctlHTML(zh){
+  const s=wordState(zh);
+  if(s==='active') return '<span class="wstat active">✓ active</span>';
+  if(s==='queued') return '<span class="wstat queued">✓ queued</span>';
+  return `<button class="addw" data-mode="${s==='susp'?'enable':'ingest'}">＋ Add</button>`;
+}
+function fillControls(){document.querySelectorAll('#vocab .wctl').forEach(c=>{c.innerHTML=ctlHTML(c.dataset.zh);});}
+function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span><span class="wctl" data-zh="${w[0]}">${ctlHTML(w[0])}</span></div>`;}
 const CLASSMAP={
 "方向補語與把字句":"cmei",
 "當代L9 那個城市好漂亮":"cL9b2",
@@ -676,22 +695,33 @@ document.getElementById('vocab').addEventListener('click',e=>{
   const y=el.getBoundingClientRect().top+window.scrollY-(bar?bar.offsetHeight:0)-10;
   window.scrollTo({top:y,behavior:'smooth'});
 });
-// Per-word "Add": queue the word into the Anki ingest list (processed on next sync)
+// Per-word "Add": a suspended word -> queue an unsuspend (enable on next sync);
+// a brand-new word -> queue it into the ingest list (becomes a Preply card).
 document.getElementById('vocab').addEventListener('click',async e=>{
   const b=e.target.closest('.addw'); if(!b) return; e.stopPropagation();
-  if(b.classList.contains('done')) return;
-  const row=b.closest('.v-row'); if(!row) return;
+  const ctl=b.closest('.wctl'); const row=b.closest('.v-row'); if(!row) return;
   const t=row.querySelector('.v-zh').textContent.trim();
   const py=(row.querySelector('.v-py').textContent||'').trim();
   const en=(row.querySelector('.v-en').textContent||'').trim();
+  const mode=b.dataset.mode;
   b.textContent='…';
   try{
-    const r=await fetch('/api/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({words:[{t,g:(py+'  '+en).trim()}]})});
-    if(!r.ok) throw 0;
-    b.textContent='✓ queued'; b.classList.add('done');
+    if(mode==='enable'){
+      const r=await fetch('/api/want',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({word:t,action:'unsuspend'})}); if(!r.ok) throw 0;
+      STAT.wants[t]='unsuspend';
+    } else {
+      const r=await fetch('/api/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({words:[{t,g:(py+'  '+en).trim()}]})}); if(!r.ok) throw 0;
+    }
     queued.add(t); try{localStorage.setItem('cn-queued',JSON.stringify([...queued]));}catch(_){}
+    if(ctl) ctl.innerHTML='<span class="wstat queued">✓ queued</span>';
   }catch(_){ b.textContent='failed'; setTimeout(()=>{b.textContent='＋ Add';},1500); }
 });
+// Load live word status, then reflect it (active words lose their Add button).
+(async()=>{
+  try{const d=await fetch('/api/cards',{cache:'no-store'}).then(r=>r.json());STAT.cards=d.cards||{};STAT.preply=d.preply||{};}catch(e){}
+  try{const w=await fetch('/api/want',{cache:'no-store'}).then(r=>r.json());STAT.wants=w.wants||{};}catch(e){}
+  fillControls();
+})();
 </script>
 </body>
 </html>
