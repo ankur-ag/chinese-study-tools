@@ -89,6 +89,17 @@
   .v-zh{font-family:var(--tc);font-size:1.28rem;font-weight:500;flex:0 0 auto;min-width:3.4em}
   .v-py{font-family:var(--display);font-style:italic;color:var(--jade);font-size:.9rem;flex:0 0 auto;min-width:5.4em}
   .v-en{font-family:var(--ui);font-size:.88rem;color:var(--muted);flex:1 1 auto}
+  .addw{margin-left:.5rem;flex:0 0 auto;align-self:center;font-family:var(--ui);font-size:.72rem;font-weight:600;color:var(--jade);background:var(--jade-tint);border:1px solid transparent;border-radius:999px;padding:.2rem .6rem;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
+  .addw:hover{background:var(--jade);color:#fff}
+  .addw.done{background:var(--jade-deep);color:#fff;cursor:default}
+  .classindex{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:.7rem .85rem;margin:0 .1rem 1.5rem}
+  .classindex .ihead{font-family:var(--ui);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .idxwrap{display:flex;flex-wrap:wrap;gap:.4rem}
+  .idxchip{font-family:var(--tc);font-size:.86rem;color:var(--jade-deep);background:var(--jade-tint);border:1px solid transparent;border-radius:999px;padding:.26rem .62rem;cursor:pointer;transition:background .15s,color .15s;display:inline-flex;align-items:baseline;gap:.3rem}
+  .idxchip:hover{background:var(--jade);color:#fff}
+  .idxchip .d{font-family:var(--ui);font-size:.66rem;color:var(--muted)}
+  .idxchip:hover .d{color:rgba(255,255,255,.85)}
+  .classgroup{scroll-margin-top:9rem}
   .pair{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:1rem 1.1rem;margin-bottom:.65rem;box-shadow:var(--shadow)}
   .pair-row{display:flex;gap:.8rem;flex-wrap:wrap}
   .pair-side{flex:1 1 40%;min-width:150px}
@@ -502,7 +513,9 @@ const PRIO={
 "夜店":1,"導遊":1,"紙類":1,"魔幻":1,"民宿員工":1,"海龜":1,"燈塔":1,"碼頭":1,"追垃圾車":1,"芭樂":1,"酪梨":1,"剉冰":1,"綜合芋圓冰":1,"芋圓":1,"地瓜圓":1,"椰果":1,"愛玉":1,"煉乳":1,"花豆":1,"碎冰":1,"糖水":1,"籽":1,"鮭魚":1,"生魚片":1,"觸感":1,"橡膠":1,"一度":1,"自由潛水":1,"憋氣":1,"平壓":1,"飛盤":1,"草皮":1,"網子":1,"台東":1,"蘭嶼":1,"澎湖":1,"九份老街":1,"燈籠":1,"股東":1,"自由接案":1,"自由接案者":1,"軟體工程師":1,"打工度假":1,"長知識了":1,"校外教學":1,"臨時居留證":1,"永久居留證":1,"種植":1,"駭客":1,"真人版":1,"信仰":1,"擲筊":1,"神聖":1,"朋友圈":1,"坐我對面":1,"複習考":1,"再待一個學期":1
 };
 const prio=w=>PRIO[w[0]]||2;
-function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span></div>`;}
+let queued=new Set();try{queued=new Set(JSON.parse(localStorage.getItem('cn-queued')||'[]'));}catch(e){}
+function addBtn(zh){const done=queued.has(zh);return `<button class="addw${done?' done':''}">${done?'✓ queued':'＋ Add'}</button>`;}
+function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span>${addBtn(w[0])}</div>`;}
 const CLASSMAP={
 "方向補語與把字句":"cmei",
 "當代L9 那個城市好漂亮":"cL9b2",
@@ -562,7 +575,11 @@ function renderVocab(core){
   const legend=`<p class="legend">Dots = how commonly used: ${dots(3)} learn first · ${dots(2)} common · ${dots(1)} situational. <button class="copybtn" id="copyBtn">⧉ Copy all</button></p>`;
   let body;
   if(byClass){
-    body=CLASSES.map(cl=>{
+    const withVocab=CLASSES.filter(cl=>VOCAB.some(c=>CLASSMAP[c.zh]===cl.id));
+    const index=`<nav class="classindex"><div class="ihead">Jump to class · ${withVocab.length}</div><div class="idxwrap">`
+      +withVocab.map(cl=>{const md=cl.date?cl.date.slice(5).replace('-','/'):'';return `<button class="idxchip" data-goto="${cl.id}">${md?`<span class="d">${md}</span>`:''}${cl.t}</button>`;}).join('')
+      +`</div></nav>`;
+    body=index+CLASSES.map(cl=>{
       const secs=VOCAB.filter(c=>CLASSMAP[c.zh]===cl.id);
       if(!secs.length)return '';
       const total=secs.reduce((n,c)=>n+c.w.length,0);
@@ -650,6 +667,30 @@ document.addEventListener('click',async e=>{
   btn.textContent=ok?('✓ '+rows.length):'Copy failed';
   btn.classList.add('done');
   setTimeout(()=>{btn.textContent=orig;btn.classList.remove('done');},1600);
+});
+// Jump-to-class index: smooth-scroll to the class group (offset for the sticky bar)
+document.getElementById('vocab').addEventListener('click',e=>{
+  const chip=e.target.closest('.idxchip'); if(!chip) return;
+  const el=document.querySelector('.classgroup[data-cls="'+chip.dataset.goto+'"]'); if(!el) return;
+  const bar=document.querySelector('.bar');
+  const y=el.getBoundingClientRect().top+window.scrollY-(bar?bar.offsetHeight:0)-10;
+  window.scrollTo({top:y,behavior:'smooth'});
+});
+// Per-word "Add": queue the word into the Anki ingest list (processed on next sync)
+document.getElementById('vocab').addEventListener('click',async e=>{
+  const b=e.target.closest('.addw'); if(!b) return; e.stopPropagation();
+  if(b.classList.contains('done')) return;
+  const row=b.closest('.v-row'); if(!row) return;
+  const t=row.querySelector('.v-zh').textContent.trim();
+  const py=(row.querySelector('.v-py').textContent||'').trim();
+  const en=(row.querySelector('.v-en').textContent||'').trim();
+  b.textContent='…';
+  try{
+    const r=await fetch('/api/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({words:[{t,g:(py+'  '+en).trim()}]})});
+    if(!r.ok) throw 0;
+    b.textContent='✓ queued'; b.classList.add('done');
+    queued.add(t); try{localStorage.setItem('cn-queued',JSON.stringify([...queued]));}catch(_){}
+  }catch(_){ b.textContent='failed'; setTimeout(()=>{b.textContent='＋ Add';},1500); }
 });
 </script>
 </body>
