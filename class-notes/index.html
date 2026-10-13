@@ -577,7 +577,7 @@ function renderVocab(core){
   if(byClass){
     const withVocab=CLASSES.filter(cl=>VOCAB.some(c=>CLASSMAP[c.zh]===cl.id));
     const index=`<nav class="classindex"><div class="ihead">Jump to class · ${withVocab.length}</div><div class="idxwrap">`
-      +withVocab.map(cl=>{const md=cl.date?cl.date.slice(5).replace('-','/'):'';return `<button class="idxchip" data-goto="${cl.id}">${md?`<span class="d">${md}</span>`:''}${cl.t}</button>`;}).join('')
+      +withVocab.map(cl=>{const md=cl.date?cl.date.slice(5).replace('-','/'):'';return `<button class="idxchip" data-goto="${cl.id}">${md?`<span class="d">${md}</span>`:''}${cl.en||cl.t}</button>`;}).join('')
       +`</div></nav>`;
     body=index+CLASSES.map(cl=>{
       const secs=VOCAB.filter(c=>CLASSMAP[c.zh]===cl.id);
