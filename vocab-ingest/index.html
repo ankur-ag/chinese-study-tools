@@ -90,6 +90,8 @@
       .tab:hover { background: none; color: #ddd; }
       .tab.on { color: #fff; border-bottom-color: #60a5fa; }
       .tab .n { color: #7c828a; font-weight: 500; font-size: 13px; }
+      .qbanner { margin-top: 12px; font-size: 13px; color: #9cdcff; background: #112c42; border: 1px solid #1d4b6b; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
+      .qbanner b { color: #d6efff; font-weight: 700; }
 
       /* Tone-colored hanzi — same scheme as the Anki TOCFL template (dark palette):
          1 red · 2 green · 3 blue · 4 purple · 5 neutral. */
@@ -152,6 +154,7 @@
         <button class="tab" id="tab-preply">Preply <span class="n" id="tn-preply"></span></button>
         <button class="flashbtn" id="flash-btn" title="Flip through the suspended words as flashcards">⚡ Flashcards</button>
       </div>
+      <div class="qbanner" id="qbanner" hidden></div>
 
       <!-- ============ TOCFL (in your Anki deck) ============ -->
       <div id="panel-tocfl">
@@ -376,8 +379,24 @@
         document.getElementById("c-susp").textContent = cS;
         document.getElementById("c-new").textContent = cN;
         document.getElementById("tn-tocfl").textContent = cS ? "· " + cS : "";
+        updateQueued();
         renderSearch();
         renderPreplySusp();
+      }
+
+      // Pending changes that the next sync will apply: words to enable (Add) and
+      // Preply words to skip. Shown as a banner so you know what's waiting.
+      function updateQueued() {
+        const vals = Object.values(wants);
+        const adds = vals.filter((a) => a === "unsuspend").length;
+        const skips = vals.filter((a) => a === "suspend").length;
+        const b = document.getElementById("qbanner");
+        if (!adds && !skips) { b.hidden = true; return; }
+        b.hidden = false;
+        let parts = [];
+        if (adds) parts.push("<b>" + adds + "</b> to enable");
+        if (skips) parts.push("<b>" + skips + "</b> to skip");
+        b.innerHTML = "⏳ " + parts.join(" · ") + " queued — run a sync to apply.";
       }
 
       function showTab(which) {
