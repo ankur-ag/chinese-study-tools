@@ -166,6 +166,9 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"交朋友與社交", en:"Making friends & socializing", sub:"Rosie class — meeting people, conversation topics, keeping in touch.", w:[
+    ["交朋友","jiāo péngyǒu","to make friends"],["聚會","jùhuì","gathering; meetup"],["其中","qízhōng","among them; one of them"],["表面","biǎomiàn","superficial; surface-level"],["固定","gùdìng","regular; fixed"],["共同興趣","gòngtóng xìngqù","shared interest"],["變熟","biàn shóu","to become closer; get acquainted"],["保持聯絡","bǎochí liánluò","to keep in touch"],["陌生人","mòshēngrén","stranger"],["內向","nèixiàng","introverted"],["話題","huàtí","conversation topic"],["開啟話題","kāiqǐ huàtí","to start a conversation"],["各種","gèzhǒng","all kinds of; various"],["花時間","huā shíjiān","to spend time"],["大部分","dàbùfen","most; the majority"],["情況","qíngkuàng","situation; circumstance"],["時間對不上","shíjiān duì bu shàng","schedules don't match"],["偶爾","ǒu'ěr","occasionally"],["不過","búguò","but; however"],["語言交換","yǔyán jiāohuàn","language exchange"],["友善","yǒushàn","friendly"],
+  ]},
   { zh:"方向補語與把字句", en:"Directional complements & 把", sub:"美玲 class — V+來/去 directions, the 把 construction, overnight trips.", w:[
     ["過夜","guòyè","to stay overnight"],["民宿","mínsù","B&B / homestay"],["旅館","lǚguǎn","hotel"],["夜景","yèjǐng","night view"],["風景","fēngjǐng","scenery"],["追","zhuī","to chase / pursue"],["午睡","wǔshuì","afternoon nap"],["暖身","nuǎnshēn","to warm up"],["校園","xiàoyuán","campus"],["公共空間","gōnggòng kōngjiān","public space"],["抽煙","chōuyān","to smoke"],["規定","guīdìng","rule / regulation"],["高鐵","gāotiě","high-speed rail (HSR)"],["要不然","yàoburán","otherwise / or else"],["變貴","biàn guì","to get more expensive"],["賣完","mài wán","to be sold out"],["正式","zhèngshì","formal"],["禮物","lǐwù","gift"],["汽水","qìshuǐ","soda / soft drink"],["紙杯","zhǐbēi","paper cup"],
   ]},
@@ -300,7 +303,19 @@ const VOCAB=[
   ]},
 ];
 const STRUCT=[
-  { zh:"本課句型 This class (方向補語與把字句)", items:[
+  { zh:"本課句型 This class (交朋友與社交)", items:[
+    {p:'<b>其中</b> + 數字 + 量詞', g:"pick one/some from a group already mentioned (change the measure word to match)", ex:['我認識很多人，但只跟<b>其中一個</b>人再次見面']},
+    {p:'V<b>過</b> … + 我<b>覺得</b> …', g:"turn an experience into an observation — say what happened, then what you noticed", ex:['我參加<b>過</b>語言交換，我<b>覺得</b>那裡很容易認識人']},
+    {p:'… ，<b>不過</b> …', g:"but / however — adds a contrasting point (positive + negative sides)", ex:['可以認識很多人，<b>不過</b>聊天有時候比較表面']},
+    {p:'<b>因為</b> … ，<b>所以</b> …', g:"reason → result (one half can drop when the link is clear)", ex:['<b>因為</b>大家有共同興趣，<b>所以</b>比較容易找到話題']},
+    {p:'<b>跟</b> <s>A</s> <b>比起來</b>，<s>B</s> 比較 …', g:"compared with A, B is more …", ex:['<b>跟</b>認識的人<b>比起來</b>，跟陌生人聊天<b>比較</b>尷尬']},
+    {p:'<b>什麼樣的</b> + N', g:"what kind / type of (person, activity, topic)", ex:['你在那裡遇到<b>什麼樣的</b>人？']},
+    {p:'<b>偶爾</b> vs <b>有時候</b>', g:"both = not regularly; 偶爾 is less frequent than 有時候", ex:['我<b>有時候</b>去跳舞，<b>偶爾</b>也會參加聚會']},
+    {p:'<b>花時間</b> + 動作', g:"spend time doing something", ex:['很多人會<b>花時間</b>陪家人']},
+    {p:'<b>時間對不上</b>', g:"schedules don't line up — can't find a time that works for both", ex:['我們想再次見面，可是<b>時間對不上</b>']},
+    {p:'推薦 … <b>因為</b> … （<b>也可以</b> …）', g:"give a recommendation with a reason; add another option with 也可以", ex:['我會推薦你參加固定的活動，<b>因為</b>比較容易跟別人變熟']},
+  ]},
+  { zh:"方向補語與把字句 句型", items:[
     {p:'V + <b>來 / 去</b>（上/下/進/出/回/過）', g:"directional complement — 來 = toward the speaker, 去 = away from the speaker", ex:['弟弟從外面跑<b>進來</b>（speaker inside）','你快<b>出去</b>吧（speaker inside, they leave）','老闆從套房走<b>出去</b>']},
     {p:'<b>過來</b> vs <b>過去</b>', g:"過來 come over (to me) · 過去 go over (to there)", ex:['紅燈，我不能<b>過去</b>','你<b>過來</b>一下']},
     {p:'<b>把</b> + O + V + 來/去', g:"handle the object, then say which direction it moves", ex:['你可以<b>把</b>蛋糕送<b>上來</b>嗎？','不能<b>把</b>垃圾丟<b>下去</b>','<b>把</b>早飯拿<b>上去</b>給他']},
@@ -505,6 +520,7 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"交朋友":3,"聚會":3,"其中":3,"固定":3,"話題":3,"各種":3,"花時間":3,"大部分":3,"情況":3,"保持聯絡":3,"內向":3,"陌生人":3,"不過":3,"偶爾":3,"友善":3,"變熟":2,"表面":2,"共同興趣":2,"開啟話題":2,"時間對不上":2,"語言交換":2,
 "過夜":3,"民宿":2,"旅館":3,"夜景":2,"追":3,"午睡":3,"暖身":2,"校園":2,"抽煙":2,"高鐵":3,"要不然":3,"賣完":3,"正式":3,"禮物":3,"汽水":2,"紙杯":2,"公共空間":2,"變貴":2,
 "料理":3,"火鍋":3,"烤肉":3,"速食":3,"聖誕節":2,"泰國":2,"節日":3,"春節":3,"旅遊":3,"餅乾":3,"討論":3,"沒想到":3,"以為":3,
 "溫泉":3,"泡溫泉":3,"湖":3,"溫度":3,"報名":3,"參加":3,"敢":3,"勇敢":3,"猶豫":3,"訓練":3,"風景":3,"戶外":3,"室內":3,"溫暖":3,"暖和":3,"涼快":3,"行程":3,"過河":3,"直達":3,"陽明山":1,"小油坑":1,"冷水坑":1,
@@ -536,6 +552,7 @@ function ctlHTML(zh){
 function fillControls(){document.querySelectorAll('#vocab .wctl').forEach(c=>{c.innerHTML=ctlHTML(c.dataset.zh);});}
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span><span class="wctl" data-zh="${w[0]}">${ctlHTML(w[0])}</span></div>`;}
 const CLASSMAP={
+"交朋友與社交":"c1013",
 "方向補語與把字句":"cmei",
 "當代L9 那個城市好漂亮":"cL9b2",
 "溫泉與戶外":"c1001","地名（陽明山）":"c1001",
@@ -559,6 +576,7 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c1013",date:"2026-10-13",t:"交朋友與社交",en:"Making friends & socializing"},
  {id:"cmei",date:"2026-10-11",t:"方向補語與把字句",en:"Directional complements & 把"},
  {id:"cL9b2",date:"2026-10-08",t:"當代L9 那個城市好漂亮",en:"CCC Bk2 L9 · That city is beautiful"},
  {id:"c1001",date:"2026-10-01",t:"溫泉與戶外",en:"Hot springs & the outdoors"},
