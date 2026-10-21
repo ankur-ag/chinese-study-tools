@@ -166,6 +166,9 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"朋友及關係", en:"Friends & relationships", sub:"Conversation class — friendship, dating, family, weddings.", w:[
+    ["友誼","yǒuyì","friendship"],["感情","gǎnqíng","feelings; bond"],["戀人","liànrén","lovers; romantic partner"],["維繫","wéixì","to maintain (a bond)"],["相聚","xiāngjù","to get together"],["分別","fēnbié","to part ways; separately"],["視訊","shìxùn","video call"],["透過","tòuguò","through; by means of"],["球友","qiúyǒu","sports buddy"],["匹克球","pǐkèqiú","pickleball"],["有空","yǒukòng","to have free time"],["酒吧","jiǔbā","bar; pub"],["安心","ānxīn","to feel at ease"],["另一半","lìng yíbàn","one's other half; partner"],["永久","yǒngjiǔ","permanent"],["緣分","yuánfèn","fate (that brings people together)"],["命運","mìngyùn","fate; destiny"],["秘密","mìmì","secret"],["吵架","chǎojià","to quarrel"],["妥協","tuǒxié","to compromise"],["價值觀","jiàzhíguān","values"],["親戚","qīnqi","relatives"],["彼此","bǐcǐ","each other"],["兄弟姐妹","xiōngdì jiěmèi","siblings"],["想念","xiǎngniàn","to miss (sb)"],["關係","guānxì","relationship"],["結婚","jiéhūn","to get married"],["結婚典禮","jiéhūn diǎnlǐ","wedding ceremony"],["新郎","xīnláng","groom"],["新娘","xīnniáng","bride"],["敬酒","jìngjiǔ","to make a toast"],["大方","dàfāng","generous; classy"],["表演","biǎoyǎn","performance"],
+  ]},
   { zh:"交朋友與社交", en:"Making friends & socializing", sub:"Rosie class — meeting people, conversation topics, keeping in touch.", w:[
     ["交朋友","jiāo péngyǒu","to make friends"],["聚會","jùhuì","gathering; meetup"],["其中","qízhōng","among them; one of them"],["表面","biǎomiàn","superficial; surface-level"],["固定","gùdìng","regular; fixed"],["共同興趣","gòngtóng xìngqù","shared interest"],["變熟","biàn shóu","to become closer; get acquainted"],["保持聯絡","bǎochí liánluò","to keep in touch"],["陌生人","mòshēngrén","stranger"],["內向","nèixiàng","introverted"],["話題","huàtí","conversation topic"],["開啟話題","kāiqǐ huàtí","to start a conversation"],["各種","gèzhǒng","all kinds of; various"],["花時間","huā shíjiān","to spend time"],["大部分","dàbùfen","most; the majority"],["情況","qíngkuàng","situation; circumstance"],["時間對不上","shíjiān duì bu shàng","schedules don't match"],["偶爾","ǒu'ěr","occasionally"],["不過","búguò","but; however"],["語言交換","yǔyán jiāohuàn","language exchange"],["友善","yǒushàn","friendly"],
   ]},
@@ -303,7 +306,15 @@ const VOCAB=[
   ]},
 ];
 const STRUCT=[
-  { zh:"本課句型 This class (交朋友與社交)", items:[
+  { zh:"本課句型 This class (朋友及關係)", items:[
+    {p:'<b>透過</b> + 活動/人', g:"through / by means of (how you did something)", ex:['我<b>透過</b>打球認識新朋友']},
+    {p:'<b>舉例來說</b>，…', g:"for example (introduce a concrete example)", ex:['我的朋友很輕鬆，<b>舉例來說</b>，他們會睡晚一點']},
+    {p:'跟 … 的 <b>感情</b>', g:"one's bond / relationship with someone", ex:['我跟家人的<b>感情</b>很好']},
+    {p:'<b>看緣分</b> / <b>看命運</b>', g:"it depends on fate", ex:['會不會結婚？<b>看緣分</b>']},
+    {p:'跟 … <b>不符</b>', g:"doesn't match / conform with", ex:['這件事跟我的<b>價值觀不符</b>']},
+    {p:'「<b>出外靠朋友</b>」', g:"saying: away from home you rely on friends", ex:['<b>出外靠朋友</b>，有朋友比較安心']},
+  ]},
+  { zh:"交朋友與社交 句型", items:[
     {p:'<b>其中</b> + 數字 + 量詞', g:"pick one/some from a group already mentioned (change the measure word to match)", ex:['我認識很多人，但只跟<b>其中一個</b>人再次見面']},
     {p:'V<b>過</b> … + 我<b>覺得</b> …', g:"turn an experience into an observation — say what happened, then what you noticed", ex:['我參加<b>過</b>語言交換，我<b>覺得</b>那裡很容易認識人']},
     {p:'… ，<b>不過</b> …', g:"but / however — adds a contrasting point (positive + negative sides)", ex:['可以認識很多人，<b>不過</b>聊天有時候比較表面']},
@@ -520,6 +531,7 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"感情":3,"友誼":3,"關係":3,"吵架":3,"想念":3,"結婚":3,"親戚":3,"秘密":3,"有空":3,"酒吧":3,"安心":3,"彼此":3,"透過":3,"舉例來說":3,"命運":3,"緣分":3,"價值觀":3,"妥協":2,"維繫":2,"相聚":2,"分別":2,"視訊":2,"球友":2,"另一半":2,"永久":2,"兄弟姐妹":3,"大方":2,"表演":3,"戀人":2,"結婚典禮":2,"新郎":2,"新娘":2,"敬酒":2,"匹克球":1,
 "交朋友":3,"聚會":3,"其中":3,"固定":3,"話題":3,"各種":3,"花時間":3,"大部分":3,"情況":3,"保持聯絡":3,"內向":3,"陌生人":3,"不過":3,"偶爾":3,"友善":3,"變熟":2,"表面":2,"共同興趣":2,"開啟話題":2,"時間對不上":2,"語言交換":2,
 "過夜":3,"民宿":2,"旅館":3,"夜景":2,"追":3,"午睡":3,"暖身":2,"校園":2,"抽煙":2,"高鐵":3,"要不然":3,"賣完":3,"正式":3,"禮物":3,"汽水":2,"紙杯":2,"公共空間":2,"變貴":2,
 "料理":3,"火鍋":3,"烤肉":3,"速食":3,"聖誕節":2,"泰國":2,"節日":3,"春節":3,"旅遊":3,"餅乾":3,"討論":3,"沒想到":3,"以為":3,
@@ -552,6 +564,7 @@ function ctlHTML(zh){
 function fillControls(){document.querySelectorAll('#vocab .wctl').forEach(c=>{c.innerHTML=ctlHTML(c.dataset.zh);});}
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span><span class="wctl" data-zh="${w[0]}">${ctlHTML(w[0])}</span></div>`;}
 const CLASSMAP={
+"朋友及關係":"c1021",
 "交朋友與社交":"c1013",
 "方向補語與把字句":"cmei",
 "當代L9 那個城市好漂亮":"cL9b2",
@@ -576,6 +589,7 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c1021",date:"2026-10-21",t:"朋友及關係",en:"Friends & relationships"},
  {id:"c1013",date:"2026-10-13",t:"交朋友與社交",en:"Making friends & socializing"},
  {id:"cmei",date:"2026-10-11",t:"方向補語與把字句",en:"Directional complements & 把"},
  {id:"cL9b2",date:"2026-10-08",t:"當代L9 那個城市好漂亮",en:"CCC Bk2 L9 · That city is beautiful"},
