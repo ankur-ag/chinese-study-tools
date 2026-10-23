@@ -166,6 +166,12 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"音樂與平台", en:"Music & platforms", sub:"Rosie class on listening habits — genres, devices, streaming.", w:[
+    ["音樂","yīnyuè","music"],["流行音樂","liúxíng yīnyuè","pop music"],["電子樂","diànzǐyuè","electronic music"],["搖滾","yáogǔn","rock music"],["動漫","dòngmàn","anime"],["冥想","míngxiǎng","meditation"],["有聲書","yǒushēngshū","audiobook"],["歌單","gēdān","playlist"],["平台","píngtái","platform"],["免費","miǎnfèi","free of charge"],["付費","fùfèi","to pay for access"],["廣告","guǎnggào","advertisement"],["會員","huìyuán","member; membership"],["額外","éwài","extra; additional"],["耳機","ěrjī","headphones"],["喇叭","lǎbā","speaker"],["戴","dài","to wear (accessory)"],["放歌","fàng gē","to play a song"],["樂團","yuètuán","band"],["類型","lèixíng","type; category"],["風格","fēnggé","style"],["分享","fēnxiǎng","to share"],["首","shǒu","(measure word for songs)"],
+  ]},
+  { zh:"描述、感受與選擇", en:"Describing, feeling & choosing", sub:"Same class — mood, focus, taste, explaining.", w:[
+    ["外向","wàixiàng","outgoing; extroverted"],["心情","xīnqíng","mood"],["難過","nánguò","sad; upset"],["喜劇","xǐjù","comedy"],["專心","zhuānxīn","to concentrate"],["分心","fēnxīn","to get distracted"],["影響","yǐngxiǎng","to affect; influence"],["畫面","huàmiàn","image; visuals"],["動力","dònglì","motivation; drive"],["深蹲","shēndūn","squat"],["吵","chǎo","noisy; loud"],["重複","chóngfù","to repeat"],["變","biàn","to change; become"],["換","huàn","to switch; replace"],["確實","quèshí","indeed; really"],["接下來","jiēxiàlái","next; what comes next"],["某一","mǒu yī","a certain; a particular"],["想不起來","xiǎng bu qǐlái","can't recall"],["複雜","fùzá","complex"],["解釋","jiěshì","to explain"],["說明","shuōmíng","to explain; describe"],["符合","fúhé","to match; meet"],["適合","shìhé","to suit"],["期待","qídài","expectation; to look forward to"],["主動","zhǔdòng","proactive"],["被動","bèidòng","passive"],["品味","pǐnwèi","aesthetic taste"],["描述","miáoshù","to describe"],["抓到","zhuā dào","to pick up; capture"],["喜好","xǐhào","preferences"],
+  ]},
   { zh:"朋友及關係", en:"Friends & relationships", sub:"Conversation class — friendship, dating, family, weddings.", w:[
     ["友誼","yǒuyì","friendship"],["感情","gǎnqíng","feelings; bond"],["戀人","liànrén","lovers; romantic partner"],["維繫","wéixì","to maintain (a bond)"],["相聚","xiāngjù","to get together"],["分別","fēnbié","to part ways; separately"],["視訊","shìxùn","video call"],["透過","tòuguò","through; by means of"],["球友","qiúyǒu","sports buddy"],["匹克球","pǐkèqiú","pickleball"],["有空","yǒukòng","to have free time"],["酒吧","jiǔbā","bar; pub"],["安心","ānxīn","to feel at ease"],["另一半","lìng yíbàn","one's other half; partner"],["永久","yǒngjiǔ","permanent"],["緣分","yuánfèn","fate (that brings people together)"],["命運","mìngyùn","fate; destiny"],["秘密","mìmì","secret"],["吵架","chǎojià","to quarrel"],["妥協","tuǒxié","to compromise"],["價值觀","jiàzhíguān","values"],["親戚","qīnqi","relatives"],["彼此","bǐcǐ","each other"],["兄弟姐妹","xiōngdì jiěmèi","siblings"],["想念","xiǎngniàn","to miss (sb)"],["關係","guānxì","relationship"],["結婚","jiéhūn","to get married"],["結婚典禮","jiéhūn diǎnlǐ","wedding ceremony"],["新郎","xīnláng","groom"],["新娘","xīnniáng","bride"],["敬酒","jìngjiǔ","to make a toast"],["大方","dàfāng","generous; classy"],["表演","biǎoyǎn","performance"],
   ]},
@@ -306,7 +312,20 @@ const VOCAB=[
   ]},
 ];
 const STRUCT=[
-  { zh:"本課句型 This class (朋友及關係)", items:[
+  { zh:"本課句型 This class (音樂與聆聽)", items:[
+    {p:'<b>首</b>（量詞）· <b>前</b> + 數 + <b>名</b>', g:"首 counts songs/poems; 前 N 名 = the top N in a ranking", ex:['一<b>首</b>歌','我聽<b>前</b>四十<b>名</b>的歌']},
+    {p:'<b>一邊</b> … <b>一邊</b> … ／ V + <b>的時候</b>', g:"do two things at once / when doing something", ex:['我<b>一邊</b>工作，<b>一邊</b>聽音樂','深蹲<b>的時候</b>聽音樂']},
+    {p:'<b>讓</b> + 人 + 結果', g:"make sb feel/do — 專心 concentrate · 分心 distracted · 影響 affect", ex:['吵的環境會<b>讓</b>我<b>分心</b>']},
+    {p:'<b>對我來說</b>，…', g:"from my perspective / for me", ex:['<b>對我來說</b>，我不用付額外的錢']},
+    {p:'<b>越</b> + V + <b>越</b> + 結果', g:"the more … the more …", ex:['我一開始不喜歡，後來<b>越</b>聽<b>越</b>喜歡']},
+    {p:'<b>變</b> vs <b>換</b>', g:"變 = become/change state · 換 = switch/replace an item (換歌 = change the song)", ex:['心情<b>變</b>好了','我想<b>換</b>一首歌']},
+    {p:'<b>某一</b> + N … <b>想不起來</b>', g:"a particular (unnamed) item you can't recall", ex:['有<b>某一</b>首歌，但我<b>想不起來</b>歌名']},
+    {p:'<b>符合</b> vs <b>適合</b>', g:"符合 meet/match (a standard/expectation) · 適合 suit (a person/situation)", ex:['<b>符合</b>我的期待','這首歌<b>適合</b>運動']},
+    {p:'<b>口味</b> vs <b>品味</b> vs <b>喜好</b>', g:"口味 taste in food · 品味 aesthetic taste (music) · 喜好 preferences (broad)", ex:['我們聽音樂的<b>品味</b>不一樣']},
+    {p:'<b>主動</b> vs <b>被動</b> · 跟…<b>分享</b>', g:"主動 take initiative · 被動 passive; 跟 sb 分享 sth = share with sb", ex:['我會<b>主動</b>找音樂，也會跟朋友<b>分享</b>']},
+    {p:'<b>解釋</b> vs <b>說明</b>', g:"解釋 explain a meaning/reason · 說明 explain/describe (instructions)", ex:['這首歌很複雜，很難<b>解釋</b>']},
+  ]},
+  { zh:"朋友及關係 句型", items:[
     {p:'<b>透過</b> + 活動/人', g:"through / by means of (how you did something)", ex:['我<b>透過</b>打球認識新朋友']},
     {p:'<b>舉例來說</b>，…', g:"for example (introduce a concrete example)", ex:['我的朋友很輕鬆，<b>舉例來說</b>，他們會睡晚一點']},
     {p:'跟 … 的 <b>感情</b>', g:"one's bond / relationship with someone", ex:['我跟家人的<b>感情</b>很好']},
@@ -531,6 +550,7 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"音樂":3,"心情":3,"影響":3,"分享":3,"專心":3,"分心":3,"變":3,"換":3,"難過":3,"確實":3,"複雜":3,"解釋":3,"適合":3,"期待":3,"主動":3,"被動":3,"描述":3,"類型":3,"風格":3,"耳機":3,"戴":3,"重複":3,"外向":3,"吵":3,"接下來":3,"免費":3,"付費":3,"廣告":3,"會員":3,"平台":3,"動力":3,"流行音樂":2,"電子樂":2,"搖滾":2,"動漫":2,"冥想":2,"有聲書":2,"歌單":2,"額外":2,"喇叭":2,"放歌":2,"樂團":2,"符合":3,"品味":2,"喜好":2,"抓到":2,"畫面":2,"喜劇":2,"某一":2,"想不起來":3,"說明":2,"深蹲":1,"首":2,
 "感情":3,"友誼":3,"關係":3,"吵架":3,"想念":3,"結婚":3,"親戚":3,"秘密":3,"有空":3,"酒吧":3,"安心":3,"彼此":3,"透過":3,"舉例來說":3,"命運":3,"緣分":3,"價值觀":3,"妥協":2,"維繫":2,"相聚":2,"分別":2,"視訊":2,"球友":2,"另一半":2,"永久":2,"兄弟姐妹":3,"大方":2,"表演":3,"戀人":2,"結婚典禮":2,"新郎":2,"新娘":2,"敬酒":2,"匹克球":1,
 "交朋友":3,"聚會":3,"其中":3,"固定":3,"話題":3,"各種":3,"花時間":3,"大部分":3,"情況":3,"保持聯絡":3,"內向":3,"陌生人":3,"不過":3,"偶爾":3,"友善":3,"變熟":2,"表面":2,"共同興趣":2,"開啟話題":2,"時間對不上":2,"語言交換":2,
 "過夜":3,"民宿":2,"旅館":3,"夜景":2,"追":3,"午睡":3,"暖身":2,"校園":2,"抽煙":2,"高鐵":3,"要不然":3,"賣完":3,"正式":3,"禮物":3,"汽水":2,"紙杯":2,"公共空間":2,"變貴":2,
@@ -564,6 +584,7 @@ function ctlHTML(zh){
 function fillControls(){document.querySelectorAll('#vocab .wctl').forEach(c=>{c.innerHTML=ctlHTML(c.dataset.zh);});}
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span><span class="wctl" data-zh="${w[0]}">${ctlHTML(w[0])}</span></div>`;}
 const CLASSMAP={
+"音樂與平台":"c1022","描述、感受與選擇":"c1022",
 "朋友及關係":"c1021",
 "交朋友與社交":"c1013",
 "方向補語與把字句":"cmei",
@@ -589,6 +610,7 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c1022",date:"2026-10-22",t:"音樂與聆聽習慣",en:"Music & listening habits"},
  {id:"c1021",date:"2026-10-21",t:"朋友及關係",en:"Friends & relationships"},
  {id:"c1013",date:"2026-10-13",t:"交朋友與社交",en:"Making friends & socializing"},
  {id:"cmei",date:"2026-10-11",t:"方向補語與把字句",en:"Directional complements & 把"},
