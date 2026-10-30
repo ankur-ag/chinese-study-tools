@@ -166,6 +166,9 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"行為與習慣", en:"Behavior & habits", sub:"Assorted vocab — spontaneity, habits & being considerate.", w:[
+    ["隨性","suíxìng","spontaneous; easygoing"],["行為","xíngwéi","behavior"],["成癮","chéngyǐn","addictive; to get addicted"],["廉價","liánjià","cheap; low-cost"],["浪費","làngfèi","to waste"],["打擾","dǎrǎo","to disturb (sb)"],
+  ]},
   { zh:"旅行、假期與人際", en:"Travel, holidays & relationships", sub:"Conversation review — a road trip, seasons & Taiwan social habits.", w:[
     ["算了","suànle","forget it; never mind"],["本來","běnlái","originally"],["結果","jiéguǒ","in the end; as it turned out"],["只好","zhǐhǎo","to have no choice but to"],["只是","zhǐshì","it's just that"],["其實","qíshí","actually; in fact"],["蛋餅","dànbǐng","egg crepe (TW breakfast)"],["縣市","xiànshì","county and city"],["縣","xiàn","county"],["公路旅行","gōnglù lǚxíng","road trip"],["路過","lùguò","to pass by / through"],["連續假期","liánxù jiàqī","long weekend; consecutive holidays"],["國定假日","guódìng jiàrì","national holiday"],["廉價","liánjià","cheap; low-cost"],["淡季","dànjì","off-season"],["旺季","wàngjì","peak season"],["東北季風","dōngběi jìfēng","northeast monsoon"],["浪","làng","wave"],["熱鬧","rènào","lively; bustling"],["值得","zhídé","worth; worthwhile"],["待","dāi","to stay"],["半天","bàntiān","half a day; a good while"],["害羞","hàixiū","shy"],["約","yuē","to ask sb out; make a date"],["懶惰","lǎnduò","lazy"],["社團","shètuán","club; society (group)"],["體驗","tǐyàn","experience"],["介意","jièyì","to mind"],["日常","rìcháng","daily; everyday"],["大家庭","dàjiātíng","extended family"],["看情況","kàn qíngkuàng","it depends (on the situation)"],["興趣","xìngqù","interest; hobby"],
   ]},
@@ -466,6 +469,9 @@ const STRUCT=[
   ]},
 ];
 const PAIRS=[
+  {a:["隨性","suíxìng","spontaneous; easygoing"],b:["隨便","suíbiàn","whatever; careless"],note:"行為: 隨性 = relaxed, goes with the flow (positive); 隨便 = casual / can't be bothered (often negative)."},
+  {a:["浪費","làngfèi","to waste"],b:["花費","huāfèi","to spend; expense"],note:"行為: 浪費 = use up pointlessly; 花費 = spend (money/time), neutral."},
+  {a:["打擾","dǎrǎo","to disturb (sb)"],b:["打斷","dǎduàn","to interrupt / cut off"],note:"行為: 打擾 = bother/intrude on sb (不好意思打擾你); 打斷 = cut off a person or action mid-way."},
   {a:["廉價","liánjià","cheap; low-cost"],b:["連假","liánjià","long weekend"],note:"旅行: identical sound (liánjià)! 廉價 = cheap; 連假 (連續假期) = a run of holidays. Context only."},
   {a:["本來","běnlái","originally (had planned)"],b:["原來","yuánlái","it turns out (realization)"],note:"旅行: 本來想… but it changed; 原來… = oh, so that's how it is (just realized)."},
   {a:["淡季","dànjì","off-season"],b:["旺季","wàngjì","peak season"],note:"旅行: 淡季 = quiet/low season (12–2月); 旺季 = busy/high season (3–11月)."},
@@ -585,6 +591,7 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"行為":3,"浪費":3,"打擾":3,"隨性":2,"成癮":2,
 "本來":3,"結果":3,"只好":3,"只是":3,"其實":3,"值得":3,"看情況":3,"興趣":3,"熱鬧":3,"害羞":3,"約":3,"懶惰":3,"介意":3,"日常":3,"算了":3,"路過":3,"待":3,"半天":3,"連續假期":3,"國定假日":2,"公路旅行":2,"社團":2,"體驗":3,"大家庭":2,"淡季":2,"旺季":2,"廉價":2,"縣市":2,"縣":2,"蛋餅":2,"東北季風":1,"浪":2,
 "音樂":3,"心情":3,"影響":3,"分享":3,"專心":3,"分心":3,"變":3,"換":3,"難過":3,"確實":3,"複雜":3,"解釋":3,"適合":3,"期待":3,"主動":3,"被動":3,"描述":3,"類型":3,"風格":3,"耳機":3,"戴":3,"重複":3,"外向":3,"吵":3,"接下來":3,"免費":3,"付費":3,"廣告":3,"會員":3,"平台":3,"動力":3,"流行音樂":2,"電子樂":2,"搖滾":2,"動漫":2,"冥想":2,"有聲書":2,"歌單":2,"額外":2,"喇叭":2,"放歌":2,"樂團":2,"符合":3,"品味":2,"喜好":2,"抓到":2,"畫面":2,"喜劇":2,"某一":2,"想不起來":3,"說明":2,"深蹲":1,"首":2,
 "感情":3,"友誼":3,"關係":3,"吵架":3,"想念":3,"結婚":3,"親戚":3,"秘密":3,"有空":3,"酒吧":3,"安心":3,"彼此":3,"透過":3,"舉例來說":3,"命運":3,"緣分":3,"價值觀":3,"妥協":2,"維繫":2,"相聚":2,"分別":2,"視訊":2,"球友":2,"另一半":2,"永久":2,"兄弟姐妹":3,"大方":2,"表演":3,"戀人":2,"結婚典禮":2,"新郎":2,"新娘":2,"敬酒":2,"匹克球":1,
@@ -620,6 +627,7 @@ function ctlHTML(zh){
 function fillControls(){document.querySelectorAll('#vocab .wctl').forEach(c=>{c.innerHTML=ctlHTML(c.dataset.zh);});}
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span><span class="wctl" data-zh="${w[0]}">${ctlHTML(w[0])}</span></div>`;}
 const CLASSMAP={
+"行為與習慣":"c1030",
 "旅行、假期與人際":"c1028",
 "音樂與平台":"c1022","描述、感受與選擇":"c1022",
 "朋友及關係":"c1021",
@@ -647,6 +655,7 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c1030",date:"2026-10-30",t:"行為與習慣",en:"Behavior & habits"},
  {id:"c1028",date:"2026-10-28",t:"旅行、假期與人際",en:"Travel, holidays & relationships"},
  {id:"c1022",date:"2026-10-22",t:"音樂與聆聽習慣",en:"Music & listening habits"},
  {id:"c1021",date:"2026-10-21",t:"朋友及關係",en:"Friends & relationships"},
