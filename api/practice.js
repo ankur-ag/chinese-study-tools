@@ -89,11 +89,19 @@ export default async function handler(req, res) {
         `Return JSON: {"english":"<the whole English paragraph>","chinese":"<the whole Traditional Chinese paragraph>"}. ` +
         `Keep the two versions faithful to each other. Use normal sentence punctuation (。！？).`;
       const out = parseJson(await chat(system, user, 1600));
+      let english = String(out.english || "").trim();
+      let chinese = String(out.chinese || "").trim();
+      // The model occasionally swaps the two fields (the Chinese paragraph lands
+      // in "english"), so the user is shown Chinese to translate instead of
+      // English. Decide by script: the English side should be mostly Latin, the
+      // Chinese side mostly Han. Swap back when "english" is clearly the Han one.
+      const han = (s) => (s.match(/[㐀-鿿]/g) || []).length;
+      const latin = (s) => (s.match(/[A-Za-z]/g) || []).length;
+      if (han(english) > latin(english) && han(english) > han(chinese)) {
+        [english, chinese] = [chinese, english];
+      }
       res.setHeader("Cache-Control", "no-store");
-      return res.status(200).json({
-        english: String(out.english || "").trim(),
-        chinese: String(out.chinese || "").trim(),
-      });
+      return res.status(200).json({ english, chinese });
     }
 
     if (b.mode === "grade") {
