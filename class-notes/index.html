@@ -166,6 +166,12 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"談戀愛與理想對象", en:"Dating & the ideal partner", sub:"Conversation class — modern dating, looks vs character, and what matters in a partner.", w:[
+    ["談戀愛","tán liàn'ài","to date; be in a relationship"],["現代人","xiàndàirén","modern people; nowadays"],["相處","xiāngchǔ","to get along; spend time together"],["溝通","gōutōng","communication"],["談話","tánhuà","conversation"],["開放","kāifàng","open-minded; open"],["果斷","guǒduàn","decisive"],["善良","shànliáng","kind; good-hearted"],["孝順","xiàoshùn","filial; respectful to parents"],["外表","wàibiǎo","appearance; looks"],["裝扮","zhuāngbàn","to dress up; appearance"],["責任","zérèn","responsibility"],["負責","fùzé","to be responsible"],["照顧人的","zhàogù rén de","caring; one who looks after others"],["健康","jiànkāng","health; healthy"],["能量","néngliàng","energy"],["歡快","huānkuài","cheerful; joyful"],["戶外活動","hùwài huódòng","outdoor activities"],["健身房","jiànshēnfáng","gym"],["不一定","bù yídìng","not necessarily"],["一輩子","yíbèizi","a lifetime"],["直到","zhídào","until"],["詩","shī","poem; poetry"],["會講英文的人","huì jiǎng Yīngwén de rén","someone who speaks English"],["快樂的人","kuàilè de rén","a happy person"],["彌陀海邊","Mítuó hǎibiān","Mituo seaside"],
+  ]},
+  { zh:"生活、活動與計畫", en:"Life, activities & plans", sub:"Conversation review — daily routines, sports, a working holiday & future plans.", w:[
+    ["輪流","lúnliú","to take turns"],["輪","lún","turn; round (take turns)"],["換","huàn","to switch; swap"],["期許","qíxǔ","to have hopes / expectations of"],["系統","xìtǒng","system"],["日常生活","rìcháng shēnghuó","daily life"],["例行公事","lìxíng gōngshì","routine; daily routine"],["目前","mùqián","at present; currently"],["順利","shùnlì","smoothly; without a hitch"],["清楚","qīngchǔ","clear; clearly"],["工具","gōngjù","tool"],["家人","jiārén","family members"],["付房租","fù fángzū","to pay rent"],["明年","míngnián","next year"],["出社會","chū shèhuì","to enter the working world"],["還有其他的嗎?","hái yǒu qítā de ma?","Is there anything else?"],["會員制度","huìyuán zhìdù","membership system"],["拳擊","quánjí","boxing"],["浮潛","fúqián","snorkeling"],["出海","chūhǎi","to go out to sea"],["憋氣","biēqì","to hold one's breath"],["打工度假","dǎgōng dùjià","working holiday"],["萬聖節","Wànshèngjié","Halloween"],["手套","shǒutào","gloves"],["石頭","shítou","stone; rock"],["吹翻","chuīfān","to blow over / knock over (wind)"],["名古屋","Mínggǔwū","Nagoya (Japan)"],
+  ]},
   { zh:"行為與習慣", en:"Behavior & habits", sub:"Assorted vocab — spontaneity, habits & being considerate.", w:[
     ["隨性","suíxìng","spontaneous; easygoing"],["行為","xíngwéi","behavior"],["成癮","chéngyǐn","addictive; to get addicted"],["廉價","liánjià","cheap; low-cost"],["浪費","làngfèi","to waste"],["打擾","dǎrǎo","to disturb (sb)"],
   ]},
@@ -469,6 +475,10 @@ const STRUCT=[
   ]},
 ];
 const PAIRS=[
+  {a:["外表","wàibiǎo","appearance; looks"],b:["裝扮","zhuāngbàn","to dress up; one's get-up"],note:"約會: 外表 = how someone looks overall (born with); 裝扮 = how they dress/style themselves (a choice)."},
+  {a:["溝通","gōutōng","communication (two-way)"],b:["談話","tánhuà","a conversation / talk"],note:"約會: 溝通 = exchanging to reach understanding (溝通很重要); 談話 = the act of chatting/a talk."},
+  {a:["責任","zérèn","responsibility (noun)"],b:["負責","fùzé","to be responsible (verb)"],note:"約會: 責任 is the thing you carry (有責任感); 負責 is to take charge of it (負責照顧家人)."},
+  {a:["期許","qíxǔ","to have hopes/expectations of"],b:["期待","qídài","to look forward to"],note:"生活: 期許 = hopes you place on someone/yourself (對自己的期許); 期待 = eagerly await something coming."},
   {a:["隨性","suíxìng","spontaneous; easygoing"],b:["隨便","suíbiàn","whatever; careless"],note:"行為: 隨性 = relaxed, goes with the flow (positive); 隨便 = casual / can't be bothered (often negative)."},
   {a:["浪費","làngfèi","to waste"],b:["花費","huāfèi","to spend; expense"],note:"行為: 浪費 = use up pointlessly; 花費 = spend (money/time), neutral."},
   {a:["打擾","dǎrǎo","to disturb (sb)"],b:["打斷","dǎduàn","to interrupt / cut off"],note:"行為: 打擾 = bother/intrude on sb (不好意思打擾你); 打斷 = cut off a person or action mid-way."},
@@ -591,6 +601,8 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"談戀愛":3,"現代人":3,"相處":3,"溝通":3,"談話":3,"開放":3,"善良":3,"孝順":3,"外表":3,"責任":3,"負責":3,"健康":3,"能量":3,"歡快":3,"不一定":3,"一輩子":3,"直到":3,"果斷":2,"裝扮":2,"照顧人的":2,"戶外活動":2,"健身房":2,"會講英文的人":2,"快樂的人":2,"詩":2,"彌陀海邊":1,
+"輪流":3,"系統":3,"日常生活":3,"目前":3,"順利":3,"清楚":3,"工具":3,"家人":3,"付房租":3,"明年":3,"出社會":3,"還有其他的嗎?":3,"期許":2,"例行公事":2,"會員制度":2,"拳擊":2,"浮潛":2,"出海":2,"萬聖節":2,"手套":2,"石頭":2,"輪":2,"吹翻":1,"名古屋":1,
 "行為":3,"浪費":3,"打擾":3,"隨性":2,"成癮":2,
 "本來":3,"結果":3,"只好":3,"只是":3,"其實":3,"值得":3,"看情況":3,"興趣":3,"熱鬧":3,"害羞":3,"約":3,"懶惰":3,"介意":3,"日常":3,"算了":3,"路過":3,"待":3,"半天":3,"連續假期":3,"國定假日":2,"公路旅行":2,"社團":2,"體驗":3,"大家庭":2,"淡季":2,"旺季":2,"廉價":2,"縣市":2,"縣":2,"蛋餅":2,"東北季風":1,"浪":2,
 "音樂":3,"心情":3,"影響":3,"分享":3,"專心":3,"分心":3,"變":3,"換":3,"難過":3,"確實":3,"複雜":3,"解釋":3,"適合":3,"期待":3,"主動":3,"被動":3,"描述":3,"類型":3,"風格":3,"耳機":3,"戴":3,"重複":3,"外向":3,"吵":3,"接下來":3,"免費":3,"付費":3,"廣告":3,"會員":3,"平台":3,"動力":3,"流行音樂":2,"電子樂":2,"搖滾":2,"動漫":2,"冥想":2,"有聲書":2,"歌單":2,"額外":2,"喇叭":2,"放歌":2,"樂團":2,"符合":3,"品味":2,"喜好":2,"抓到":2,"畫面":2,"喜劇":2,"某一":2,"想不起來":3,"說明":2,"深蹲":1,"首":2,
@@ -627,6 +639,8 @@ function ctlHTML(zh){
 function fillControls(){document.querySelectorAll('#vocab .wctl').forEach(c=>{c.innerHTML=ctlHTML(c.dataset.zh);});}
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span><span class="wctl" data-zh="${w[0]}">${ctlHTML(w[0])}</span></div>`;}
 const CLASSMAP={
+"談戀愛與理想對象":"c1103",
+"生活、活動與計畫":"c1102",
 "行為與習慣":"c1030",
 "旅行、假期與人際":"c1028",
 "音樂與平台":"c1022","描述、感受與選擇":"c1022",
@@ -655,6 +669,8 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c1103",date:"2026-11-03",t:"談戀愛與理想對象",en:"Dating & the ideal partner"},
+ {id:"c1102",date:"2026-11-02",t:"生活、活動與計畫",en:"Life, activities & plans"},
  {id:"c1030",date:"2026-10-30",t:"行為與習慣",en:"Behavior & habits"},
  {id:"c1028",date:"2026-10-28",t:"旅行、假期與人際",en:"Travel, holidays & relationships"},
  {id:"c1022",date:"2026-10-22",t:"音樂與聆聽習慣",en:"Music & listening habits"},
