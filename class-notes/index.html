@@ -166,6 +166,12 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"社群、娛樂與生活", en:"Social media, entertainment & life", sub:"Conversation class — apps & memes, politics, performers, dating & daily life.", w:[
+    ["通知","tōngzhī","notification; to notify"],["評價","píngjià","review; rating"],["照片","zhàopiàn","photo"],["照騙","zhàopiàn","\"photo-lie\" — a deceptively flattering photo"],["迷因","míyīn","meme"],["抖音","Dǒuyīn","Douyin / TikTok"],["生活模式","shēnghuó móshì","lifestyle; way of living"],["政治","zhèngzhì","politics"],["選舉","xuǎnjǔ","election"],["遠距離戀愛","yuǎn jùlí liàn'ài","long-distance relationship"],["底線","dǐxiàn","bottom line; limit"],["遇過","yùguo","to have met / encountered before"],["怪","guài","weird; strange"],["調酒","tiáojiǔ","cocktail; to mix drinks"],["雞尾酒","jīwěijiǔ","cocktail"],["表演者","biǎoyǎnzhě","performer"],["喜劇人","xǐjùrén","comedian"],["廚師","chúshī","cook; chef"],["程式","chéngshì","program (software)"],["辦公室","bàngōngshì","office"],["睡衣","shuìyī","pajamas"],["末班車","mòbānchē","last train / bus"],["提前","tíqián","to bring forward; ahead of time"],["前陣子","qián zhènzi","a while back; recently"],["又","yòu","again"],["偷","tōu","to steal"],["好看很多","hǎokàn hěnduō","much better-looking"],
+  ]},
+  { zh:"未來與理想生活", en:"The future & your ideal life", sub:"Conversation class — where you'll be in ten years, career vs balance, fears & advice.", w:[
+    ["宜居","yíjū","livable; pleasant to live in"],["州","zhōu","state (e.g. a US state)"],["環島","huándǎo","to travel around the island (Taiwan)"],["培養","péiyǎng","to cultivate; develop"],["技能","jìnéng","skill"],["能力","nénglì","ability"],["領域","lǐngyù","field; domain"],["如何","rúhé","how (formal)"],["躺","tǎng","to lie down"],["一整天","yì zhěng tiān","the whole day"],["探索","tànsuǒ","to explore"],["隨意","suíyì","as one pleases; casual"],["自律","zìlǜ","self-discipline; self-disciplined"],["擁有","yōngyǒu","to possess; own"],["事業","shìyè","career"],["平衡","pínghéng","balance; balanced"],["代表","dàibiǎo","to represent; stand for"],["自由","zìyóu","freedom; free"],["特質","tèzhì","trait; quality"],["攝影","shèyǐng","photography"],["發現","fāxiàn","to discover; find"],["擔心","dānxīn","to worry"],["掌握","zhǎngwò","to grasp; have control of"],["控制","kòngzhì","to control"],["建議","jiànyì","advice; suggestion"],["聰明","cōngmíng","smart; clever"],["投資","tóuzī","to invest; investment"],["注意","zhùyì","to pay attention; be careful"],["實現","shíxiàn","to realize; achieve"],["認真","rènzhēn","serious; earnest"],["賺錢","zhuànqián","to earn money"],["建立","jiànlì","to establish; build"],["家庭","jiātíng","family; household"],["太太","tàitai","wife"],["重病","zhòngbìng","a serious illness"],["戰爭","zhànzhēng","war"],["世界末日","shìjiè mòrì","the end of the world; apocalypse"],
+  ]},
   { zh:"談戀愛與理想對象", en:"Dating & the ideal partner", sub:"Conversation class — modern dating, looks vs character, and what matters in a partner.", w:[
     ["談戀愛","tán liàn'ài","to date; be in a relationship"],["現代人","xiàndàirén","modern people; nowadays"],["相處","xiāngchǔ","to get along; spend time together"],["溝通","gōutōng","communication"],["談話","tánhuà","conversation"],["開放","kāifàng","open-minded; open"],["果斷","guǒduàn","decisive"],["善良","shànliáng","kind; good-hearted"],["孝順","xiàoshùn","filial; respectful to parents"],["外表","wàibiǎo","appearance; looks"],["裝扮","zhuāngbàn","to dress up; appearance"],["責任","zérèn","responsibility"],["負責","fùzé","to be responsible"],["照顧人的","zhàogù rén de","caring; one who looks after others"],["健康","jiànkāng","health; healthy"],["能量","néngliàng","energy"],["歡快","huānkuài","cheerful; joyful"],["戶外活動","hùwài huódòng","outdoor activities"],["健身房","jiànshēnfáng","gym"],["不一定","bù yídìng","not necessarily"],["一輩子","yíbèizi","a lifetime"],["直到","zhídào","until"],["詩","shī","poem; poetry"],["會講英文的人","huì jiǎng Yīngwén de rén","someone who speaks English"],["快樂的人","kuàilè de rén","a happy person"],["彌陀海邊","Mítuó hǎibiān","Mituo seaside"],
   ]},
@@ -324,6 +330,13 @@ const VOCAB=[
   ]},
 ];
 const STRUCT=[
+  { zh:"未來與理想 句型 (十年後)", items:[
+    {p:'<b>為了</b> + 目標 ，（我）… ', g:"in order to (goal), … — the purpose comes first", ex:['<b>為了</b>實現理想的生活，我應該開始運動、認真賺錢']},
+    {p:'你比較希望 … <b>還是</b> … ？', g:"would you rather … or …? (choosing between two)", ex:['你比較希望成功的事業，<b>還是</b>平衡的生活？']},
+    {p:'A <b>代表</b> B', g:"A means / stands for B", ex:['成功的事業<b>代表</b>有足夠的錢和自由的時間']},
+    {p:'<b>不確定</b> … 會不會 …', g:"not sure whether … will happen", ex:['我<b>不確定</b>十年後會不會繼續做這份工作']},
+    {p:'<b>希望</b> + 十年後 + … ', g:"I hope that, ten years from now, …", ex:['我<b>希望</b>十年後還是很自律、有健康的生活']},
+  ]},
   { zh:"本課句型 This class (旅行與社交)", items:[
     {p:'<b>本來</b> 想 … ，<b>可是</b> …', g:"originally planned to, but … (plan didn't work out)", ex:['我<b>本來</b>想找一家新的早餐店，<b>可是</b>沒找到']},
     {p:'… ，<b>只好</b> …', g:"had no choice but to …", ex:['店裡人太多，我們<b>只好</b>先坐在外面等']},
@@ -475,6 +488,11 @@ const STRUCT=[
   ]},
 ];
 const PAIRS=[
+  {a:["照片","zhàopiàn","a photo"],b:["照騙","zhàopiàn","a flattering/fake photo"],note:"社群: identical sound! 照片 = a real photo; 照騙 (騙 = to deceive) = a photo that looks much better than reality — a TW pun."},
+  {a:["調酒","tiáojiǔ","mixed drink / to bartend"],b:["雞尾酒","jīwěijiǔ","cocktail"],note:"娛樂: 調酒 = the act/craft of mixing drinks or the drink itself; 雞尾酒 = specifically a cocktail."},
+  {a:["掌握","zhǎngwò","to grasp / have control of"],b:["控制","kòngzhì","to control"],note:"未來: 掌握 = have a firm handle on (掌握技能/情況), usually positive; 控制 = control/restrain (控制情緒), can feel forceful."},
+  {a:["技能","jìnéng","a skill (learned)"],b:["能力","nénglì","ability / capacity"],note:"未來: 技能 = a concrete trainable skill (程式技能); 能力 = overall ability you have (溝通能力)."},
+  {a:["事業","shìyè","career / undertaking"],b:["工作","gōngzuò","job / work"],note:"未來: 事業 = a lifelong career or venture (成功的事業); 工作 = a specific job or the work itself."},
   {a:["外表","wàibiǎo","appearance; looks"],b:["裝扮","zhuāngbàn","to dress up; one's get-up"],note:"約會: 外表 = how someone looks overall (born with); 裝扮 = how they dress/style themselves (a choice)."},
   {a:["溝通","gōutōng","communication (two-way)"],b:["談話","tánhuà","a conversation / talk"],note:"約會: 溝通 = exchanging to reach understanding (溝通很重要); 談話 = the act of chatting/a talk."},
   {a:["責任","zérèn","responsibility (noun)"],b:["負責","fùzé","to be responsible (verb)"],note:"約會: 責任 is the thing you carry (有責任感); 負責 is to take charge of it (負責照顧家人)."},
@@ -601,6 +619,8 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"通知":3,"評價":3,"照片":3,"迷因":3,"抖音":3,"政治":3,"選舉":3,"底線":3,"怪":3,"提前":3,"前陣子":3,"又":3,"偷":3,"辦公室":3,"睡衣":3,"廚師":3,"程式":3,"生活模式":2,"遠距離戀愛":2,"照騙":2,"調酒":2,"雞尾酒":2,"表演者":2,"喜劇人":2,"末班車":2,"遇過":2,"好看很多":2,
+"培養":3,"技能":3,"能力":3,"領域":3,"如何":3,"探索":3,"自律":3,"擁有":3,"事業":3,"平衡":3,"代表":3,"自由":3,"發現":3,"擔心":3,"掌握":3,"控制":3,"建議":3,"聰明":3,"投資":3,"注意":3,"實現":3,"認真":3,"賺錢":3,"建立":3,"家庭":3,"太太":3,"躺":3,"一整天":3,"隨意":2,"特質":3,"攝影":2,"宜居":2,"州":2,"環島":2,"重病":2,"戰爭":2,"世界末日":2,
 "談戀愛":3,"現代人":3,"相處":3,"溝通":3,"談話":3,"開放":3,"善良":3,"孝順":3,"外表":3,"責任":3,"負責":3,"健康":3,"能量":3,"歡快":3,"不一定":3,"一輩子":3,"直到":3,"果斷":2,"裝扮":2,"照顧人的":2,"戶外活動":2,"健身房":2,"會講英文的人":2,"快樂的人":2,"詩":2,"彌陀海邊":1,
 "輪流":3,"系統":3,"日常生活":3,"目前":3,"順利":3,"清楚":3,"工具":3,"家人":3,"付房租":3,"明年":3,"出社會":3,"還有其他的嗎?":3,"期許":2,"例行公事":2,"會員制度":2,"拳擊":2,"浮潛":2,"出海":2,"萬聖節":2,"手套":2,"石頭":2,"輪":2,"吹翻":1,"名古屋":1,
 "行為":3,"浪費":3,"打擾":3,"隨性":2,"成癮":2,
@@ -639,6 +659,8 @@ function ctlHTML(zh){
 function fillControls(){document.querySelectorAll('#vocab .wctl').forEach(c=>{c.innerHTML=ctlHTML(c.dataset.zh);});}
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span><span class="wctl" data-zh="${w[0]}">${ctlHTML(w[0])}</span></div>`;}
 const CLASSMAP={
+"社群、娛樂與生活":"c1108",
+"未來與理想生活":"c1104",
 "談戀愛與理想對象":"c1103",
 "生活、活動與計畫":"c1102",
 "行為與習慣":"c1030",
@@ -669,6 +691,8 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c1108",date:"2026-11-08",t:"社群、娛樂與生活",en:"Social media, entertainment & life"},
+ {id:"c1104",date:"2026-11-04",t:"未來與理想生活",en:"The future & your ideal life"},
  {id:"c1103",date:"2026-11-03",t:"談戀愛與理想對象",en:"Dating & the ideal partner"},
  {id:"c1102",date:"2026-11-02",t:"生活、活動與計畫",en:"Life, activities & plans"},
  {id:"c1030",date:"2026-10-30",t:"行為與習慣",en:"Behavior & habits"},
