@@ -46,6 +46,14 @@
       .row .t { font-size: 20px; font-weight: 600; flex: 0 0 auto; min-width: 3.4em; }
       .row .py { color: #93b3f0; font-size: 14px; flex: 0 0 auto; min-width: 7em; }
       .row .m { color: #a7adb5; font-size: 13px; flex: 1 1 auto; min-width: 0; }
+      .row .wctl { flex: 0 0 auto; display: flex; gap: 6px; align-items: center; }
+      .row .wctl button { border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; border: 1px solid #3a3a40; background: #2c2c30; color: #cbd0d6; }
+      .row .wctl button.add:hover { background: #17402a; border-color: #2f7d4f; color: #bfead0; }
+      .row .wctl button.skip:hover { background: #3a2a1a; border-color: #6b4a2a; color: #e0c7a7; }
+      .row .wctl .st { font-size: 12px; white-space: nowrap; color: #7c828a; }
+      .row .wctl .st.active { color: #7ee2a5; }
+      .row .wctl .st.queued { color: #93b3f0; }
+      .row .wctl .st.skip { color: #d1a54a; }
       .empty { color: #666; font-size: 14px; padding: 8px 2px; }
       [hidden] { display: none !important; }
     </style>
@@ -71,6 +79,48 @@
 
     <script>
       const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+      // Live word status from the Anki mirror + pending queues, so each glossary
+      // row can offer Add (enable/ingest) or Skip (set aside). Loaded once on init.
+      const STAT = { cards: {}, preply: {}, wants: {}, skipped: new Set() };
+      let qd = new Set(); // locally-remembered new-word adds (persist "queued" across reloads)
+      try { qd = new Set(JSON.parse(localStorage.getItem("rd-queued") || "[]")); } catch (e) {}
+      const saveQd = () => { try { localStorage.setItem("rd-queued", JSON.stringify([...qd])); } catch (e) {} };
+
+      async function loadStat() {
+        try { const d = await fetch("/api/cards", { cache: "no-store" }).then((r) => r.json()); STAT.cards = d.cards || {}; STAT.preply = d.preply || {}; } catch (e) {}
+        try { STAT.wants = (await fetch("/api/want", { cache: "no-store" }).then((r) => r.json())).wants || {}; } catch (e) {}
+        try { STAT.skipped = new Set((await fetch("/api/skip", { cache: "no-store" }).then((r) => r.json())).skipped || []); } catch (e) {}
+      }
+      function wordState(zh) {
+        const m = STAT.cards[zh], p = STAT.preply[zh];
+        if (STAT.wants[zh] === "unsuspend" || qd.has(zh)) return "queued";   // Add queued
+        if (STAT.wants[zh] === "suspend" || STAT.skipped.has(zh)) return "skipped";
+        if ((m && m.s === false) || (p && p.s === false)) return "active";   // already studying
+        if ((m && m.s === true) || (p && p.s === true)) return "susp";       // in a deck, suspended
+        return "new";                                                        // not in either deck
+      }
+      function ctlHTML(zh) {
+        const s = wordState(zh);
+        if (s === "active") return '<span class="st active">✓ active</span>';
+        if (s === "queued") return '<span class="st queued">✓ queued</span>';
+        if (s === "skipped") return '<span class="st skip">skip queued</span>';
+        return '<button class="add" data-act="add">＋ Add</button><button class="skip" data-act="skip">Skip</button>';
+      }
+      async function onWordCtl(e) {
+        const btn = e.target.closest("button[data-act]"); if (!btn) return;
+        const row = btn.closest(".row"); if (!row) return;
+        const zh = row.dataset.zh, act = btn.dataset.act, state = wordState(zh);
+        const post = (url, body) => fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (act === "add") {
+          if (state === "susp") { STAT.wants[zh] = "unsuspend"; post("/api/want", { word: zh, action: "unsuspend" }); }
+          else { qd.add(zh); saveQd(); post("/api/ingest", { words: [{ t: zh, g: row.dataset.g || "" }] }); }
+        } else { // skip
+          if (state === "susp" || state === "active") { STAT.wants[zh] = "suspend"; post("/api/want", { word: zh, action: "suspend" }); }
+          else { STAT.skipped.add(zh); post("/api/skip", { word: zh }); }
+        }
+        row.querySelector(".wctl").innerHTML = ctlHTML(zh);
+      }
 
       function highlight(zh, words) {
         let out = esc(zh);
@@ -135,7 +185,9 @@
           document.getElementById("wc").textContent = words.length;
           words.forEach((w) => {
             const r = document.createElement("div"); r.className = "row";
-            r.innerHTML = '<span class="t">' + esc(w.t) + '</span><span class="py">' + esc(w.py || "") + '</span><span class="m">' + esc(w.m || "") + "</span>";
+            r.dataset.zh = w.t; r.dataset.g = ((w.py ? w.py + " " : "") + (w.m || "")).trim();
+            r.innerHTML = '<span class="t">' + esc(w.t) + '</span><span class="py">' + esc(w.py || "") + '</span><span class="m">' + esc(w.m || "") +
+              '</span><span class="wctl">' + ctlHTML(w.t) + "</span>";
             box.appendChild(r);
           });
           const chev = document.getElementById("chev"), label = document.getElementById("wordlabel");
@@ -154,8 +206,15 @@
       }
 
       (async function init() {
+        document.getElementById("words").addEventListener("click", onWordCtl);
         let items;
-        try { items = (await fetch("/api/reading?list=1", { cache: "no-store" }).then((r) => r.json())).items || []; }
+        try {
+          const [list] = await Promise.all([
+            fetch("/api/reading?list=1", { cache: "no-store" }).then((r) => r.json()),
+            loadStat(),
+          ]);
+          items = list.items || [];
+        }
         catch (e) { document.getElementById("content").innerHTML = '<p class="empty">Could not load the reading.</p>'; return; }
         if (!items.length) { renderDoc(null); return; }
 
