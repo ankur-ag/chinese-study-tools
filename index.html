@@ -81,6 +81,8 @@
       .lvrow .num { flex: 0 0 auto; font-size: 12px; color: var(--muted); min-width: 7.5em; text-align: right; }
       .lvrow .num b { color: var(--accent); font-weight: 700; }
       .chart .empty { color: #666; font-size: 13px; }
+      .chart .preh { margin-top: 26px; border-top: 1px solid var(--line); padding-top: 18px; }
+      #pre-rows .lvrow .lbl { width: auto; min-width: 3.4em; }
 
       footer { margin-top: 30px; color: #666; font-size: 13px; }
     </style>
@@ -134,6 +136,15 @@
         </div>
         <p class="csub">Unsuspended words per level, L0–L5 (from the Anki mirror).</p>
         <div id="chart-rows"><span class="empty">Loading…</span></div>
+
+        <div id="pre-sec" hidden>
+          <div class="chead preh">
+            <h2>Preply progress</h2>
+            <p class="total" id="pre-total"></p>
+          </div>
+          <p class="csub">Active cards out of all the Preply words you've collected, by usefulness.</p>
+          <div id="pre-rows"></div>
+        </div>
       </section>
 
       <footer>Built with Anki + a few gists. More tools coming.</footer>
@@ -196,6 +207,43 @@
           row.querySelector(".tot").style.width = (tot[L] / max) * 100 + "%";
           row.querySelector(".act").style.width = (act[L] / max) * 100 + "%";
           rows.appendChild(row);
+        }
+
+        // Preply progress — the separate Preply deck, grouped by usefulness score
+        // (★ high 8–10 · mid 5–7 · low ≤4). Active = unsuspended.
+        const preply = d.preply || {};
+        const pwords = Object.keys(preply);
+        if (pwords.length) {
+          document.getElementById("pre-sec").hidden = false;
+          const tiers = [
+            { lbl: "★ 8–10", test: (s) => s >= 8 },
+            { lbl: "5–7", test: (s) => s >= 5 && s <= 7 },
+            { lbl: "≤ 4", test: (s) => !(s >= 5) },
+          ];
+          const pt = [0, 0, 0], pa = [0, 0, 0];
+          let pActive = 0;
+          for (const w of pwords) {
+            const c = preply[w], s = +c.score || 0;
+            if (!c.s) pActive++;
+            const i = tiers.findIndex((t) => t.test(s));
+            if (i >= 0) { pt[i]++; if (!c.s) pa[i]++; }
+          }
+          document.getElementById("pre-total").innerHTML =
+            pActive.toLocaleString() + ' <span>active of ' + pwords.length.toLocaleString() + " collected</span>";
+          const pmax = Math.max(1, ...pt);
+          const prows = document.getElementById("pre-rows");
+          prows.innerHTML = "";
+          tiers.forEach((t, i) => {
+            const row = document.createElement("div");
+            row.className = "lvrow";
+            row.innerHTML =
+              '<span class="lbl">' + t.lbl + "</span>" +
+              '<div class="track"><div class="tot"></div><div class="act"></div></div>' +
+              '<span class="num"><b>' + pa[i] + "</b> / " + pt[i] + "</span>";
+            row.querySelector(".tot").style.width = (pt[i] / pmax) * 100 + "%";
+            row.querySelector(".act").style.width = (pa[i] / pmax) * 100 + "%";
+            prows.appendChild(row);
+          });
         }
       })();
     </script>
