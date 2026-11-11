@@ -166,6 +166,9 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"個性與台灣人情味", en:"Personality & Taiwan's human touch", sub:"Conversation class — character types, direct vs. polite culture, and keeping friendships.", w:[
+    ["個性","gèxìng","personality; character"],["人情味","rénqíngwèi","human warmth; the human touch"],["直來直往","zhíláizhíwǎng","straightforward; says it like it is"],["客套","kètào","polite formalities; to stand on ceremony"],["界線感","jièxiàngǎn","a sense of boundaries"],["欠人情","qiàn rénqíng","to owe sb a favor"],["慢熟","mànshóu","slow to warm up to people"],["冷淡","lěngdàn","cold; indifferent"],["彈性","tánxìng","flexibility; flexible"],["尤其","yóuqí","especially"],["相較之下","xiāngjiào zhīxià","by comparison"],["相較","xiāngjiào","compared with"],["效率","xiàolǜ","efficiency"],["流程","liúchéng","process; procedure"],["群組","qúnzǔ","(chat) group"],["原因","yuányīn","reason; cause"],["來往","láiwǎng","dealings; to associate with"],["常見","chángjiàn","common; commonly seen"],["忽略","hūlüè","to ignore; overlook"],["不理","bùlǐ","to ignore (sb)"],["和好","héhǎo","to make up; reconcile"],["修復","xiūfù","to repair; restore (a bond)"],["維持","wéichí","to maintain; keep up"],["分手","fēnshǒu","to break up"],["申請","shēnqǐng","to apply (for)"],["居留證","jūliúzhèng","residence permit"],["護照","hùzhào","passport"],["情形","qíngxíng","situation; circumstances"],["半年","bànnián","half a year"],["秀","xiù","to show (colloquial)"],
+  ]},
   { zh:"社群、娛樂與生活", en:"Social media, entertainment & life", sub:"Conversation class — apps & memes, politics, performers, dating & daily life.", w:[
     ["通知","tōngzhī","notification; to notify"],["評價","píngjià","review; rating"],["照片","zhàopiàn","photo"],["照騙","zhàopiàn","\"photo-lie\" — a deceptively flattering photo"],["迷因","míyīn","meme"],["抖音","Dǒuyīn","Douyin / TikTok"],["生活模式","shēnghuó móshì","lifestyle; way of living"],["政治","zhèngzhì","politics"],["選舉","xuǎnjǔ","election"],["遠距離戀愛","yuǎn jùlí liàn'ài","long-distance relationship"],["底線","dǐxiàn","bottom line; limit"],["遇過","yùguo","to have met / encountered before"],["怪","guài","weird; strange"],["調酒","tiáojiǔ","cocktail; to mix drinks"],["雞尾酒","jīwěijiǔ","cocktail"],["表演者","biǎoyǎnzhě","performer"],["喜劇人","xǐjùrén","comedian"],["廚師","chúshī","cook; chef"],["程式","chéngshì","program (software)"],["辦公室","bàngōngshì","office"],["睡衣","shuìyī","pajamas"],["末班車","mòbānchē","last train / bus"],["提前","tíqián","to bring forward; ahead of time"],["前陣子","qián zhènzi","a while back; recently"],["又","yòu","again"],["偷","tōu","to steal"],["好看很多","hǎokàn hěnduō","much better-looking"],
   ]},
@@ -330,6 +333,12 @@ const VOCAB=[
   ]},
 ];
 const STRUCT=[
+  { zh:"個性與溝通 句型 (人情味)", items:[
+    {p:'<b>相較</b> A ，B <b>比較</b> … ／ <b>相較之下</b> …', g:"compared with A, B is more … ; by comparison …", ex:['<b>相較</b>台灣，印度<b>比較</b>直接','<b>相較之下</b>，美國的溝通比較有效率']},
+    {p:'<b>尤其</b>（是）…', g:"especially / particularly", ex:['我喜歡台灣，<b>尤其</b>是這裡的人情味']},
+    {p:'我會 <b>直接</b> 跟他們說', g:"word order — 直接 sits before the verb (not 直接的說)", ex:['有問題我會<b>直接</b>跟他們說']},
+    {p:'A <b>＝</b> B （老師的等號）', g:"teacher's '=' shorthand: a more natural way to say the same thing", ex:['忽略我 <b>＝</b> 不理我','直來直往 <b>＝</b> 直接']},
+  ]},
   { zh:"未來與理想 句型 (十年後)", items:[
     {p:'<b>為了</b> + 目標 ，（我）… ', g:"in order to (goal), … — the purpose comes first", ex:['<b>為了</b>實現理想的生活，我應該開始運動、認真賺錢']},
     {p:'你比較希望 … <b>還是</b> … ？', g:"would you rather … or …? (choosing between two)", ex:['你比較希望成功的事業，<b>還是</b>平衡的生活？']},
@@ -488,6 +497,10 @@ const STRUCT=[
   ]},
 ];
 const PAIRS=[
+  {a:["直來直往","zhíláizhíwǎng","blunt / straightforward"],b:["客套","kètào","polite formalities"],note:"個性: 直來直往 = says things straight, no pretense; 客套 = standing on ceremony, polite but distant."},
+  {a:["情形","qíngxíng","situation; circumstances"],b:["情況","qíngkuàng","situation; condition"],note:"個性: near-identical. 情況 is the everyday word; 情形 a touch more formal/written. Mostly interchangeable."},
+  {a:["來往","láiwǎng","dealings; to associate with"],b:["來回","láihuí","back and forth; round trip"],note:"個性: 來往 = social contact between people (跟他有來往); 來回 = going there and back (來回機票)."},
+  {a:["忽略","hūlüè","to overlook (unintentionally)"],b:["不理","bùlǐ","to ignore (on purpose)"],note:"個性: 忽略 = miss/neglect without meaning to; 不理 = deliberately not respond to sb."},
   {a:["照片","zhàopiàn","a photo"],b:["照騙","zhàopiàn","a flattering/fake photo"],note:"社群: identical sound! 照片 = a real photo; 照騙 (騙 = to deceive) = a photo that looks much better than reality — a TW pun."},
   {a:["調酒","tiáojiǔ","mixed drink / to bartend"],b:["雞尾酒","jīwěijiǔ","cocktail"],note:"娛樂: 調酒 = the act/craft of mixing drinks or the drink itself; 雞尾酒 = specifically a cocktail."},
   {a:["掌握","zhǎngwò","to grasp / have control of"],b:["控制","kòngzhì","to control"],note:"未來: 掌握 = have a firm handle on (掌握技能/情況), usually positive; 控制 = control/restrain (控制情緒), can feel forceful."},
@@ -619,6 +632,7 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"個性":3,"人情味":3,"效率":3,"原因":3,"尤其":3,"常見":3,"忽略":3,"維持":3,"分手":3,"申請":3,"護照":3,"情形":3,"半年":3,"冷淡":3,"直來直往":3,"相較之下":3,"相較":3,"群組":3,"流程":3,"來往":3,"和好":3,"修復":3,"彈性":3,"不理":3,"客套":2,"界線感":2,"欠人情":2,"慢熟":2,"居留證":2,"秀":2,
 "通知":3,"評價":3,"照片":3,"迷因":3,"抖音":3,"政治":3,"選舉":3,"底線":3,"怪":3,"提前":3,"前陣子":3,"又":3,"偷":3,"辦公室":3,"睡衣":3,"廚師":3,"程式":3,"生活模式":2,"遠距離戀愛":2,"照騙":2,"調酒":2,"雞尾酒":2,"表演者":2,"喜劇人":2,"末班車":2,"遇過":2,"好看很多":2,
 "培養":3,"技能":3,"能力":3,"領域":3,"如何":3,"探索":3,"自律":3,"擁有":3,"事業":3,"平衡":3,"代表":3,"自由":3,"發現":3,"擔心":3,"掌握":3,"控制":3,"建議":3,"聰明":3,"投資":3,"注意":3,"實現":3,"認真":3,"賺錢":3,"建立":3,"家庭":3,"太太":3,"躺":3,"一整天":3,"隨意":2,"特質":3,"攝影":2,"宜居":2,"州":2,"環島":2,"重病":2,"戰爭":2,"世界末日":2,
 "談戀愛":3,"現代人":3,"相處":3,"溝通":3,"談話":3,"開放":3,"善良":3,"孝順":3,"外表":3,"責任":3,"負責":3,"健康":3,"能量":3,"歡快":3,"不一定":3,"一輩子":3,"直到":3,"果斷":2,"裝扮":2,"照顧人的":2,"戶外活動":2,"健身房":2,"會講英文的人":2,"快樂的人":2,"詩":2,"彌陀海邊":1,
@@ -659,6 +673,7 @@ function ctlHTML(zh){
 function fillControls(){document.querySelectorAll('#vocab .wctl').forEach(c=>{c.innerHTML=ctlHTML(c.dataset.zh);});}
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span><span class="wctl" data-zh="${w[0]}">${ctlHTML(w[0])}</span></div>`;}
 const CLASSMAP={
+"個性與台灣人情味":"c1110",
 "社群、娛樂與生活":"c1108",
 "未來與理想生活":"c1104",
 "談戀愛與理想對象":"c1103",
@@ -691,6 +706,7 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c1110",date:"2026-11-10",t:"個性與台灣人情味",en:"Personality & Taiwan's human touch"},
  {id:"c1108",date:"2026-11-08",t:"社群、娛樂與生活",en:"Social media, entertainment & life"},
  {id:"c1104",date:"2026-11-04",t:"未來與理想生活",en:"The future & your ideal life"},
  {id:"c1103",date:"2026-11-03",t:"談戀愛與理想對象",en:"Dating & the ideal partner"},
