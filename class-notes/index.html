@@ -166,6 +166,12 @@ const NEWWORDS={ zh:"新字（依實用度）", en:"Newest words — most useful
 ]};
 const VOCAB=[
   NEWWORDS,
+  { zh:"股票、時事與對話", en:"Stocks, news & conversation", sub:"Conversation class — markets, current events, messaging & making choices.", w:[
+    ["股票","gǔpiào","stock; shares"],["漲","zhǎng","to rise (in price)"],["跌","diē","to drop / fall (in price)"],["跌倒","diēdǎo","to fall over; trip"],["後果","hòuguǒ","consequence"],["理由","lǐyóu","reason; justification"],["人選","rénxuǎn","candidate; the person picked"],["間諜","jiàndié","spy"],["語音訊息","yǔyīn xùnxí","voice message"],["視訊","shìxùn","video call; FaceTime"],["打工度假","dǎgōng dùjià","working holiday"],
+  ]},
+  { zh:"作息、行程與安排", en:"Routine, schedule & plans", sub:"Conversation review — mornings, homework, year-end gatherings & itineraries.", w:[
+    ["起床","qǐchuáng","to get up"],["早起","zǎoqǐ","to get up early"],["醒來","xǐnglái","to wake up"],["賴床","làichuáng","to stay in bed; sleep in"],["晚到","wǎndào","to arrive late"],["聚餐","jùcān","a group meal; dinner gathering"],["安排","ānpái","to arrange; schedule"],["行程","xíngchéng","itinerary"],["佈置","bùzhì","to decorate / set up (a space)"],["年末","niánmò","year-end"],["必須","bìxū","must; have to"],["必需品","bìxūpǐn","necessities; essentials"],["瘋子","fēngzi","madman; a crazy person"],["瘋狂","fēngkuáng","crazy; wild"],["颱風","táifēng","typhoon"],["西邊","xībiān","the west side"],["西部","xībù","the west (region)"],["先去","xiān qù","to go first"],["回家作業","huíjiā zuòyè","homework (to do at home)"],["作業","zuòyè","homework"],["這次","zhècì","this time"],["行為","xíngwéi","behavior"],["生病","shēngbìng","to fall ill"],
+  ]},
   { zh:"個性與台灣人情味", en:"Personality & Taiwan's human touch", sub:"Conversation class — character types, direct vs. polite culture, and keeping friendships.", w:[
     ["個性","gèxìng","personality; character"],["人情味","rénqíngwèi","human warmth; the human touch"],["直來直往","zhíláizhíwǎng","straightforward; says it like it is"],["客套","kètào","polite formalities; to stand on ceremony"],["界線感","jièxiàngǎn","a sense of boundaries"],["欠人情","qiàn rénqíng","to owe sb a favor"],["慢熟","mànshóu","slow to warm up to people"],["冷淡","lěngdàn","cold; indifferent"],["彈性","tánxìng","flexibility; flexible"],["尤其","yóuqí","especially"],["相較之下","xiāngjiào zhīxià","by comparison"],["相較","xiāngjiào","compared with"],["效率","xiàolǜ","efficiency"],["流程","liúchéng","process; procedure"],["群組","qúnzǔ","(chat) group"],["原因","yuányīn","reason; cause"],["來往","láiwǎng","dealings; to associate with"],["常見","chángjiàn","common; commonly seen"],["忽略","hūlüè","to ignore; overlook"],["不理","bùlǐ","to ignore (sb)"],["和好","héhǎo","to make up; reconcile"],["修復","xiūfù","to repair; restore (a bond)"],["維持","wéichí","to maintain; keep up"],["分手","fēnshǒu","to break up"],["申請","shēnqǐng","to apply (for)"],["居留證","jūliúzhèng","residence permit"],["護照","hùzhào","passport"],["情形","qíngxíng","situation; circumstances"],["半年","bànnián","half a year"],["秀","xiù","to show (colloquial)"],
   ]},
@@ -497,6 +503,13 @@ const STRUCT=[
   ]},
 ];
 const PAIRS=[
+  {a:["漲","zhǎng","to rise (in price)"],b:["跌","diē","to fall (in price)"],note:"股票: 漲 = price goes up (股票漲了); 跌 = price goes down (股票跌了)."},
+  {a:["理由","lǐyóu","reason / justification"],b:["原因","yuányīn","cause / reason"],note:"時事: 理由 = the reason you give to justify sth (他的理由是…); 原因 = the underlying cause (塞車的原因)."},
+  {a:["跌","diē","to drop (price / value)"],b:["跌倒","diēdǎo","to fall over (a person)"],note:"股票: 跌 = a value falls; 跌倒 = a person trips and falls — same 跌, different use."},
+  {a:["早起","zǎoqǐ","to get up early"],b:["賴床","làichuáng","to stay in bed / sleep in"],note:"作息: opposites — 早起 = rise early; 賴床 = linger in bed instead of getting up."},
+  {a:["必須","bìxū","must (do sth)"],b:["必需品","bìxūpǐn","necessities (things)"],note:"作息: 必須 is a verb — must do (必須早起); 必需品 is a noun — essential items (生活必需品)."},
+  {a:["西邊","xībiān","the west side"],b:["西部","xībù","the west (region)"],note:"作息: 西邊 = the western side/direction; 西部 = the western part of a country (台灣西部)."},
+  {a:["瘋子","fēngzi","a madman (noun)"],b:["瘋狂","fēngkuáng","crazy / wild (adj)"],note:"作息: 瘋子 names a crazy person; 瘋狂 describes crazy behavior (瘋狂地買)."},
   {a:["直來直往","zhíláizhíwǎng","blunt / straightforward"],b:["客套","kètào","polite formalities"],note:"個性: 直來直往 = says things straight, no pretense; 客套 = standing on ceremony, polite but distant."},
   {a:["情形","qíngxíng","situation; circumstances"],b:["情況","qíngkuàng","situation; condition"],note:"個性: near-identical. 情況 is the everyday word; 情形 a touch more formal/written. Mostly interchangeable."},
   {a:["來往","láiwǎng","dealings; to associate with"],b:["來回","láihuí","back and forth; round trip"],note:"個性: 來往 = social contact between people (跟他有來往); 來回 = going there and back (來回機票)."},
@@ -632,6 +645,8 @@ const BOOK={
 const slot=t=>t.replace(/<s>(.*?)<\/s>/g,'<i class="slot">$1</i>');
 const dots=f=>`<span class="freq">${[1,2,3].map(i=>`<i class="${i<=f?'on':''}"></i>`).join('')}</span>`;
 const PRIO={
+"股票":3,"漲":3,"跌":3,"後果":3,"理由":3,"跌倒":3,"視訊":3,"人選":2,"語音訊息":2,"間諜":2,
+"早起":3,"賴床":3,"聚餐":3,"安排":3,"颱風":3,"必須":3,"晚到":2,"年末":2,"西邊":2,"西部":2,"先去":2,"佈置":2,"必需品":2,"瘋子":2,"瘋狂":2,"回家作業":2,
 "個性":3,"人情味":3,"效率":3,"原因":3,"尤其":3,"常見":3,"忽略":3,"維持":3,"分手":3,"申請":3,"護照":3,"情形":3,"半年":3,"冷淡":3,"直來直往":3,"相較之下":3,"相較":3,"群組":3,"流程":3,"來往":3,"和好":3,"修復":3,"彈性":3,"不理":3,"客套":2,"界線感":2,"欠人情":2,"慢熟":2,"居留證":2,"秀":2,
 "通知":3,"評價":3,"照片":3,"迷因":3,"抖音":3,"政治":3,"選舉":3,"底線":3,"怪":3,"提前":3,"前陣子":3,"又":3,"偷":3,"辦公室":3,"睡衣":3,"廚師":3,"程式":3,"生活模式":2,"遠距離戀愛":2,"照騙":2,"調酒":2,"雞尾酒":2,"表演者":2,"喜劇人":2,"末班車":2,"遇過":2,"好看很多":2,
 "培養":3,"技能":3,"能力":3,"領域":3,"如何":3,"探索":3,"自律":3,"擁有":3,"事業":3,"平衡":3,"代表":3,"自由":3,"發現":3,"擔心":3,"掌握":3,"控制":3,"建議":3,"聰明":3,"投資":3,"注意":3,"實現":3,"認真":3,"賺錢":3,"建立":3,"家庭":3,"太太":3,"躺":3,"一整天":3,"隨意":2,"特質":3,"攝影":2,"宜居":2,"州":2,"環島":2,"重病":2,"戰爭":2,"世界末日":2,
@@ -673,6 +688,8 @@ function ctlHTML(zh){
 function fillControls(){document.querySelectorAll('#vocab .wctl').forEach(c=>{c.innerHTML=ctlHTML(c.dataset.zh);});}
 function vRow(w){const p=prio(w);return `<div class="v-row" data-p="${p}">${dots(p)}<span class="v-zh">${w[0]}</span><span class="v-py">${w[1]}</span><span class="v-en">${w[2]}</span><span class="wctl" data-zh="${w[0]}">${ctlHTML(w[0])}</span></div>`;}
 const CLASSMAP={
+"股票、時事與對話":"c1114",
+"作息、行程與安排":"c1112",
 "個性與台灣人情味":"c1110",
 "社群、娛樂與生活":"c1108",
 "未來與理想生活":"c1104",
@@ -706,6 +723,8 @@ const CLASSMAP={
 "租房與居家":"crent","潛水與運動":"crent","地方與旅行":"crent"
 };
 const CLASSES=[
+ {id:"c1114",date:"2026-11-14",t:"股票、時事與對話",en:"Stocks, news & conversation"},
+ {id:"c1112",date:"2026-11-12",t:"作息、行程與安排",en:"Routine, schedule & plans"},
  {id:"c1110",date:"2026-11-10",t:"個性與台灣人情味",en:"Personality & Taiwan's human touch"},
  {id:"c1108",date:"2026-11-08",t:"社群、娛樂與生活",en:"Social media, entertainment & life"},
  {id:"c1104",date:"2026-11-04",t:"未來與理想生活",en:"The future & your ideal life"},
